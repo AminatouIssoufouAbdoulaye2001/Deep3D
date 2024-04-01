@@ -114,17 +114,15 @@ def account():
         current_user.nom = form.nom.data
         current_user.prenom = form.prenom.data
         current_user.email = form.email.data
-        if form.mot_de_passe.data and form.mot_de_passe.data != current_user.mot_de_passe:
-            hashed_password = bcrypt.generate_password_hash(form.mot_de_passe.data).decode('utf-8')
-            current_user.mot_de_passe = hashed_password
         db.session.commit()
-        flash('Your account has been updated!', 'success')
+        flash('votre profile a été mis à jour!', 'success')
         return redirect(url_for('account'))
     elif request.method == 'GET':
         form.nom.data = current_user.nom
         form.prenom.data = current_user.prenom
         form.email.data = current_user.email 
-    return render_template('user_dashboard/account.html', title='Account', form=form)
+    image = url_for('static',filename='images/' + current_user.image)
+    return render_template('user_dashboard/account.html',image=image,title='Account', form=form)
 
 
 @app.route("/new_article", methods=['GET', 'POST'])
