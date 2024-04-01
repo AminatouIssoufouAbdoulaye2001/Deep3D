@@ -28,8 +28,8 @@
         <a class="deep" style="color: #ebab54; text-decoration: none;" href="{{ url_for('home') }}"><h4>Deep3DBinPacking</h4></a>
         <div class="profile">
           {% if current_user.is_authenticated %}
-          <i class="fa-solid fa-user" style="font-size: 24px;"><a href="{{ url_for('account') }}"></a></i>
-          <i class="fa-solid fa-right-from-bracket" style="font-size: 24px;"><a href="{{ url_for('logout') }}"></a> </i> 
+          <a href="{{ url_for('account') }}"><i class="fa-solid fa-user" style="font-size: 24px;"></i></a>
+          <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket" style="font-size: 24px;"></i> </a> 
           {% endif %}
         </div>
       </nav>

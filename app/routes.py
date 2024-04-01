@@ -10,6 +10,8 @@ from app.models import User, Article
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
+number_articles_per_page = 10
+
 @app.route("/")
 def home():
     return render_template('home.html')
@@ -28,6 +30,12 @@ def acceuil_client():
 @app.route("/articles")
 def article():
     articles = Article.query.all()
+    for article in articles:
+        article.largeur = int(article.largeur)
+        article.longueur = int(article.longueur)
+        article.hauteur = int(article.hauteur)
+        article.poids = int(article.poids)
+        
     return render_template('user_dashboard/list_article.html', articles=articles)
 
 
@@ -116,33 +124,78 @@ def account():
         form.nom.data = current_user.nom
         form.prenom.data = current_user.prenom
         form.email.data = current_user.email 
-    return render_template('account.html', title='Account', form=form)
+    return render_template('user_dashboard/account.html', title='Account', form=form)
 
 
 @app.route("/new_article", methods=['GET', 'POST'])
 @login_required
 def new_article():
     form = ArticleForm()
-    articles = Article.query.all() 
+    page = request.args.get('page', 1, type=int)
+    articles_pagination = Article.query.order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+    for article in articles_pagination:
+        article.largeur = int(article.largeur)
+        article.longueur = int(article.longueur)
+        article.hauteur = int(article.hauteur)
+        article.poids = int(article.poids)
+        
+    articles = articles_pagination.items
+    #articles = Article.query.all() 
     if form.validate_on_submit():
         article = Article(sku=form.sku.data, largeur=form.largeur.data,
                           longueur=form.longueur.data, hauteur=form.hauteur.data,
                           poids=form.poids.data, quantite=form.quantite.data,
                           fragile=form.fragile.data, user_id=current_user.id)
+        
         db.session.add(article)
         db.session.commit()
         flash('Article bien enregistré!', 'success')
         return redirect(url_for('new_article'))
-    return render_template('user_dashboard/create_article.html', title='New Article', form=form, articles=articles)
+    
+    return render_template('user_dashboard/create_article.html', title='New Article', form=form, articles=articles, articles_pagination=articles_pagination)
 
 
 
 
+@app.route("/article/<int:article_id>")
+def get_article(id):
+    article = Article.query.get_or_404(id)
+    return render_template('user_dashboard/create_article.html', article=article)
 
-@app.route("/article/<int:article_id>/delete", methods=['POST'])
+@app.route('/update_product/<int:id>', methods=['GET', 'POST'])
 @login_required
-def delete_article(article_id):
-    article = Article.query.get_or_404(article_id)
+def update_article(id):
+    article = Article.query.get_or_404(id)
+    form = ArticleForm()
+    if request.method == 'GET':
+        form.sku.data = article.sku
+        form.longueur.data = article.longueur
+        form.largeur.data = article.largeur
+        form.hauteur.data = article.hauteur
+        form.poids.data = article.poids
+        form.quantite.data = article.quantite
+        form.fragile.data = article.fragile
+
+    elif request.method == 'POST':
+        article.sku = form.sku.data 
+        article.longueur = form.longueur.data 
+        article.largeur = form.largeur.data 
+        article.hauteur = form.hauteur.data 
+        article.poids = form.poids.data 
+        article.quantite = form.quantite.data 
+        article.fragile = form.fragile.data 
+
+        db.session.commit()
+        flash('Votre Article a été bien mise à jour!', 'success')
+        return redirect(url_for('new_article'))
+    
+    return render_template('user_dashboard/create_article.html', title='Update article', form=form, article=article)
+
+
+@app.route("/article/<int:id>/delete", methods=['POST'])
+@login_required
+def delete_article(id):
+    article = Article.query.get_or_404(id)
     if article.user_id != current_user.id:
         abort(403)
     db.session.delete(article)

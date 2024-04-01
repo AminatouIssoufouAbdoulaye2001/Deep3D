@@ -1,10 +1,8 @@
 {% extends "user_dashboard/layout.html" %}
 {% block content %}
-<div class="container" style="margin: 80; padding: 20px; background-color: white;">
-    <div class="row">
-      <div class="col">
-            <table id="user-table" class="display  nowrap" cellspacing="2" width="100%" style="border-collapse: separate;  border-spacing: 5px 10px;">
-        <thead>
+<div class="card detail container">
+    <div class="detail-header">
+            <table>
           <tr>
             <th>Id/Sku</th>
             <th >Largeur</th>
@@ -14,26 +12,17 @@
             <th>Quantité</th>
             <th>Fragile</th>
           </tr>
-        </thead>
-        <tbody>
           {% for article in articles %}
           <tr>
             <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.sku}}</td>
-              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.largeur}}</td>
-              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.longueur}}</td>
-              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.hauteur}}</td>
-              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.quantite}}</td>
-              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.poids}}</td>
-              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.fragile}}</td>
-              <td>        
-                {% if article.user_id == current_user.id %}
-                  <button type="button" class="btn btn-outline-warning btn-sm m-1" data-toggle="modal" data-target="#editModal">Update</button>
-                  <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
-              {% endif %}
-                </td>
+            <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.largeur}}</td>
+            <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.longueur}}</td>
+            <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.hauteur}}</td>
+            <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.poids}}</td>
+            <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.quantite}}</td>
+            <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.fragile}}</td>
           </tr>
           {% endfor %}
-      </tbody>
       </table>
       </div>
     </div>
