@@ -1,0 +1,116 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="mx-3">
+  <div class="section-sign_in">
+    <div class="custom-container">
+      <h1 class="header text-center p-t-150 p-b-50">Hi, Veuillez Vous Enregistrer Sur Deep3D</h1>
+    </div>
+    <div class="custom-container">
+      <div class="card card-register">
+        <div class="row card-contain">
+          <div class="col-12 col-md-6 registration-left flex-column d-flex justofy-content-start">
+            <form class="form-content" method="POST" action="">
+              {{ form.hidden_tag() }}
+              <div class="row">
+                <div class="col-12 col-md-6 form-field-block">
+                  <div class="form-group">
+                    {{ form.nom.label(class="form-control-label") }} {% if
+                    form.nom.errors %} {{ form.nom(class="form-control
+                    form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                      {% for error in form.nom.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% else %} {{ form.nom(class="form-control form-control-lg") }} {%
+                    endif %}
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 form-field-block">
+                  <div class="form-group">
+                    {{ form.prenom.label(class="form-control-label") }} {% if
+                    form.prenom.errors %} {{ form.prenom(class="form-control
+                    form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                      {% for error in form.prenom.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% else %} {{ form.prenom(class="form-control form-control-lg") }} {%
+                    endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-md-6 form-field-block">
+                  <div class="form-group">
+                    {{ form.email.label(class="form-control-label") }} {% if
+                    form.email.errors %} {{ form.email(class="form-control form-control-lg
+                    is-invalid") }}
+                    <div class="invalid-feedback">
+                      {% for error in form.email.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% else %} {{ form.email(class="form-control form-control-lg") }} {%
+                    endif %}
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 form-field-block">
+                  <div class="form-group">
+                    {{ form.mot_de_passe.label(class="form-control-label") }} {% if
+                    form.mot_de_passe.errors %} {{ form.mot_de_passe(class="form-control
+                    form-control-lg is-invalid") }}
+                    <div class="invalid-feedback">
+                      {% for error in form.mot_de_passe.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% else %} {{ form.mot_de_passe(class="form-control form-control-lg") }} {%
+                    endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-12 col-md-6 form-field-block">
+                  <div class="form-group">
+                    {{ form.confirm_password.label(class="form-control-label") }} {% if
+                    form.confirm_password.errors %} {{
+                    form.confirm_password(class="form-control form-control-lg is-invalid")
+                    }}
+                    <div class="invalid-feedback">
+                      {% for error in form.confirm_password.errors %}
+                      <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                    {% else %} {{ form.confirm_password(class="form-control
+                    form-control-lg") }} {% endif %}
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 form-field-block"></div>
+              </div>
+              <div class="row form-field-block">
+                <div class="col-12 col-md-6 my-2">
+                  <div class="pt-3">
+                      Vous avez déja un compte?
+                      <a class="ml-2 link" href="{{ url_for('login') }}">Se connecter</a>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6 my-2">
+                  <div class="text-right">
+                    {{ form.submit(class="btn btn-outline-info") }}
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col registration-right">
+            <img src="https://www.3dbinpacking.com/public/img/3dbp/img-register.svg" class="img-register" alt="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

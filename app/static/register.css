@@ -1,0 +1,38 @@
+.header {
+    display: block;
+    font-weight: 700;
+    line-height: 58px;
+    font-size: 48px;
+    margin-bottom: 16px;
+    text-align: center;
+    text-transform: none;
+    color: #49495e;
+    font-family: "Open Sans", Arial, sans-serif;
+
+}
+.d-flex {
+    display: flex !important;
+}
+
+.img-register{
+    margin: auto;
+    width: 80%;
+    height: 80%;
+    position: relative;
+    padding: 20px 20px;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -10px;
+}
+.card-register{
+    margin-top: 50px;
+    border: solid 1px #f5d5aa;
+    border-radius: 3px;
+    background-color: #fff;
+    box-shadow: 0 20px 12px -6px #f5d5aa;
+    padding: 15px 20px 20px 20px;
+    height: 550px;
+    }

@@ -1,0 +1,167 @@
+
+
+.divmain{
+    justify-content: center;
+    display: flex;
+    margin-left: 200px;
+    max-width: 2000px; /* Par exemple, vous pouvez ajuster la largeur selon vos besoins */
+    margin: 0 auto; 
+}
+.card-login{
+    margin-top: 50px;
+    border: solid 1px #f5d5aa;
+    border-radius: 3px;
+    background-color: #fff;
+    box-shadow: 0 20px 12px -6px #f5d5aa;
+    padding: 15px 20px 20px 20px;
+    height: 450px;
+    }
+.main{
+    padding: 24px 32px 32px 32px;
+}
+
+.col {
+    flex-basis: 0;
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.custom-container {
+    position: static;
+    display: block;
+    overflow: visible;
+    height: auto;
+    max-width: 1140px;
+    margin-right: auto;
+    margin-left: auto;
+    flex-direction: column;
+    text-align: left;
+    margin-top: 80px;
+}
+.email-password{
+    margin-top: 30px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+}
+.btn{
+    background-color: #49495e;
+    color: #fff;
+    border: 1px solid #49495e;
+    height: 50px;
+}
+.btn-outline-info:hover{
+    background-color: #565661;
+    outline-color: #50505a;
+}
+.register-password{
+margin-left: 20px;
+margin-right: 20px;
+display: flex;
+color: #f5d5aa;
+margin-bottom: 20px;
+}
+.remenber-sign{
+    margin-top: 30px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    display: flex;
+}
+.login{
+    text-align: right;
+}
+.img-fluid{
+    margin: auto;
+    width: 90%;
+    height: 90%;
+    position: relative;
+    padding: 20px 20px;
+}
+.form-content{
+    padding: 10px 20px;
+    margin-left: 30px;
+}
+.col {
+    flex-basis: 0;
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+.form-control{
+    border: solid 1px #f5d5aa;
+    border-radius: 6px;
+    width: 100%;
+    padding: 16px 16px;
+    margin-bottom: 24px;
+    line-height: 20px;
+}
+.form-control-label{
+    font-size: 16px;
+    font-weight: 600;
+    display: inline-block;
+    margin-right:3px;
+}
+.form-check-label{
+    font-size: 16px;
+    font-weight: 600;
+
+}
+
+.form-group{
+    margin-left: -20px;
+}
+.form-row{
+    display: flex;
+    padding-top: 4px;
+}
+form{
+    display: block;
+    margin-top: 0em;
+    unicode-bidi: isolate;
+}
+.form-row > .col{
+    padding-right: 5px;
+    padding-left: 5px;
+}
+.link{
+    color: #ebab54;
+    line-height: 24px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+}
+.btn{
+    font-size: 20px;
+}
+
+.registration-left{
+    margin-left: -30px;
+
+}
+.nice-input {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    width: 17px;
+    height: 17px;
+    margin: 0px;
+    margin-right: 10px;
+}
+.img{
+    margin-top: 20px;
+}
+a.link:hover{
+    color: #eed1ad;
+}
+.footer {
+    position: static;
+    height: auto;
+    margin-top: 140px;
+    padding: 30px 30px;
+    background: linear-gradient(90deg, #5A5A74 50%, #49495E 50%);
+    background-position: 100% 100%;
+    background-repeat: no-repeat;
+    height: 200px;
+    margin-top: 180px;
+  }
+ 

@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="mx-3">
+    <div class="section-sign_in">
+        <div class="custom-container">
+            <h1 class="text-center header m-t-150 m-b-50">Bienvenue sur Deep3D, Veuillez Vous Connectez</h1>
+        </div>
+        <div class="custom-container">
+            <div class="card card-login">
+                <div class="row card-contain">
+                        <div class="col registration-left">
+                            <form class="form-content" method="POST">
+                                {{ form.hidden_tag() }}
+                                <div class="form-group">
+                                    <span>{{ form.email.label(class="form-control-label") }} *</span>
+                                    {% if form.email.errors %}
+                                    {{ form.email(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.email(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    <span>{{ form.mot_de_passe.label(class="form-control-label") }} *</span>
+                                    {% if form.mot_de_passe.errors %} {{form.mot_de_passe(class="form-control
+                                    form-control-lg is-invalid") }}
+                                    <div class="">
+                                        {% for error in form.mot_de_passe.errors %}
+                                        <span title="required">{{ error }}*</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %} {{ form.mot_de_passe(class="form-control
+                                    form-control-lg") }} {% endif %}
+                                </div>
+        
+                                <div class="form-row" pt-4>
+                                    <div class="col">
+                                    
+                                            {{ form.remember(class="form-check-input") }}
+                                            
+                                            {{ form.remember.label(class="form-check-label") }}
+                                    </div>
+                                    <div class="col">
+                                        <div class="text-right">
+                                            {{ form.submit(class="btn btn-outline-info") }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row pt-4">
+                                    <div class="col">
+                                            <a class="link" href="{{url_for('reset_request')}}">Mot de passe oublié?</a>
+                                    </div>
+                                    <div class=" col text-right">
+                                        <a class="img link" href="{{ url_for('register') }}">Créer un compte</a>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                    <div class="col registration-right">
+                        <img src="https://www.3dbinpacking.com/public/img/3dbp/img-welcome-back.svg" class="img-fluid">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

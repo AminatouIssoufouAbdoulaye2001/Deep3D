@@ -1,0 +1,132 @@
+{% extends "user_dashboard/layout.html" %}
+{% block content %}
+  <div class="dashboard-container">
+    <!-- 4 cards top -->
+    <div class="card total1">
+      <div class="info">
+        <div class="info-detail">
+          <h3>Revenue</h3>
+          <p>Lorem ipsem dolor</p>
+          <h2>1,873,250 <span>USD</span></h2>
+        </div>
+        <div class="info-image"><i class="fas fa-money-check-alt"></i></div>
+      </div>
+    </div>
+  
+    <div class="card total2">          
+      <div class="info">
+        <div class="info-detail">
+          <h3>Total Orders</h3>
+          <p>Lorem ipsem dolor</p>
+          <h2>10,890 <span>Orders</span></h2>
+        </div>
+        <div class="info-image"><i class="fas fa-boxes"></i></div>
+      </div>
+    </div>
+  
+    <div class="card total3">
+      <div class="info">
+        <div class="info-detail">
+          <h3>Customer</h3>
+          <p>Lorem ipsem dolor</p>
+          <h2>340 <span>Companies</span></h2>
+        </div>
+        <div class="info-image"><i class="fas fa-user-friends"></i></div>
+      </div>
+    </div>
+  
+    <div class="card total4">          
+      <div class="info">
+        <div class="info-detail">
+          <h3>Daily Orders</h3>
+          <p>Lorem ipsem dolor</p>
+          <h2>56 <span>Orders</span></h2>
+        </div>
+        <div class="info-image"><i class="fas fa-shipping-fast"></i></div>
+      </div>
+    </div>
+  
+    <!-- 2 cards bottom -->
+    <div class="card detail">
+      <div class="detail-header">
+        <h2>All Orders</h2>
+        <button> See More</button>         
+      </div>
+      <table>
+        <tr>
+          <th>Order #</th>
+          <th>Company</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Created</th>
+          <th>Last Updated</th>
+        </tr>
+        <tr>
+          <td>#PW-0001</td>
+          <td>Potential Corp</td>
+          <td><span class="status onprogress"><i class="fas fa-circle"> ONPROGRESS</i></span></td>
+          <td>3,148.19 USD</td>
+          <td>Apr 11, 2021</td>
+          <td>Today</td>
+        </tr>
+        <tr>
+          <td>#PW-0002</td>
+          <td>Webcode inc</td>
+          <td><span class="status confirmed"><i class="fas fa-circle"> CONFIRMED</i></span></td>
+          <td>830.78 USD</td>
+          <td>Mar 29, 2021</td>
+          <td>Yesteday</td>
+        </tr>
+        <tr>
+          <td>#PW-0003</td>
+          <td>Codding time</td>
+          <td><span class="status fulfilled"><i class="fas fa-circle"> FULFILLED</i></span></td>
+          <td>928.81 USD</td>
+          <td>Feb 10, 2020</td>
+          <td>Feb 21, 2021</td>
+        </tr>
+        <tr>
+          <td>#PW-0004</td>
+          <td>Microsoft</td>
+          <td><span class="status fulfilled"><i class="fas fa-circle"> FULFILLED</i></span></td>
+          <td>6,239.53 USD</td>
+          <td>Dec 11, 2020</td>
+          <td>Jan 23, 2021</td>
+        </tr>
+        <tr>
+          <td>#PW-0005</td>
+          <td>Apple inc</td>
+          <td><span class="status confirmed"><i class="fas fa-circle"> CONFIRMED</i></span></td>
+          <td>187.13 USD</td>
+          <td>Nov 20, 2020</td>
+          <td>Jan 09, 2021</td>
+        </tr>
+        <tr>
+          <td>#PW-0006</td>
+          <td>Penerang</td>
+          <td><span class="status onprogress"><i class="fas fa-circle"> ONPROGRESS</i></span></td>
+          <td>624.65 USD</td>
+          <td>Nov 01, 2020</td>
+          <td>Dec 15, 2020</td>
+        </tr>
+        <tr>
+          <td>#PW-0007</td>
+          <td>Paralon Corp</td>
+          <td><span class="status confirmed"><i class="fas fa-circle"> CONFIRMED</i></span></td>
+          <td>2,483.09 USD</td>
+          <td>Oct 13, 2020</td>
+          <td>Oct 21, 2020</td>
+        </tr>
+        <tr>
+          <td>#PW-0008</td>
+          <td>Coding Scale</td>
+          <td><span class="status onprogress"><i class="fas fa-circle"> ONPROGRESS</i></span></td>
+          <td>1,247.00 USD</td>
+          <td>Sep 20, 2020</td>
+          <td>Oct 13, 2020</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+{% endblock content %}

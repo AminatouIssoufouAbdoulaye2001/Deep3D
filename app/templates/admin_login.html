@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://kit.fontawesome.com/f1d3449d75.js" crossorigin="anonymous"></script>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+ 
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client/main.css') }}">
+
+    {% if title %}
+        <title>Deep3DBinPacking - {{ title }}</title>
+    {% else %}
+        <title>Deep3DBinPacking</title>
+    {% endif %}
+</head>
+
+<body>
+    <div>
+        <div>
+            <div class="col-left-menu left-nav extaendable">
+                <div class="nav-button"><a class="ico-dashboard current" href=""></a></div>
+                <div class="separator"></div>
+                <div class="nav-button"><a class="fonta-icon" href=""><i class="fas fa-solid fa-newspaper"></i></a></div>
+                <div class="nav-button"><a class="fonta-icon" href=""><i class="fa-sharp fa-solid fa-gear"></i></a></div>
+                <div class="nav-button"><a href=""></a></div>
+            </div>
+            <div class="col-left-menu-offset content-box">
+                <div class="fixed-top">
+                    <div class="row top-menu p-l-100">
+                        <div class="main-button"><a href="{{ url_for('home') }}">Deep3D</a></div>
+                        <div class="breadcrumb"> 
+                            <span class="breadcrumb-item"><a href="/">home</a></span>
+                        </div>
+                        <ul>
+                            {% if current_user.is_authenticated and current_user.is_admin %}
+                            <li>
+                                <a  href="{{ url_for('account') }}"><i class="fa-regular fa-user"></i></a>
+                            </li>
+                            <li><a class="signout"  href="{{ url_for('logout') }}"></a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main role="main" class="container">
+        <div class="row">
+          <div class="col-lg-12">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+          </div>
+        </div>
+      </main>
+</body>
+
+</html>

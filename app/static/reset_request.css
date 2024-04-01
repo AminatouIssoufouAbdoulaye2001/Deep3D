@@ -1,0 +1,26 @@
+.card-reset-request{
+    margin-top: 50px;
+    border: solid 1px #f5d5aa;
+    border-radius: 3px;
+    background-color: #fff;
+    box-shadow: 0 20px 12px -6px #f5d5aa;
+    padding: 15px 20px 20px 20px;
+    height: 350px;
+}
+.img-reset_password{
+    margin: auto;
+    width: 70%;
+    height: 70%;
+    position: relative;
+    padding: 0px 5px;
+    transform: translateX(30px);
+}
+.card-reset-request{
+    margin-top: 50px;
+    border: solid 1px #f5d5aa;
+    border-radius: 3px;
+    background-color: #fff;
+    box-shadow: 0 20px 12px -6px #f5d5aa;
+    padding: 15px 20px 20px 20px;
+    height: 460px;
+}

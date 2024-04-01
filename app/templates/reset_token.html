@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="mx-3">
+    <div class="section-sign_in">
+        <div class="custom-container">
+            <legend>Reset Password</legend>
+        </div>
+        <div class="custom-container">
+            <div class="card card-reset-request">
+                <div class="row card-contain">
+                        <div class="col registration-left">
+                            <form class="form-content" method="POST">
+                                {{ form.hidden_tag() }}
+                                <div class="form-group">
+                                    <span>{{ form.mot_de_passe.label(class="form-control-label") }} *</span>
+                                    {% if form.mot_de_passe.errors %}
+                                    {{ form.mot_de_passe(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.mot_de_passe.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.mot_de_passe(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ form.confirm_password.label(class="form-control-label") }} *{% if
+                                    form.confirm_password.errors %} {{
+                                    form.confirm_password(class="form-control form-control-lg is-invalid")
+                                    }}
+                                    <div class="invalid-feedback">
+                                      {% for error in form.confirm_password.errors %}
+                                      <span>{{ error }}</span>
+                                      {% endfor %}
+                                    </div>
+                                    {% else %} {{ form.confirm_password(class="form-control
+                                    form-control-lg") }} {% endif %}
+                                  </div>
+                                <div class="form-row" pt-4>
+                                    <div class="col">
+                                        <div class="text-right">
+                                            {{ form.submit(class="btn btn-outline-info") }}
+                                        </div>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

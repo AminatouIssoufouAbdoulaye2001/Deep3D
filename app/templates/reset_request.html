@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="mx-3">
+    <div class="section-sign_in">
+        <div class="custom-container">
+            <h1 class="header">Reset Password</h1>
+        </div>
+        <div class="custom-container">
+            <div class="card card-reset-request">
+                <div class="row card-contain">
+                        <div class="col registration-left">
+                            <form class="form-content" method="POST">
+                                {{ form.hidden_tag() }}
+                                <div class="form-group">
+                                    <span>{{ form.email.label(class="form-control-label") }} *</span>
+                                    {% if form.email.errors %}
+                                    {{ form.email(class="form-control is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.email.errors %}
+                                        <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                    {{ form.email(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-row" pt-4>
+                                    <div class="col">
+                                        <div class="text-right">
+                                            {{ form.submit(class="btn btn-outline-info") }}
+                                        </div>
+                                    </div>
+                                </div>
+                        </form>
+                    </div>
+                    <div class="col">
+                        <img src="https://www.3dbinpacking.com/public/img/3dbp/img-man-painting-password.svg" class="img-reset_password" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
