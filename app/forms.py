@@ -40,12 +40,32 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class UpdateAccountForm(FlaskForm):
-    nom = StringField('nom', validators=[DataRequired(), Length(min=2, max=20)])
-    prenom = StringField('prenom', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('email', validators=[DataRequired(), Email()])
+    nom = StringField('nom', validators=[])
+    prenom = StringField('prenom', validators=[])
+    email = StringField('email', validators=[Email()])
     image = FileField('Image ', validators=[FileAllowed(['jpg', 'png'])])
     submit = SubmitField('Metre à jour')
+
             
+    def validate_email(self, email):
+        if email.data != current_user.email:
+            user = User.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('That email is taken. Please choose a different one.')
+            
+            
+
+class Updatepassword(FlaskForm):
+    mot_de_passe = PasswordField('Nouveau mot de passe', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('mot_de_passe', message='Les mots de passe ne correspondent pas')])
+    submit = SubmitField('Changer mot de passe')
+
+    def validate_mot_de_passe(self, mot_de_passe):
+        if mot_de_passe.data and check_password_hash(current_user.mot_de_passe, mot_de_passe.data):
+            raise ValidationError("Le nouveau mot de passe doit être différent de l'ancien.")
+        if len(mot_de_passe.data) < 8 or not re.match(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>_-])(?=.*[a-zA-Z0-9]).{8,}$', mot_de_passe.data):
+            raise ValidationError('Le mot de passe doit contenir au moins 8 caractères, inclure des lettres, des chiffres et des caractères spéciaux.')
+    
 
 class ArticleForm(FlaskForm):
     id = HiddenField('ID de l\'article')

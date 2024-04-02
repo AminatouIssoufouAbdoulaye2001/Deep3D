@@ -5,7 +5,7 @@ from PIL import Image
 from flask import abort, jsonify, render_template, url_for, flash, redirect, request
 from app import app, db, bcrypt, mail
 from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
-                       ArticleForm, RequestResetForm, ResetPasswordForm, UpdateArticleForm)
+                       ArticleForm, RequestResetForm, ResetPasswordForm, UpdateArticleForm, Updatepassword)
 from app.models import User, Article
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
@@ -103,26 +103,44 @@ def save_picture(form_picture):
 
     return picture_fn
 
+from .forms import UpdateAccountForm, Updatepassword
+
 @app.route("/account", methods=['GET', 'POST'])
 @login_required
 def account():
-    form = UpdateAccountForm()
-    if form.validate_on_submit():
-        if form.image.data:
-            image = save_picture(form.image.data)
+    form_account = UpdateAccountForm()
+    form_password = Updatepassword()
+
+    if form_account.validate_on_submit():
+        if form_account.image.data:
+            image = save_picture(form_account.image.data)
             current_user.image = image
-        current_user.nom = form.nom.data
-        current_user.prenom = form.prenom.data
-        current_user.email = form.email.data
+        current_user.nom = form_account.nom.data
+        current_user.prenom = form_account.prenom.data
+        current_user.email = form_account.email.data
         db.session.commit()
-        flash('votre profile a été mis à jour!', 'success')
+        flash('Votre profil a été mis à jour!', 'success')
         return redirect(url_for('account'))
     elif request.method == 'GET':
-        form.nom.data = current_user.nom
-        form.prenom.data = current_user.prenom
-        form.email.data = current_user.email 
-    image = url_for('static',filename='images/' + current_user.image)
-    return render_template('user_dashboard/account.html',image=image,title='Account', form=form)
+        form_account.nom.data = current_user.nom
+        form_account.prenom.data = current_user.prenom
+        form_account.email.data = current_user.email 
+    image = url_for('static', filename='images/' + current_user.image)
+
+    if form_password.validate_on_submit():
+        if form_password.mot_de_passe.data != current_user.mot_de_passe:
+            hashed_password = bcrypt.generate_password_hash(form_password.mot_de_passe.data).decode('utf-8')
+            current_user.mot_de_passe = hashed_password
+            db.session.commit()
+            flash('Votre mot de passe a été mis à jour avec succès.', 'success')
+            return redirect(url_for('account'))
+        else:
+            flash('Le nouveau mot de passe doit être différent de l\'ancien.', 'danger')
+
+    return render_template('user_dashboard/account.html', image=image, title='Account', form_account=form_account, form_password=form_password)
+
+
+
 
 
 @app.route("/new_article", methods=['GET', 'POST'])
