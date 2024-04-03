@@ -94,11 +94,8 @@
     <button class="btn btn-outline-warning mt-3">{{ form.submit(class="btn btn-outline-warning") }}</button>
     <hr>
   </form>
-  <div class="container" style="margin: 80; padding: 20px; background-color: white;">
-    <div class="row">
-      <div class="col">
-        <table id="user-table" class="display  nowrap" cellspacing="2" width="100%"
-          style="border-collapse: separate;  border-spacing: 5px 10px;">
+      <div class="card detail">
+        <table id="user-table" class=" nowrap" cellspacing="2" width="100%">
           <thead>
             <tr>
               <th>Id/Sku</th>
@@ -127,7 +124,7 @@
                   data-largeur="{{ article.largeur }}" data-longueur="{{ article.longueur }}"
                   data-hauteur="{{ article.hauteur }}" data-quantite="{{ article.quantite }}"
                   data-poids="{{ article.poids }}" data-fragile="{{ article.fragile }}">Modifier</button>
-                <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal"
+                <button type="button" class="btn btn-sm m-1 delete"  data-toggle="modal"
                   data-target="#deleteModal{{article.id}}">Supprimer</button>
                 {% endif %}
               </td>
@@ -142,27 +139,25 @@
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
               <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
-                <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('new_article', page=articles_pagination.prev_num) }}"{% endif %}>Previous</a>
+                <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('new_article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
               </li>
               {% for page_num in articles_pagination.iter_pages() %}
                 {% if page_num %}
                   <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
-                    <a class="page-link" href="{{ url_for('new_article', page=page_num) }}">{{ page_num }}</a>
+                    <a class="page-link"  href="{{ url_for('new_article', page=page_num) }}">{{ page_num }}</a>
                   </li>
                 {% else %}
                   <li class="page-item disabled">
-                    <a class="page-link" href="#">...</a>
+                    <a class="page-link"  href="#">...</a>
                   </li>
                 {% endif %}
               {% endfor %}
               <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
-                <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('new_article', page=articles_pagination.next_num) }}"{% endif %}>Next</a>
+                <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('new_article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
               </li>
             </ul>
           </nav>
       </div>
-    </div>
-  </div>
 </div>
 
 

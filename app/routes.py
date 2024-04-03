@@ -10,7 +10,7 @@ from app.models import User, Article
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 
-number_articles_per_page = 10
+number_articles_per_page = 5
 
 @app.route("/")
 def home():
@@ -24,17 +24,18 @@ def acceuil_admin():
 
 @app.route("/acceuil_client")
 def acceuil_client():
-    return render_template('user_dashboard/acceuil.html')
+    nombre_articles = Article.query.filter_by(user_id=current_user.id).count()
+    return render_template('user_dashboard/acceuil.html',nombre_articles=nombre_articles)
 
 
 @app.route("/articles")
 def article():
     articles = Article.query.all()
-    for article in articles:
+    '''for article in articles:
         article.largeur = int(article.largeur)
         article.longueur = int(article.longueur)
         article.hauteur = int(article.hauteur)
-        article.poids = int(article.poids)
+        article.poids = int(article.poids)'''
         
     return render_template('user_dashboard/list_article.html', articles=articles)
 
@@ -149,11 +150,11 @@ def new_article():
     form = ArticleForm()
     page = request.args.get('page', 1, type=int)
     articles_pagination = Article.query.order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
-    for article in articles_pagination:
+    '''for article in articles_pagination:
         article.largeur = int(article.largeur)
         article.longueur = int(article.longueur)
         article.hauteur = int(article.hauteur)
-        article.poids = int(article.poids)
+        article.poids = int(article.poids)'''
         
     articles = articles_pagination.items
     #articles = Article.query.all() 

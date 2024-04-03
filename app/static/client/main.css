@@ -266,7 +266,7 @@
   
   .detail table tr:hover{
     background-color: #f2f2f2;
-    border-bottom: 2px solid #2d2d98;
+    border-bottom: 2px solid #f5d5aa;
   }
   
   .detail table tr td:nth-child(2), .detail table tr td:nth-child(3){
@@ -338,6 +338,15 @@
     }  
   
   }
+  .delete{
+    background-color: #49495e;
+    color: #fff;
+    border: 1px solid #49495e;
+}
+.delete:hover{
+    background-color: #565661;
+    outline-color: #50505a;
+}
   
   @media screen and (max-width: 630px) {
   

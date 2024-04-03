@@ -28,8 +28,8 @@
         <a class="deep" style="color: #ebab54; text-decoration: none;" href="{{ url_for('home') }}"><h4>Deep3DBinPacking</h4></a>
         <div class="profile">
           {% if current_user.is_authenticated %}
-          <a href="{{ url_for('account') }}"><i class="fa-solid fa-user" style="font-size: 24px;"></i></a>
-          <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket" style="font-size: 24px;"></i> </a> 
+          <a href="{{ url_for('account') }}"><i class="fa-solid fa-user " style="font-size: 24px; color: #49495e;"></i></a>
+          <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket" style="font-size: 24px; color: #49495e;"></i> </a> 
           {% endif %}
         </div>
       </nav>
@@ -39,6 +39,9 @@
       <label class="side-toggle" for="toggle"><span class="fas fa-bars"></span></label>
   
       <div class="sidebar">
+        <div class="sidebar-menu">
+          <span class="fas fa-home"></span><a style="text-decoration: none; color: white; " href="{{url_for('home')}}"><p>Home</p></a>
+        </div>
         <div class="sidebar-menu">
           <span class="fas fa-chart-line"></span>
           <a style="text-decoration: none; color: white;" href="{{url_for('acceuil_client')}}">
