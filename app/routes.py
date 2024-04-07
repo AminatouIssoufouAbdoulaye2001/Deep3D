@@ -1,10 +1,10 @@
              
-from collections import Counter, defaultdict
+from collections import defaultdict
 from datetime import datetime
 import os
 import secrets
 from PIL import Image
-from flask import abort, jsonify, render_template, url_for, flash, redirect, request
+from flask import abort, render_template, url_for, flash, redirect, request,Response
 from app import app, db, bcrypt, mail
 from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                        ArticleForm, RequestResetForm, ResetPasswordForm, UpdateArticleForm,
@@ -12,6 +12,8 @@ from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
 from app.models import User, Article, Adresse
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
+import csv
+from io import StringIO
 
 number_articles_per_page = 5
 
@@ -52,8 +54,9 @@ def article():
         article.longueur = int(article.longueur)
         article.hauteur = int(article.hauteur)
         article.poids = int(article.poids)'''
-        
-    return render_template('user_dashboard/list_article.html', articles=articles)
+    page = request.args.get('page', 1, type=int)
+    articles_pagination = Article.query.order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+    return render_template('user_dashboard/list_article.html', articles=articles,articles_pagination=articles_pagination)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -338,6 +341,50 @@ def delete_article(id):
     db.session.commit()
     flash('Votre article a été supprimé!', 'success')
     return redirect(url_for('new_article'))
+
+@app.route("/download_articles", methods=['POST'])
+@login_required
+def download_articles():
+    selected_article_ids = request.form.getlist('selected_articles')
+
+    articles = []
+    if selected_article_ids:
+        # Télécharger les articles sélectionnés
+        articles = Article.query.filter(Article.id.in_(selected_article_ids)).all()
+    else:
+        # Télécharger tous les articles
+        articles = Article.query.all()
+
+    # Créer un fichier CSV ou TXT avec les données des articles
+    output = StringIO()
+    fieldnames = ['sku', 'largeur', 'longueur', 'hauteur', 'poids', 'quantite', 'fragile']
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+
+    if articles:
+        writer.writeheader()
+        for article in articles:
+            writer.writerow({
+                'sku': article.sku,
+                'largeur': article.largeur,
+                'longueur': article.longueur,
+                'hauteur': article.hauteur,
+                'poids': article.poids,
+                'quantite': article.quantite,
+                'fragile': article.fragile
+            })
+
+        # Définir le type de contenu en fonction de l'extension du fichier
+        content_type = 'text/csv' if request.form.get('file_format') == 'csv' else 'text/plain'
+
+        # Retourner le contenu du fichier en tant que réponse HTTP
+        response = Response(output.getvalue(), content_type=content_type)
+        file_format = request.form.get('file_format', 'csv') 
+        response.headers["Content-Disposition"] = "attachment; filename=articles_data." + file_format
+
+        return response
+    else:
+        flash('Aucun article trouvé pour téléchargement.', 'warning')
+        return redirect(url_for('article'))
 
 
 

@@ -2,6 +2,10 @@
 {% block content %}
 <div class="card detail container">
     <div class="detail-header">
+      <form method="POST" action="{{ url_for('download_articles') }}">
+          <button type="submit" class="mb-3 download" style="    background-color: #49495e;color: #fff;
+          border: 1px solid #49495e; height: 40px;">Télécharger</button>
+
             <table>
           <tr>
             <th>Id/Sku</th>
@@ -21,9 +25,33 @@
             <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.poids}}</td>
             <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.quantite}}</td>
             <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.fragile}}</td>
+            <td><input style="width: 20px; height: 20px; margin-left: 20px;" type="checkbox" name="selected_articles" value="{{ article.id }}"></td>
           </tr>
           {% endfor %}
       </table>
+      </form>
       </div>
+            <!-- Pagination -->
+            <nav aria-label="Page navigation example">
+              <ul class="pagination justify-content-end mt-3">
+                <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
+                  <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('new_article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+                </li>
+                {% for page_num in articles_pagination.iter_pages() %}
+                  {% if page_num %}
+                    <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
+                      <a class="page-link"  href="{{ url_for('new_article', page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                  {% else %}
+                    <li class="page-item disabled">
+                      <a class="page-link"  href="#">...</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
+                  <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('new_article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+                </li>
+              </ul>
+            </nav>
     </div>
   {% endblock content %}
