@@ -40,10 +40,11 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class UpdateAccountForm(FlaskForm):
-    nom = StringField('nom', validators=[])
-    prenom = StringField('prenom', validators=[])
-    email = StringField('email', validators=[Email()])
-    image = FileField('Image ', validators=[FileAllowed(['jpg', 'png'])])
+    nom = StringField('Nom', validators=[])
+    prenom = StringField('Prenom', validators=[])
+    email = StringField('Email', validators=[Email()])
+    image = FileField(' ', validators=[FileAllowed(['jpg', 'png'])])
+    telephone = IntegerField('Téléphone', validators=[])
     submit = SubmitField('Metre à jour')
 
             
@@ -57,7 +58,7 @@ class UpdateAccountForm(FlaskForm):
 
 class Updatepassword(FlaskForm):
     mot_de_passe = PasswordField('Nouveau mot de passe', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('mot_de_passe', message='Les mots de passe ne correspondent pas')])
+    confirm_password = PasswordField('Confirmer mot de passe', validators=[DataRequired(), EqualTo('mot_de_passe', message='Les mots de passe ne correspondent pas')])
     submit = SubmitField('Changer mot de passe')
 
     def validate_mot_de_passe(self, mot_de_passe):
@@ -114,3 +115,22 @@ class ResetPasswordForm(FlaskForm):
             raise ValidationError('Le mot de passe doit contenir des chiffres')
         if not re.search(r'[!@#$%^&*(),.?":{}|<>_-]', mot_de_passe):
             raise ValidationError('Le mot de passe doit contenir des caractères spéciaux')
+        
+class AjouterAdress(FlaskForm):
+    id = HiddenField('ID de l\'adresse')
+    rue = StringField('rue')
+    code_postal = IntegerField('code postal')
+    pays = StringField('Pays')
+    ville = StringField('ville')
+    submit = SubmitField('Ajouter')
+
+    
+'''class CommandeForm(FlaskForm):
+    quantite = IntegerField('Quantité', validators=[DataRequired()])
+    largeur = FloatField('Largeur', validators=[DataRequired()])
+    longueur = FloatField('Longueur', validators=[DataRequired()])
+    hauteur = FloatField('Hauteur', validators=[DataRequired()])
+    poids = FloatField('Poids', validators=[DataRequired()])
+    adresse = StringField('Adresse', validators=[DataRequired()])
+    date_commande = DateField('Date Commande', validators=[DataRequired()])
+    submit = SubmitField('Créer Commande')'''

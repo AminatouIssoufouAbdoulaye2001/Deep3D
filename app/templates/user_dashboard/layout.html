@@ -15,6 +15,7 @@
        <!-- icons: Font Awesome 5.15 -->
        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client/main.css') }}">
+       <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client/account.css') }}">
 
     {% if title %}
         <title>Deep3DBinPacking - {{ title }}</title>
@@ -64,10 +65,10 @@
           <span class="fas fa-chart-line"></span><p>Statistic</p>
         </div>
         <div class="sidebar-menu">
-          <span class="fas fa-id-card"></span><p>Contact</p>
+          <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account')}}"><p>Profile</p></a>
         </div>
         <div class="sidebar-menu">
-          <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account')}}"><p>profile</p></a>
+          <span class="fas fa-shield-halved"></span><a style="text-decoration: none; color: white; " href="{{url_for('securite')}}"><p>Sécurité</p></a>
         </div>
       </div>
   

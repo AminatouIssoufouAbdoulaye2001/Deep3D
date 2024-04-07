@@ -15,7 +15,6 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     nom = db.Column(db.String(20), nullable=False)
     prenom = db.Column(db.String(20), nullable=False)
-    adresse = db.Column(db.String(255))
     image = db.Column(db.String(20), default='default.jpg')
     mot_de_passe = db.Column(db.String(255), nullable=False)
     telephone = db.Column(db.Integer, default=None)
@@ -67,8 +66,10 @@ class User(db.Model, UserMixin):
             "telephone": self.telephone,
             "code_enregistrement": self.code_enregistrement
         }
-
-
+association_table_article_commande = db.Table('article_commande',
+    db.Column('article_id', db.Integer, db.ForeignKey('Article.id')),
+    db.Column('commande_id', db.Integer, db.ForeignKey('Commande.id'))
+)
 class Article(db.Model):
     __tablename__ = 'Article'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -80,8 +81,11 @@ class Article(db.Model):
     poids = db.Column(db.Float(precision=5), nullable=False)
     quantite = db.Column(db.Integer(), nullable=False)
     fragile = db.Column(db.Boolean(), default=False) 
+    date_creation = db.Column(db.DateTime,default=datetime.now())
+    commandes = db.relationship('Commande', secondary=association_table_article_commande, back_populates='articles')
 
-    def __init__(self, user_id,sku, largeur, longueur, hauteur, poids, quantite, fragile):
+
+    def __init__(self, user_id,sku, largeur, longueur, hauteur, poids, quantite, fragile, date_creation):
         self.user_id = user_id
         self.sku = sku
         self.largeur = largeur
@@ -90,9 +94,10 @@ class Article(db.Model):
         self.poids = poids
         self.quantite = quantite
         self.fragile = fragile
+        self.date_creation = date_creation
 
     def __repr__(self):
-        return f"Article(id={self.id}, sku='{self.sku}', largeur={self.largeur}, longueur={self.longueur}, hauteur={self.hauteur}, poids={self.poids}, quantite={self.quantite}, fragile={self.fragile})"
+        return f"Article(id={self.id}, sku='{self.sku}', largeur={self.largeur}, longueur={self.longueur}, hauteur={self.hauteur}, poids={self.poids}, quantite={self.quantite}, fragile={self.fragile}, date_creation={{self.date_creation}})"
 
     def to_dict(self):
         return {
@@ -112,14 +117,15 @@ class Adresse(db.Model):
     user_id = db.Column(db.Integer(),db.ForeignKey('User.id') , nullable=False)
     rue = db.Column(db.String(50), default=None)
     code_postal = db.Column(db.Integer(), default=None)
-    pays = db.Column(db.String(50), nullable=False)
-    ville = db.Column(db.String(50), nullable=False)
+    pays = db.Column(db.String(50))
+    ville = db.Column(db.String(50))
 
-    def __init__(self, rue, code_postal, pays, ville):
+    def __init__(self, rue, code_postal, pays, ville,user_id):
         self.rue = rue
         self.code_postal = code_postal
         self.pays = pays
         self.ville = ville
+        self.user_id = user_id
 
     def __repr__(self):
         return f"Adresse(id={self.id}, rue={self.rue}, code_postal={self.code_postal}, pays={self.pays}, ville={self.ville})"
@@ -133,9 +139,9 @@ class Adresse(db.Model):
             "ville": self.ville
         }
 
-association_table = db.Table('conteneur_commande',
-    db.Column('conteneur_id', db.Integer, db.ForeignKey('Conteneur.id')),
-    db.Column('commande_id', db.Integer, db.ForeignKey('Commande.id'))
+association_table_commande_conteneur = db.Table('commande_conteneur',
+    db.Column('commande_id', db.Integer, db.ForeignKey('Commande.id')),
+    db.Column('conteneur_id', db.Integer, db.ForeignKey('Conteneur.id'))
 )
 
 
@@ -144,26 +150,32 @@ class Commande(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('User.id'))
     quantite = db.Column(db.Integer(), nullable=False)
-    date_commande = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_commande = db.Column(db.DateTime, nullable=False, default=datetime.now())
     largeur = db.Column(db.Float(precision=2), nullable=False)
     longueur = db.Column(db.Float(precision=2), nullable=False)
     hauteur = db.Column(db.Float(precision=2), nullable=False)
     poids = db.Column(db.Float(precision=2), nullable=False)
     adresse = db.Column(db.String(120), nullable=False)
-    conteneurs = db.relationship('Conteneur', secondary=association_table, back_populates='commandes')
+    conteneurs = db.relationship('Conteneur', secondary=association_table_commande_conteneur, back_populates='commandes')
+    articles = db.relationship('Article', secondary=association_table_article_commande, back_populates='commandes')
 
 
-    def __init__(self, user_id, quantite, largeur, longueur, hauteur, poids, paiement):
+
+    def __init__(self, user_id, quantite, largeur, longueur, hauteur, poids,date_commande,adresse,articles=None):
         self.user_id = user_id
         self.quantite = quantite
         self.largeur = largeur
         self.longueur = longueur
         self.hauteur = hauteur
         self.poids = poids
-        self.paiement = paiement
+        self.date_commande = date_commande 
+        self.adresse = adresse 
+        if articles is not None:
+            self.articles = articles
+
 
     def __repr__(self):
-        return f"Commande(id={self.id}, client_id={self.user_id}, quantite={self.quantite}, date_commande={self.date_commande}, largeur={self.largeur}, longueur={self.longueur}, hauteur={self.hauteur}, poids={self.poids}, paiement={self.paiement})"
+        return f"Commande(id={self.id}, client_id={self.user_id}, quantite={self.quantite}, date_commande={self.date_commande}, largeur={self.largeur}, longueur={self.longueur}, hauteur={self.hauteur}, poids={self.poids}, paiement={self.paiement}, adresse={self.adresse})"
 
     def to_dict(self):
         return {
@@ -175,7 +187,8 @@ class Commande(db.Model):
             "longueur": self.longueur,
             "hauteur": self.hauteur,
             "poids": self.poids,
-            "paiement": self.paiement
+            "paiement": self.paiement,
+            "adresse": self.adresse
         }
 class Conteneur(db.Model):
     __tablename__ = 'Conteneur'
@@ -187,7 +200,7 @@ class Conteneur(db.Model):
     Poid_maximal = db.Column(db.Float(precision=2), nullable=False)
     quantite = db.Column(db.Integer(), nullable=False)
     fragile = db.Column(db.Boolean(), default=None)
-    commandes = db.relationship('Commande', secondary=association_table, back_populates='conteneurs')
+    commandes = db.relationship('Commande', secondary=association_table_commande_conteneur, back_populates='conteneurs')
 
     
 

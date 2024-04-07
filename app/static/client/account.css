@@ -1,0 +1,225 @@
+div.subpage {
+    padding: 0 30px 0 50px;
+}
+
+.col {
+    flex-basis: 0;
+    flex-grow: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+.m-t-50 {
+    margin-top: 50px;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+}
+.subpage-menu ul li.current {
+    border-bottom: 3px solid #ebab54;
+    font-weight: 700;
+}
+.subpage-menu ul li {
+    display: inline-block;
+    color: #49495e;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0 30px;
+    text-transform: uppercase;
+    line-height: 60px;
+}
+.subpage-menu ul li a {
+    display: inline-block;
+    color: #49495e;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 0 30px;
+    text-transform: uppercase;
+}
+.subpage-menu ul {
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #f5d5aa;
+}
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+.errors, .flashbag {
+    border-radius: 4px;
+}
+.errors, .flashbag {
+    margin: 0;
+    padding: 0;
+}
+.subpage-content {
+    padding-top: 10px;
+}
+.custom-container {
+    position: static;
+    display: block;
+    overflow: visible;
+    height: auto;
+    max-width: 1140px;
+    margin-right: auto;
+    margin-left: auto;
+    flex-direction: column;
+    text-align: left;
+}
+.Customer-container.card {
+    position: relative;
+    z-index: 0;
+    border: solid 1px #f5d5aa;
+    border-radius: 6px;
+    background-color: #fff;
+    transition: transform 400ms ease, box-shadow 400ms ease, -webkit-transform 400ms ease;
+    box-shadow: 0 6px 12px -6px #f5d5aa;
+}
+.card .card-header {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: 600;
+    background: transparent;
+    border-bottom: none;
+    padding: 0;
+    position: relative;
+    padding-top: 24px;
+    padding-right: 30px;
+    padding-left: 32px;
+}
+
+.card-header:first-child {
+    border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+}
+.card .card-content {
+    padding: 24px 32px 32px 32px;
+}
+.p-4 {
+    padding: 1.5rem !important;
+}
+
+.rounded {
+    border-radius: .25rem !important;
+}
+.bg-light {
+    background-color: #fcf9f4 !important;
+}
+.col-4 {
+    flex: 0 0 33.3333333333%;
+    max-width: 33.3333333333%;
+}
+.justify-content-start {
+    justify-content: flex-start !important;
+}
+
+.flex-column {
+    flex-direction: column !important;
+}
+.d-flex {
+    display: flex !important;
+}
+.align-content-end {
+    align-content: flex-end !important;
+}
+.btn-primary {
+    background-color: #49495e;
+    color: #fff;
+    border: 1px solid #49495e;
+}
+.btn-primary:hover{
+    background-color: #e79a32;
+    color: #fff;
+    border: 1px solid #e79a32;
+}
+.btn {
+    border-radius: 6px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    padding-left: 32px;
+    padding-right: 32px;
+    font-size: 18px;
+    line-height: 20px;
+    font-weight: 600;
+    position: static;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.btn:not(:disabled):not(.disabled) {
+    cursor: pointer;
+}
+.subpage-menu ul li a {
+    display: inline-block;
+    color: #49495e;
+    font-size: 16px;
+    text-decoration: none;
+    padding: 0 30px;
+    text-transform: uppercase;
+}
+
+.text-uppercase {
+    text-transform: uppercase !important;
+}
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -5px;
+    margin-left: -5px;
+}
+
+.card-header:first-child {
+    border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+}
+img {
+    vertical-align: middle;
+    border-style: none;
+}
+.form-control{
+    width: 100%;
+    padding: 16px 16px;
+    margin-bottom: 24px;
+    border: 1px solid #f5d5aa;
+    border-radius: 6px;
+    font-size: 16px;
+    line-height: 20px;
+}
+
+button, input {
+    overflow: visible;
+}
+
+.input-holder {
+    position: relative;
+    display: block;
+}
+.user-photo-img {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+.user-photo-img-circle {
+    position: absolute;
+    border-radius: 100px;
+    width: 150px;
+    height: 150px;
+    top: 0;
+    display: block;
+    overflow: hidden;
+}
+.btn-secondary {
+    background-color: #e79a32;
+    color: #fff;
+    border: 1px solid #ca9761;
+    text-decoration: none;
+}
+.form-control-file{
+    margin-top: -40px;
+}
+.nav-link.active {
+    background-color: #e79a32;
+    color: white;
+}
