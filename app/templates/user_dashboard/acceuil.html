@@ -5,9 +5,9 @@
     <div class="card total1">
       <div class="info">
         <div class="info-detail">
-          <h3>Artciles</h3>
+          <h3>Total Artciles</h3>
           <p>Nombre d'articles créés</p>
-          <h2>{{nombre_articles}}</h2>
+          <h2>{{nombre_articles}} <span>articles</span></h2>
         </div>
         <div class="info-image"><i class="fas fa-boxes-stacked"></i></div>
       </div>
@@ -16,9 +16,9 @@
     <div class="card total2">          
       <div class="info">
         <div class="info-detail">
-          <h3>Total Orders</h3>
-          <p>Lorem ipsem dolor</p>
-          <h2>10,890 <span>Orders</span></h2>
+          <h3>Total Commandes</h3>
+          <p>Nombre de commandes crées</p>
+          <h2>{{nombre_commandes}} <span>commandes</span></h2>
         </div>
         <div class="info-image"><i class="fas fa-boxes"></i></div>
       </div>
@@ -47,86 +47,64 @@
     </div>
   
     <!-- 2 cards bottom -->
+    {% if nombre_articles > 0 %}
     <div class="card detail">
       <div class="detail-header">
-        <h2>All Orders</h2>
-        <button> See More</button>         
-      </div>
-      <table>
-        <tr>
-          <th>Order #</th>
-          <th>Company</th>
-          <th>Status</th>
-          <th>Total</th>
-          <th>Created</th>
-          <th>Last Updated</th>
-        </tr>
-        <tr>
-          <td>#PW-0001</td>
-          <td>Potential Corp</td>
-          <td><span class="status onprogress"><i class="fas fa-circle"> ONPROGRESS</i></span></td>
-          <td>3,148.19 USD</td>
-          <td>Apr 11, 2021</td>
-          <td>Today</td>
-        </tr>
-        <tr>
-          <td>#PW-0002</td>
-          <td>Webcode inc</td>
-          <td><span class="status confirmed"><i class="fas fa-circle"> CONFIRMED</i></span></td>
-          <td>830.78 USD</td>
-          <td>Mar 29, 2021</td>
-          <td>Yesteday</td>
-        </tr>
-        <tr>
-          <td>#PW-0003</td>
-          <td>Codding time</td>
-          <td><span class="status fulfilled"><i class="fas fa-circle"> FULFILLED</i></span></td>
-          <td>928.81 USD</td>
-          <td>Feb 10, 2020</td>
-          <td>Feb 21, 2021</td>
-        </tr>
-        <tr>
-          <td>#PW-0004</td>
-          <td>Microsoft</td>
-          <td><span class="status fulfilled"><i class="fas fa-circle"> FULFILLED</i></span></td>
-          <td>6,239.53 USD</td>
-          <td>Dec 11, 2020</td>
-          <td>Jan 23, 2021</td>
-        </tr>
-        <tr>
-          <td>#PW-0005</td>
-          <td>Apple inc</td>
-          <td><span class="status confirmed"><i class="fas fa-circle"> CONFIRMED</i></span></td>
-          <td>187.13 USD</td>
-          <td>Nov 20, 2020</td>
-          <td>Jan 09, 2021</td>
-        </tr>
-        <tr>
-          <td>#PW-0006</td>
-          <td>Penerang</td>
-          <td><span class="status onprogress"><i class="fas fa-circle"> ONPROGRESS</i></span></td>
-          <td>624.65 USD</td>
-          <td>Nov 01, 2020</td>
-          <td>Dec 15, 2020</td>
-        </tr>
-        <tr>
-          <td>#PW-0007</td>
-          <td>Paralon Corp</td>
-          <td><span class="status confirmed"><i class="fas fa-circle"> CONFIRMED</i></span></td>
-          <td>2,483.09 USD</td>
-          <td>Oct 13, 2020</td>
-          <td>Oct 21, 2020</td>
-        </tr>
-        <tr>
-          <td>#PW-0008</td>
-          <td>Coding Scale</td>
-          <td><span class="status onprogress"><i class="fas fa-circle"> ONPROGRESS</i></span></td>
-          <td>1,247.00 USD</td>
-          <td>Sep 20, 2020</td>
-          <td>Oct 13, 2020</td>
-        </tr>
-      </table>
+        <form method="POST" action="{{ url_for('download_articles') }}">
+            <button type="submit" class="mb-3 download" style="    background-color: #49495e;color: #fff;
+            border: 1px solid #49495e; height: 40px;">Télécharger</button>
+  
+              <table>
+            <tr>
+              <th>Id/Sku</th>
+              <th >Largeur</th>
+              <th>Longueur</th>
+              <th>Hauteur</th>
+              <th>Poids</th>
+              <th>Quantité</th>
+              <th>Fragile</th>
+            </tr>
+            {% for article in articles %}
+            <tr>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.sku}}</td>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.largeur}}</td>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.longueur}}</td>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.hauteur}}</td>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.poids}}</td>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.quantite}}</td>
+              <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.fragile}}</td>
+              <td><input style="width: 20px; height: 20px; margin-left: 20px;" type="checkbox" name="selected_articles" value="{{ article.id }}"></td>
+            </tr>
+            {% endfor %}
+        </table>
+        </form>
+        </div>
+              <!-- Pagination -->
+              <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-end mt-3">
+                  <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('new_article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+                  </li>
+                  {% for page_num in articles_pagination.iter_pages() %}
+                    {% if page_num %}
+                      <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
+                        <a class="page-link"  href="{{ url_for('new_article', page=page_num) }}">{{ page_num }}</a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link"  href="#">...</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                  <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('new_article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+                  </li>
+                </ul>
+              </nav>
     </div>
+    {% endif %}
+
+
     <div class="card mb-3">
       <div class="card-header">
         <i class="fa fa-area-chart"></i> Graphique d'aire</div>

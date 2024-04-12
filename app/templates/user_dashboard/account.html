@@ -32,8 +32,8 @@
                                                 <div class="row">
                                                     <div class="col-4 bg-light p-4 " style="height: 350px;">
                                                         <div class="user-photo-img mx-auto">
-                                                            <div class="user-photo-img-circle text-center">
-                                                                <img class="rounded-circle"
+                                                            <div class="user-photo-img-circle text-center" style="margin-top: -25px;"">
+                                                                <img class="rounded-circle" style="margin: -40Px;" 
                                                                 src="{{ image }}">
                                                             </div>
                                                         </div>
@@ -103,6 +103,7 @@
                                                                 form-control-lg") }}
                                                                 {% endif %}
                                                             </div>
+
                                                             <div class="col form-field-block form-group">
                                                                 {{
                                                                 form_account.telephone.label(class="form-control-label")
@@ -150,7 +151,7 @@
                                 <div class="Customer-container">
                                     <div class="card">
                                         <div class="card-header"> Mon adresse</div>
-                                        <form method="POST" action="" enctype="multipart/form-data">
+                                        <form method="POST" action="">
                                             {{ form_newadresse.csrf_token }}
                                             <div class="card-content">
                                                 <div class="col flex-column d-flex justify-content-start">

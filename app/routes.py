@@ -7,15 +7,16 @@ from PIL import Image
 from flask import abort, render_template, url_for, flash, redirect, request,Response
 from app import app, db, bcrypt, mail
 from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
-                       ArticleForm, RequestResetForm, ResetPasswordForm, UpdateArticleForm,
+                       ArticleForm, RequestResetForm, ResetPasswordForm,
                        Updatepassword, UpdateAccountForm, Updatepassword,AjouterAdress)
-from app.models import User, Article, Adresse
+from app.models import Commande, User, Article, Adresse
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 import csv
 from io import StringIO
 
 number_articles_per_page = 5
+number_commandes_per_page = 5
 
 @app.route("/")
 def home():
@@ -28,10 +29,12 @@ def acceuil_admin():
     return render_template('admin_dashboard/acceuil.html')
 
 @app.route("/acceuil_client")
+@login_required
 def acceuil_client():
     nombre_articles = Article.query.filter_by(user_id=current_user.id).count()
+    nombre_commandes = Commande.query.filter_by(user_id=current_user.id).count()
     # Récupérer les articles de la base de données
-    articles = Article.query.all()
+    articles =  current_user.articles
 
     # Créer un dictionnaire pour stocker le nombre d'articles créés par jour
     articles_par_jour = defaultdict(int)
@@ -43,20 +46,26 @@ def acceuil_client():
     # Convertir le dictionnaire en listes de dates et de nombres d'articles
     dates = list(articles_par_jour.keys())
     nombres_articles = list(articles_par_jour.values())
-    return render_template('user_dashboard/acceuil.html',dates=dates, nombres_articles=nombres_articles,nombre_articles=nombre_articles)
 
+    #Pagination
+    page = request.args.get('page', 1, type=int)
+    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+    return render_template('user_dashboard/acceuil.html',dates=dates, nombres_articles=nombres_articles,nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=articles)
 
 @app.route("/articles")
 def article():
-    articles = Article.query.all()
-    '''for article in articles:
-        article.largeur = int(article.largeur)
-        article.longueur = int(article.longueur)
-        article.hauteur = int(article.hauteur)
-        article.poids = int(article.poids)'''
-    page = request.args.get('page', 1, type=int)
-    articles_pagination = Article.query.order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
-    return render_template('user_dashboard/list_article.html', articles=articles,articles_pagination=articles_pagination)
+    articles = current_user.articles
+    #Pagination des articles
+    page = request.args.get('articles_page', 1, type=int)
+    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+
+    #Pagination des commandes
+    commande_page = request.args.get('commandes_page', 1, type=int)
+    commandes_pagination = Commande.query.filter_by(user_id=current_user.id).order_by(Commande.id.desc()).paginate(page=commande_page, per_page=number_commandes_per_page, error_out=False)
+
+    user_commandes = Commande.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('user_dashboard/list_article.html', articles=articles, articles_pagination=articles_pagination, commandes_pagination=commandes_pagination, commandes=user_commandes)
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -180,20 +189,21 @@ def account():
     form_newadresse = AjouterAdress()
 
     if form_account.validate_on_submit():
-        # Mettre à jour le profil de l'utilisateur
-        if form_account.image.data:
-            image = save_picture(form_account.image.data)
-            current_user.image = image
-        current_user.nom = form_account.nom.data
-        current_user.prenom = form_account.prenom.data
-        current_user.email = form_account.email.data
-        current_user.telephone = form_account.telephone.data 
-        db.session.commit()
-        flash('Votre profil a été mis à jour!', 'success')
-        return redirect(url_for('account'))
+        if form_account.email.data != current_user.email and User.query.filter_by(email=form_account.email.data).first():
+            flash('Cet email est déjà utilisé par un autre utilisateur. Veuillez en choisir un autre.', 'danger')
+        else:
+            if form_account.image.data:
+                image = save_picture(form_account.image.data)
+                current_user.image = image
+            current_user.nom = form_account.nom.data
+            current_user.prenom = form_account.prenom.data
+            current_user.email = form_account.email.data
+            current_user.telephone = form_account.telephone.data 
+            db.session.commit()
+            flash('Votre profil a été mis à jour!', 'success')
 
-    elif form_newadresse.validate_on_submit():
-        # Mettre à jour l'adresse de l'utilisateur
+        return redirect(url_for('account'))
+    if form_newadresse.validate_on_submit():
         if existing_address:
             existing_address.rue = form_newadresse.rue.data
             existing_address.code_postal = form_newadresse.code_postal.data
@@ -211,6 +221,7 @@ def account():
         db.session.commit()
         flash('Votre adresse a été ajoutée/modifiée avec succès!', 'success')
         return redirect(url_for('account'))
+
 
     # Afficher les formulaires
     image = url_for('static', filename='images/' + current_user.image)
@@ -260,7 +271,8 @@ def securite():
 def new_article():
     form = ArticleForm()
     page = request.args.get('page', 1, type=int)
-    articles_pagination = Article.query.order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+
     '''for article in articles_pagination:
         article.largeur = int(article.largeur)
         article.longueur = int(article.longueur)
@@ -384,7 +396,46 @@ def download_articles():
         return response
     else:
         flash('Aucun article trouvé pour téléchargement.', 'warning')
-        return redirect(url_for('article'))
+        return redirect(url_for('acceuil_client'))
+
+
+@app.route('/create_commande', methods=['POST'])
+@login_required
+def create_commande():
+    # Get selected article IDs from the form data
+        selected_articles = request.form.getlist('selected_articles')  # This returns a list of selected article IDs
+        if not selected_articles:
+            flash('Aucun article selectionné', 'danger')
+            return redirect(url_for('article'))
+
+        # Create a new Commande object
+        commande = Commande(date_commande=datetime.now(), user_id=current_user.id)  # Assuming Commande model has a date_creation field
+
+        for article_id in selected_articles:
+            article = Article.query.get(article_id)
+            if article:
+                commande.articles.append(article)
+        # Save the commande object to the database
+        db.session.add(commande)
+        db.session.commit()
+
+        # Flash a success message (optional)
+        flash('Commande créée avec succès !', 'success')
+
+        # Redirect to the current page after creating the commande (optional)
+        user_commandes = Commande.query.filter_by(user_id=current_user.id)
+        return redirect(url_for('article',commandes=user_commandes))
+        
+
+
+
+@app.route('/details_commande/<int:commande_id>')
+def details_commande(commande_id):
+    commande = Commande.query.get_or_404(commande_id)
+    return render_template('user_dashboard/details_commande.html', title='Détails de la Commande', commande=commande)
+
+
+
 
 
 

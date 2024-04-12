@@ -94,6 +94,8 @@
     <button class="btn btn-outline-warning mt-3">{{ form.submit(class="btn btn-outline-warning") }}</button>
     <hr>
   </form>
+  {% if articles %}
+ 
       <div class="card detail">
         <table id="user-table" class=" nowrap" cellspacing="2" width="100%">
           <thead>
@@ -109,6 +111,7 @@
           </thead>
           <tbody>
             {% for article in articles %}
+            {% if article.user_id == current_user.id %}
             <tr>
               <td style=" text-align: center;">{{article.sku}}</td>
               <td style=" text-align: center;">{{article.largeur}}</td>
@@ -118,7 +121,7 @@
               <td style=" text-align: center;">{{article.quantite}}</td>
               <td style=" text-align: center;">{{article.fragile}}</td>
               <td>
-                {% if article.user_id == current_user.id %}
+                
                 <button type="button" class="btn btn-outline-warning btn-sm m-1 btn-update" data-toggle="modal"
                   data-target="#editModal{{article.id}}" data-sku="{{ article.sku }}"
                   data-largeur="{{ article.largeur }}" data-longueur="{{ article.longueur }}"
@@ -126,10 +129,10 @@
                   data-poids="{{ article.poids }}" data-fragile="{{ article.fragile }}">Modifier</button>
                 <button type="button" class="btn btn-sm m-1 delete"  data-toggle="modal"
                   data-target="#deleteModal{{article.id}}">Supprimer</button>
-                {% endif %}
+                 
               </td>
             </tr>
-
+            {% endif %}
             {% endfor %}
           </tbody>
           
@@ -158,6 +161,8 @@
             </ul>
           </nav>
       </div>
+      {% endif %}
+     
 </div>
 
 

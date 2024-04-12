@@ -2,6 +2,7 @@ from datetime import datetime
 from itsdangerous import URLSafeTimedSerializer as Serializer  
 from app import db, login_manager, app
 from flask_login import UserMixin
+import uuid
 
 
 @login_manager.user_loader
@@ -148,47 +149,34 @@ association_table_commande_conteneur = db.Table('commande_conteneur',
 class Commande(db.Model):
     __tablename__ = 'Commande'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('User.id'))
-    quantite = db.Column(db.Integer(), nullable=False)
-    date_commande = db.Column(db.DateTime, nullable=False, default=datetime.now())
-    largeur = db.Column(db.Float(precision=2), nullable=False)
-    longueur = db.Column(db.Float(precision=2), nullable=False)
-    hauteur = db.Column(db.Float(precision=2), nullable=False)
-    poids = db.Column(db.Float(precision=2), nullable=False)
-    adresse = db.Column(db.String(120), nullable=False)
+    date_commande = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    numero_commande = db.Column(db.String(50), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('User.id'), nullable=False)
     conteneurs = db.relationship('Conteneur', secondary=association_table_commande_conteneur, back_populates='commandes')
     articles = db.relationship('Article', secondary=association_table_article_commande, back_populates='commandes')
 
-
-
-    def __init__(self, user_id, quantite, largeur, longueur, hauteur, poids,date_commande,adresse,articles=None):
+    def __init__(self, date_commande=None, user_id=None):
+        self.date_commande = date_commande
+        self.articles = []
         self.user_id = user_id
-        self.quantite = quantite
-        self.largeur = largeur
-        self.longueur = longueur
-        self.hauteur = hauteur
-        self.poids = poids
-        self.date_commande = date_commande 
-        self.adresse = adresse 
-        if articles is not None:
-            self.articles = articles
-
-
+        self.numero_commande = self.generate_unique_numero_commande()
+        
+          # Générer un numéro de commande unique
+    def generate_unique_numero_commande(self):
+        timestamp = datetime.now().strftime('%Y%m%d')
+        unique_id = uuid.uuid4().hex[:6]  # Génère un identifiant unique de 6 caractères
+        return f"CMD-{timestamp}-{unique_id}"
+    
     def __repr__(self):
-        return f"Commande(id={self.id}, client_id={self.user_id}, quantite={self.quantite}, date_commande={self.date_commande}, largeur={self.largeur}, longueur={self.longueur}, hauteur={self.hauteur}, poids={self.poids}, paiement={self.paiement}, adresse={self.adresse})"
-
+        return f"Commande(id={self.id}, date_commande={self.date_commande}, numero_commande={self.numero_commande})"
+    
     def to_dict(self):
         return {
             "id": self.id,
-            "user_id": self.user_id,
-            "quantite": self.quantite,
+            "user_id": self.user_id,    
+            'articles': [article.to_dict() for article in self.articles],
             "date_commande": self.date_commande,
-            "largeur": self.largeur,
-            "longueur": self.longueur,
-            "hauteur": self.hauteur,
-            "poids": self.poids,
-            "paiement": self.paiement,
-            "adresse": self.adresse
+            'numero_commande': self.numero_commande
         }
 class Conteneur(db.Model):
     __tablename__ = 'Conteneur'

@@ -2,7 +2,7 @@ from flask_bcrypt import check_password_hash
 from flask_login import current_user
 from flask_wtf import FlaskForm
 import re
-from wtforms import FloatField, HiddenField, IntegerField, StringField, PasswordField, SubmitField, BooleanField
+from wtforms import DateField, DateTimeField, FloatField, HiddenField, IntegerField, SelectMultipleField, StringField, PasswordField, SubmitField, BooleanField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
@@ -123,6 +123,14 @@ class AjouterAdress(FlaskForm):
     pays = StringField('Pays')
     ville = StringField('ville')
     submit = SubmitField('Ajouter')
+
+
+class CommandeForm(FlaskForm):
+    id = HiddenField("iD de la commande")
+    date_commade = DateTimeField("Date Commande")
+    numero_commande = StringField("N° commande")
+    articles = SelectMultipleField('Articles', coerce=int, validators=[DataRequired()])
+
 
     
 '''class CommandeForm(FlaskForm):
