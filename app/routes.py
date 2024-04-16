@@ -1,10 +1,10 @@
              
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import secrets
 from PIL import Image
-from flask import abort, render_template, url_for, flash, redirect, request,Response
+from flask import abort, jsonify, render_template, url_for, flash, redirect, request,Response
 from app import app, db, bcrypt, mail
 from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                        ArticleForm, RequestResetForm, ResetPasswordForm,
@@ -35,6 +35,7 @@ def acceuil_client():
     nombre_commandes = Commande.query.filter_by(user_id=current_user.id).count()
     # Récupérer les articles de la base de données
     articles =  current_user.articles
+    commandes = current_user.commande
 
     # Créer un dictionnaire pour stocker le nombre d'articles créés par jour
     articles_par_jour = defaultdict(int)
@@ -50,15 +51,16 @@ def acceuil_client():
     #Pagination
     page = request.args.get('page', 1, type=int)
     articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
-    return render_template('user_dashboard/acceuil.html',dates=dates, nombres_articles=nombres_articles,nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=articles)
+
+    return render_template('user_dashboard/acceuil.html',dates=dates, nombres_articles=nombres_articles,nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=articles, commandes=commandes)
 
 @app.route("/articles")
 def article():
     articles = current_user.articles
     #Pagination des articles
-    page = request.args.get('articles_page', 1, type=int)
+    page = request.args.get('page', 1, type=int)
     articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
-
+    
     #Pagination des commandes
     commande_page = request.args.get('commandes_page', 1, type=int)
     commandes_pagination = Commande.query.filter_by(user_id=current_user.id).order_by(Commande.id.desc()).paginate(page=commande_page, per_page=number_commandes_per_page, error_out=False)
@@ -435,8 +437,52 @@ def details_commande(commande_id):
     return render_template('user_dashboard/details_commande.html', title='Détails de la Commande', commande=commande)
 
 
+@app.route('/articles_by_day')
+def articles_by_day():
+    # Récupérer la date d'il y a une semaine
+    start_date = datetime.now() - timedelta(days=7)
+
+    # Récupérer les articles créés au cours de la dernière semaine
+    articles = Article.query.filter(Article.date_creation >= start_date).all()
+
+    # Créer un dictionnaire pour stocker le nombre d'articles créés par jour
+    articles_by_day = {}
+    for article in articles:
+        day = article.date_creation.strftime('%Y-%m-%d')
+        if day in articles_by_day:
+            articles_by_day[day] += 1
+        else:
+            articles_by_day[day] = 1
+
+    # Convertir le dictionnaire en une liste de tuples (jour, nombre d'articles)
+    data = [{'day': day, 'count': count} for day, count in articles_by_day.items()]
+
+    return jsonify(data)
 
 
+from flask import jsonify
+
+@app.route('/commandes_by_day')
+def commandes_by_day():
+    # Récupérer la date d'il y a une semaine
+    start_date = datetime.now() - timedelta(days=7)
+
+    # Récupérer les commandes créées au cours de la dernière semaine
+    commandes = Commande.query.filter(Commande.date_commande>= start_date).all()
+
+    # Créer un dictionnaire pour stocker le nombre de commandes créées par jour
+    commandes_by_day = {}
+    for commande in commandes:
+        day = commande.date_commande.strftime('%Y-%m-%d')
+        if day in commandes_by_day:
+            commandes_by_day[day] += 1
+        else:
+            commandes_by_day[day] = 1
+
+    # Convertir le dictionnaire en une liste de tuples (jour, nombre de commandes)
+    data = [{'day': day, 'count': count} for day, count in commandes_by_day.items()]
+
+    return jsonify(data)
 
 
 '''@app.route('/ajouter_adresse', methods=['POST'])

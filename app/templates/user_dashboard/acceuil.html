@@ -47,7 +47,7 @@
     </div>
   
     <!-- 2 cards bottom -->
-    {% if nombre_articles > 0 %}
+    {% if articles %}
     <div class="card detail">
       <div class="detail-header">
         <form method="POST" action="{{ url_for('download_articles') }}">
@@ -64,7 +64,7 @@
               <th>Quantité</th>
               <th>Fragile</th>
             </tr>
-            {% for article in articles %}
+            {% for article in articles_pagination.items %}
             <tr>
               <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.sku}}</td>
               <td style="  border: 1px solid black;padding: 5px; text-align: center;">{{article.largeur}}</td>
@@ -83,12 +83,12 @@
               <nav aria-label="Page navigation example">
                 <ul class="pagination justify-content-end mt-3">
                   <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
-                    <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('new_article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+                    <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('acceuil_client', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
                   </li>
                   {% for page_num in articles_pagination.iter_pages() %}
                     {% if page_num %}
                       <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
-                        <a class="page-link"  href="{{ url_for('new_article', page=page_num) }}">{{ page_num }}</a>
+                        <a class="page-link"  href="{{ url_for('acceuil_client', page=page_num) }}">{{ page_num }}</a>
                       </li>
                     {% else %}
                       <li class="page-item disabled">
@@ -97,79 +97,25 @@
                     {% endif %}
                   {% endfor %}
                   <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
-                    <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('new_article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+                    <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('acceuil_client', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
                   </li>
                 </ul>
               </nav>
     </div>
-    {% endif %}
+  </div>
+<div class="card detail container" >
+  <h1>Graphique d'articles créés par jour</h1>
+  <!-- Balise canvas pour dessiner le graphique -->
+  <canvas id="myChart" width="800" height="300"></canvas>
+</div>
+<div class="card detail container" >
+  <h1>Graphique de commande créés par jour</h1>
+  <!-- Balise canvas pour dessiner le graphique -->
+  <canvas id="commandesChart" width="800" height="300"></canvas>
+</div>
+{% endif %}
 
-
-    <div class="card mb-3">
-      <div class="card-header">
-        <i class="fa fa-area-chart"></i> Graphique d'aire</div>
-      <div class="card-body">
-        <canvas id="myAreaChart" width="100%" height="30"></canvas>
-      </div>
-      <div class="card-footer small text-muted">Mis à jour hier à 23h59</div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      // -- Configuration de Chart.js
-      Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-      Chart.defaults.global.defaultFontColor = '#292b2c';
-    
-      // -- Définition des données pour le graphique d'aire
-      var ctx = document.getElementById("myAreaChart").getContext('2d');
-var myAreaChart = new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: { dates , tojson },
-    datasets: [{
-      label: "Sessions",
-      lineTension: 0.3,
-      backgroundColor: "rgba(2,117,216,0.2)",
-      borderColor: "rgba(2,117,216,1)",
-      pointRadius: 5,
-      pointBackgroundColor: "rgba(2,117,216,1)",
-      pointBorderColor: "rgba(255,255,255,0.8)",
-      pointHoverRadius: 5,
-      pointHoverBackgroundColor: "rgba(2,117,216,1)",
-      pointHitRadius: 20,
-      pointBorderWidth: 2,
-      data: { nombres_articles , tojson },
-    }],
-  },
-        options: {
-          scales: {
-            xAxes: [{
-              time: {
-                unit: 'date'
-              },
-              gridLines: {
-                display: false
-              },
-              ticks: {
-                maxTicksLimit: 7
-              }
-            }],
-            yAxes: [{
-              ticks: {
-                min: 0,
-                max: 40000,
-                maxTicksLimit: 5
-              },
-              gridLines: {
-                color: "rgba(0, 0, 0, .125)",
-              }
-            }],
-          },
-          legend: {
-            display: false
-          }
-        }
-      });
-    </script>
-    
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='scripts/chart_commande.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/chart_articles.js') }}"></script>
 {% endblock content %}

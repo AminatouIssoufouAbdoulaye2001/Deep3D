@@ -15,7 +15,7 @@
             <th>Quantité</th>
             <th>Fragile</th>
           </tr>
-          {% for article in articles %}
+          {% for article in articles_pagination.items %}
           <tr>
             <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.sku }}</td>
             <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.largeur }}</td>
@@ -30,28 +30,28 @@
         </table>
       </form>
     </div>
-<!-- Pagination des articles -->
-<nav aria-label="Page navigation example">
-  <ul class="pagination justify-content-end">
-    <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
-      <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('new_article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
-    </li>
-    {% for page_num in articles_pagination.iter_pages() %}
-      {% if page_num %}
-        <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
-          <a class="page-link"  href="{{ url_for('new_article', page=page_num) }}">{{ page_num }}</a>
-        </li>
-      {% else %}
-        <li class="page-item disabled">
-          <a class="page-link"  href="#">...</a>
-        </li>
-      {% endif %}
-    {% endfor %}
-    <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
-      <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('new_article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
-    </li>
-  </ul>
-</nav>
+              <!-- Pagination -->
+              <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-end mt-3">
+                  <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+                  </li>
+                  {% for page_num in articles_pagination.iter_pages() %}
+                    {% if page_num %}
+                      <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
+                        <a class="page-link"  href="{{ url_for('article', page=page_num) }}">{{ page_num }}</a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link"  href="#">...</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                  <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+                  </li>
+                </ul>
+              </nav>
     {% endif %}
 </div>
 
@@ -107,7 +107,10 @@
   </ul>
 </nav>
 </div>
-{% endif %}
+{% else %}
+<div class="card card-message">
+  <p>Vous n'avez aucune commande pour l'instant.</p>
+</div>{% endif %}
 
 {% for commande in commandes %}
 <div class="modal fade" id="commandeDetailsModal-{{ commande.id }}" tabindex="-1" aria-labelledby="commandeDetailsModalLabel" aria-hidden="true">
