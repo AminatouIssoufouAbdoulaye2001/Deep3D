@@ -186,6 +186,11 @@ img {
     border-radius: 6px;
     font-size: 16px;
     line-height: 20px;
+    
+}
+.select{
+    padding: 12px 15px;
+    height: 30px;
 }
 
 button, input {
@@ -197,7 +202,7 @@ button, input {
     display: block;
 }
 .user-photo-img {
-    position: relative;
+
     width: 150px;
     height: 150px;
 }
@@ -224,3 +229,8 @@ button, input {
     color: white;
 }
 
+.box
+{
+    height: 50px;
+    width: 50px;
+}

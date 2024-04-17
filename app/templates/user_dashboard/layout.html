@@ -4,6 +4,8 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="https://kit.fontawesome.com/f1d3449d75.js" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -63,7 +65,7 @@
           </a>
         </div>
         <div class="sidebar-menu">
-          <span class="fas fa-chart-line"></span><p>Statistic</p>
+          <span class="fas fa-chart-line"></span><a style="text-decoration: none; color: white; " href="{{url_for('charts')}}"><p>Statistique</p></a>
         </div>
         <div class="sidebar-menu">
           <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account')}}"><p>Profile</p></a>

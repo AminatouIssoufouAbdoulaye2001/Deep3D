@@ -149,14 +149,14 @@ association_table_commande_conteneur = db.Table('commande_conteneur',
 class Commande(db.Model):
     __tablename__ = 'Commande'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_commande = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    date_creation = db.Column(db.DateTime, default=datetime.now())
     numero_commande = db.Column(db.String(50), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'), nullable=False)
     conteneurs = db.relationship('Conteneur', secondary=association_table_commande_conteneur, back_populates='commandes')
     articles = db.relationship('Article', secondary=association_table_article_commande, back_populates='commandes')
 
-    def __init__(self, date_commande=None, user_id=None):
-        self.date_commande = date_commande
+    def __init__(self, date_creation, user_id=None):
+        self.date_creation = date_creation
         self.articles = []
         self.user_id = user_id
         self.numero_commande = self.generate_unique_numero_commande()
@@ -168,14 +168,14 @@ class Commande(db.Model):
         return f"CMD-{timestamp}-{unique_id}"
     
     def __repr__(self):
-        return f"Commande(id={self.id}, date_commande={self.date_commande}, numero_commande={self.numero_commande})"
+        return f"Commande(id={self.id}, date_creation={self.date_creation}, numero_commande={self.numero_commande})"
     
     def to_dict(self):
         return {
             "id": self.id,
             "user_id": self.user_id,    
             'articles': [article.to_dict() for article in self.articles],
-            "date_commande": self.date_commande,
+            "date_creation": self.date_creation,
             'numero_commande': self.numero_commande
         }
 class Conteneur(db.Model):

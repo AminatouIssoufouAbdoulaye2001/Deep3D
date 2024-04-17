@@ -7,20 +7,21 @@
     <hr>
     <div class="row">
       <div class="col">
-        {{ form.sku.label(class="form-control-label") }} {% if
-        form.sku.errors %} {{ form.sku(class="form-control
-        form-control-lg is-invalid") }}
-        <div class="invalid-feedback">
-          {% for error in form.sku.errors %}
-          <span>{{ error }}</span>
-          {% endfor %}
-        </div>
-        {% else %} {{ form.sku(class="form-control form-control-lg") }} {%
-        endif %}
-      </div>
+        {{ form.sku.label(class="form-control-label") }}
+        {% if form.sku.errors %}
+            {{ form.sku(class="form-control form-control-lg is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.sku.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.sku(class="form-control select form-control-lg") }}
+        {% endif %}
+    </div>
       <div class="col">
         {{ form.largeur.label(class="form-control-label") }} {% if
-        form.largeur.errors %} {{ form.largeur(class="form-control
+        form.largeur.errors %} {{ form.largeur(class="form-control 
         form-control-lg is-invalid") }}
         <div class="invalid-feedback">
           {% for error in form.largeur.errors %}
@@ -87,11 +88,11 @@
           <span>{{ error }}</span>
           {% endfor %}
         </div>
-        {% else %} {{ form.fragile(class="form-control form-control-lg") }} {%
+        {% else %} {{ form.fragile(class="form-control box form-control-lg") }} {%
         endif %}
       </div>
     </div>
-    <button class="btn btn-outline-warning mt-3">{{ form.submit(class="btn btn-outline-warning") }}</button>
+    {{ form.submit(class="btn btn-outline-warning") }}
     <hr>
   </form>
   {% if articles %}

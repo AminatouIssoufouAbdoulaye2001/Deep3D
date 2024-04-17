@@ -1,0 +1,7 @@
+{% extends 'user_dashboard/layout.html' %}
+{% block content %}
+{% if nb_articles %}
+<div id="graphique">{{ graph_htmlarticle|safe }}</div>
+<div id="graphique">{{ graph_htmlcommandes|safe }}</div>
+{% endif %}
+{% endblock content %}

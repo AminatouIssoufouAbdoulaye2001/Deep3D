@@ -1,10 +1,12 @@
              
-from collections import defaultdict
+#bibliothéques pour les différentes fonctionnalité de l'app
 from datetime import datetime, timedelta
 import os
 import secrets
 from PIL import Image
-from flask import abort, jsonify, render_template, url_for, flash, redirect, request,Response
+from flask import abort, render_template, url_for, flash, redirect, request,Response
+
+from sqlalchemy import func
 from app import app, db, bcrypt, mail
 from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
                        ArticleForm, RequestResetForm, ResetPasswordForm,
@@ -13,7 +15,15 @@ from app.models import Commande, User, Article, Adresse
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 import csv
+#bibliothéques pour les graphiques
 from io import StringIO
+from scipy.interpolate import make_interp_spline
+from matplotlib import pyplot as plt
+from plotly.offline import plot
+import numpy as np
+import pandas as pd
+import plotly.graph_objs as go
+
 
 number_articles_per_page = 5
 number_commandes_per_page = 5
@@ -28,34 +38,111 @@ def home():
 def acceuil_admin():
     return render_template('admin_dashboard/acceuil.html')
 
+
+
 @app.route("/acceuil_client")
 @login_required
 def acceuil_client():
+       # Filtrer les commandes restantes ayant au moins un article
+
     nombre_articles = Article.query.filter_by(user_id=current_user.id).count()
     nombre_commandes = Commande.query.filter_by(user_id=current_user.id).count()
     # Récupérer les articles de la base de données
-    articles =  current_user.articles
+    article =  current_user.articles
     commandes = current_user.commande
 
-    # Créer un dictionnaire pour stocker le nombre d'articles créés par jour
-    articles_par_jour = defaultdict(int)
-    for article in articles:
-        # Utiliser la date de création de l'article pour grouper les articles par jour
-        jour_creation = article.date_creation.date()
-        articles_par_jour[jour_creation] += 1
-
-    # Convertir le dictionnaire en listes de dates et de nombres d'articles
-    dates = list(articles_par_jour.keys())
-    nombres_articles = list(articles_par_jour.values())
 
     #Pagination
     page = request.args.get('page', 1, type=int)
     articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
 
-    return render_template('user_dashboard/acceuil.html',dates=dates, nombres_articles=nombres_articles,nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=articles, commandes=commandes)
+    dates, articles, commandes = fetch_data(user_id=current_user.id)
+
+    # Création du graphique combiné
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=articles, mode='lines+markers', name='Articles', line=dict(color='#49495E',shape='spline'),  fillcolor='rgba(0, 0, 0, 0.3)',  fill='tozeroy'))
+    fig.add_trace(go.Scatter(x=dates, y=commandes, mode='lines+markers', name='Commandes', line=dict(color='#ebab54',shape='spline'),fillcolor='rgba(235, 160, 84, 0.3)', fill='tozeroy'))
+
+    fig.update_layout(
+        title='Évolution quotidienne des articles et des commandes créés',
+        xaxis_title='Date',
+        yaxis_title='Nombre',
+        xaxis=dict(tickformat='%d-%m')
+    )
+
+    graphscatter_html = plot(fig, output_type='div')
+
+    total_articles, total_commandes = fetch_totals(user_id=current_user.id)
+
+    labels = ['Articles', 'Commandes']
+    values = [total_articles, total_commandes]
+    colors = ['49495E', 'ebab54']
+
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values, marker=dict(colors=colors), hole=.3)])
+    fig.update_layout(title_text='Pourcentage des Articles et Commandes de la dernière semaine')
+
+    graph_htmlpie = plot(fig, output_type='div')
+
+    # Interrogation de la base de données pour compter les articles par type de SKU
+    data = db.session.query(Article.sku, db.func.count(Article.id)).group_by(Article.sku).filter_by(user_id=current_user.id).all()
+    data = pd.DataFrame(data, columns=['sku', 'count'])
+
+    # Création du graphique en barres
+    fig = go.Figure(data=[go.Bar(
+        x=data['sku'],
+        y=data['count'],
+        marker_color=['#49495E', '#ebab54', '#49495E', '#ebab54']  # Différentes couleurs pour chaque type de SKU
+    )])
+
+    fig.update_layout(
+        title='Nombre d\'articles par type de SKU',
+        xaxis_title='Type de SKU',
+        yaxis_title='Nombre d\'articles',
+        xaxis=dict(type='category')  # Catégorise l'axe des x
+    )
+    graph_htmlbar = plot(fig, output_type='div')
+
+    return render_template('user_dashboard/acceuil.html', graph_htmlbar=graph_htmlbar, graph_htmlpie=graph_htmlpie, graphscatter_html=graphscatter_html, nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=article, commandes=commandes)
+
+
+@app.route("/charts")
+@login_required
+def charts():
+    nb_articles =  current_user.articles
+    dates, articles = fetch_data_articles(user_id=current_user.id)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=articles, mode='lines+markers', name='Articles', line=dict(color='#49495E')))
+    fig.update_layout(
+        title='Évolution quotidienne des articles créés',
+        xaxis_title='Date',
+        yaxis_title='Nombre',
+        xaxis=dict(tickformat='%d-%m')
+    )
+
+    graph_htmlarticle = plot(fig, output_type='div')
+
+    dates, commandes = fetch_data_commandes(user_id=current_user.id)
+
+    # Créer la trace pour les commandes
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=commandes, mode='lines+markers', name='Commandes', line=dict(color='#ebab54')))
+
+    # Mettre à jour la mise en page du graphique
+    fig.update_layout(
+        title='Évolution quotidienne des commandes créées',
+        xaxis_title='Date',
+        yaxis_title='Nombre de commandes',
+        xaxis=dict(tickformat='%d-%m')
+    )
+
+    # Générer le code HTML pour le graphique
+    graph_htmlcommandes = plot(fig, output_type='div')
+            
+    return render_template('user_dashboard/statistique.html',graph_htmlarticle=graph_htmlarticle,graph_htmlcommandes=graph_htmlcommandes,nb_articles=nb_articles)
 
 @app.route("/articles")
 def article():
+
     articles = current_user.articles
     #Pagination des articles
     page = request.args.get('page', 1, type=int)
@@ -65,8 +152,20 @@ def article():
     commande_page = request.args.get('commandes_page', 1, type=int)
     commandes_pagination = Commande.query.filter_by(user_id=current_user.id).order_by(Commande.id.desc()).paginate(page=commande_page, per_page=number_commandes_per_page, error_out=False)
 
+    # Récupérer toutes les commandes de l'utilisateur
     user_commandes = Commande.query.filter_by(user_id=current_user.id).all()
 
+    # Filtrer et supprimer les commandes qui ont 0 article
+    for commande in user_commandes:
+        if len(commande.articles) == 0:
+            db.session.delete(commande)
+
+    # Committer les suppressions
+    db.session.commit()
+
+    # Mettre à jour la liste des commandes de l'utilisateur après la suppression
+    user_commandes = [commande for commande in user_commandes if len(commande.articles) > 0]
+    # Rendre le template avec les données mises à jour
     return render_template('user_dashboard/list_article.html', articles=articles, articles_pagination=articles_pagination, commandes_pagination=commandes_pagination, commandes=user_commandes)
 
 
@@ -207,11 +306,14 @@ def account():
         return redirect(url_for('account'))
     if form_newadresse.validate_on_submit():
         if existing_address:
+            # Modifier l'adresse existante
             existing_address.rue = form_newadresse.rue.data
             existing_address.code_postal = form_newadresse.code_postal.data
             existing_address.pays = form_newadresse.pays.data
             existing_address.ville = form_newadresse.ville.data
+            message = 'Votre adresse a été modifiée avec succès!'
         else:
+            # Ajouter une nouvelle adresse
             new_address = Adresse(
                 rue=form_newadresse.rue.data,
                 code_postal=form_newadresse.code_postal.data,
@@ -220,9 +322,12 @@ def account():
                 user_id=current_user.id
             )
             db.session.add(new_address)
+            message = 'Votre adresse a été ajoutée avec succès!'
+
         db.session.commit()
-        flash('Votre adresse a été ajoutée/modifiée avec succès!', 'success')
+        flash(message, 'success')
         return redirect(url_for('account'))
+
 
 
     # Afficher les formulaires
@@ -331,19 +436,6 @@ def update_article(id):
     
     return render_template('user_dashboard/create_article.html', title='Update article', form=form, article=article)
 
-@app.route("/update_article_dates", methods=['GET', 'POST'])
-@login_required
-def update_article_dates():
-    # Récupérer tous les articles de la base de données
-    articles = Article.query.all()
-     # Mettre à jour la date de création pour chaque article
-    for article in articles:
-        if article.date_creation:  # Vérifier si la date de création n'est pas nulle
-            article.date_creation = datetime.now()
-    # Commit des modifications à la base de données
-    db.session.commit()
-    flash('Dates de création des articles mises à jour avec succès!', 'success')
-    return redirect(url_for('new_article')) 
 
 @app.route("/article/<int:id>/delete", methods=['POST'])
 @login_required
@@ -411,7 +503,7 @@ def create_commande():
             return redirect(url_for('article'))
 
         # Create a new Commande object
-        commande = Commande(date_commande=datetime.now(), user_id=current_user.id)  # Assuming Commande model has a date_creation field
+        commande = Commande(date_creation=datetime.now(), user_id=current_user.id)  # Assuming Commande model has a date_creation field
 
         for article_id in selected_articles:
             article = Article.query.get(article_id)
@@ -427,6 +519,17 @@ def create_commande():
         # Redirect to the current page after creating the commande (optional)
         user_commandes = Commande.query.filter_by(user_id=current_user.id)
         return redirect(url_for('article',commandes=user_commandes))
+
+@app.route("/commande/<int:id>/delete", methods=['POST'])
+@login_required
+def delete_commande(id):
+    commande = Commande.query.get_or_404(id)
+    if commande.user_id != current_user.id:
+        abort(403)
+    db.session.delete(commande)
+    db.session.commit()
+    flash('Votre commande a été supprimé!', 'success')
+    return redirect(url_for('article'))
         
 
 
@@ -437,100 +540,81 @@ def details_commande(commande_id):
     return render_template('user_dashboard/details_commande.html', title='Détails de la Commande', commande=commande)
 
 
-@app.route('/articles_by_day')
-def articles_by_day():
-    # Récupérer la date d'il y a une semaine
-    start_date = datetime.now() - timedelta(days=7)
+def fetch_data(user_id):
+    today = datetime.utcnow()
+    week_ago = today - timedelta(days=7)
 
-    # Récupérer les articles créés au cours de la dernière semaine
-    articles = Article.query.filter(Article.date_creation >= start_date).all()
+    article_counts = db.session.query(func.date(Article.date_creation), func.count(Article.id))\
+        .filter(Article.date_creation >= week_ago, Article.user_id == user_id)\
+        .group_by(func.date(Article.date_creation)).all()
 
-    # Créer un dictionnaire pour stocker le nombre d'articles créés par jour
-    articles_by_day = {}
-    for article in articles:
-        day = article.date_creation.strftime('%Y-%m-%d')
-        if day in articles_by_day:
-            articles_by_day[day] += 1
-        else:
-            articles_by_day[day] = 1
+    commande_counts = db.session.query(func.date(Commande.date_creation), func.count(Commande.id))\
+        .filter(Commande.date_creation >= week_ago, Commande.user_id == user_id)\
+        .group_by(func.date(Commande.date_creation)).all()
 
-    # Convertir le dictionnaire en une liste de tuples (jour, nombre d'articles)
-    data = [{'day': day, 'count': count} for day, count in articles_by_day.items()]
+    dates = [week_ago + timedelta(days=i) for i in range(8)]
+    articles = [0] * 8
+    commandes = [0] * 8
 
-    return jsonify(data)
+    for date, count in article_counts:
+        if isinstance(date, str):
+            date = datetime.strptime(date, '%Y-%m-%d').date()  # Assurez-vous que le format de date correspond à ce que vous récupérez
+        index = (date - week_ago.date()).days
+        articles[index] = count
 
+    for date, count in commande_counts:
+        if isinstance(date, str):
+            date = datetime.strptime(date, '%Y-%m-%d').date()  # Même traitement pour les commandes
+        index = (date - week_ago.date()).days
+        commandes[index] = count
 
-from flask import jsonify
+    return dates, articles, commandes
 
-@app.route('/commandes_by_day')
-def commandes_by_day():
-    # Récupérer la date d'il y a une semaine
-    start_date = datetime.now() - timedelta(days=7)
+def fetch_totals(user_id):
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    total_articles = db.session.query(func.count(Article.id))\
+        .filter(Article.date_creation >= week_ago, Article.user_id == user_id).scalar()
+    total_commandes = db.session.query(func.count(Commande.id))\
+        .filter(Commande.date_creation >= week_ago, Commande.user_id == user_id).scalar()
+    return total_articles, total_commandes
 
-    # Récupérer les commandes créées au cours de la dernière semaine
-    commandes = Commande.query.filter(Commande.date_commande>= start_date).all()
+def fetch_data_articles(user_id):
 
-    # Créer un dictionnaire pour stocker le nombre de commandes créées par jour
-    commandes_by_day = {}
-    for commande in commandes:
-        day = commande.date_commande.strftime('%Y-%m-%d')
-        if day in commandes_by_day:
-            commandes_by_day[day] += 1
-        else:
-            commandes_by_day[day] = 1
+    today = datetime.utcnow()
+    week_ago = today - timedelta(days=7)
 
-    # Convertir le dictionnaire en une liste de tuples (jour, nombre de commandes)
-    data = [{'day': day, 'count': count} for day, count in commandes_by_day.items()]
-
-    return jsonify(data)
-
-
-'''@app.route('/ajouter_adresse', methods=['POST'])
-def ajouter_adresse():
-    rue = request.form['rue']
-    code_postal = request.form['code_postal']
-    pays = request.form['pays']
-    ville = request.form['ville']
-    # Ajoutez les données à la base de données
-    nouvelle_adresse = Adresse(rue=rue, code_postal=code_postal, pays=pays, ville=ville, user_id=current_user.id)
-    db.session.add(nouvelle_adresse)
-    db.session.commit()
-    # Renvoyez les données de l'adresse ajoutée au format JSON
-    return jsonify({'rue': rue, 'code_postal': code_postal, 'pays': pays, 'ville': ville})
+    article_counts = db.session.query(func.date(Article.date_creation), func.count(Article.id))\
+        .filter(Article.date_creation >= week_ago, Article.user_id == user_id)\
+        .group_by(func.date(Article.date_creation)).all()
 
 
-@app.route('/creer_commande', methods=['GET', 'POST'])
-@login_required
-def creer_commande():
-    selected_article_ids = request.form.getlist('articles[]')
-    selected_articles = Article.query.filter(Article.id.in_(selected_article_ids)).all()
+    dates = [week_ago + timedelta(days=i) for i in range(8)]
+    articles = [0] * 8
 
-    # Récupérer les autres données du formulaire
-    quantite = request.form.get('quantite')
-    largeur = request.form.get('largeur')
-    longueur = request.form.get('longueur')
-    hauteur = request.form.get('hauteur')
-    poids = request.form.get('poids')
-    adresse = request.form.get('adresse')
-        # Créer une instance de la classe Commande avec les données récupérées
-    nouvelle_commande = Commande(
-        user_id=current_user.id,
-        quantite=quantite,
-        date_commande=datetime.now(),
-        largeur=largeur,
-        longueur=longueur,
-        hauteur=hauteur,
-        poids=poids,
-        adresse=adresse,
-        articles=selected_articles
-    )
-    # Ajouter la nouvelle commande à la session
-    db.session.add(nouvelle_commande)
+    for date, count in article_counts:
+        if isinstance(date, str):
+            date = datetime.strptime(date, '%Y-%m-%d').date()  # Assurez-vous que le format de date correspond à ce que vous récupérez
+        index = (date - week_ago.date()).days
+        articles[index] = count
 
-    # Committer les changements pour sauvegarder la commande dans la base de données
-    db.session.commit()
+    return dates, articles
 
-    articles = Article.query.all()  # Récupérer tous les articles (vous pouvez ajuster cette requête selon vos besoins)
+def fetch_data_commandes(user_id):
 
- # Rediriger vers la page list_article.html avec les articles et la nouvelle commande
-    return redirect(url_for('list_article', articles=articles, commande=nouvelle_commande))'''
+    today = datetime.utcnow()
+    week_ago = today - timedelta(days=7)
+
+
+    commande_counts = db.session.query(func.date(Commande.date_creation), func.count(Commande.id))\
+        .filter(Commande.date_creation >= week_ago, Commande.user_id == user_id)\
+        .group_by(func.date(Commande.date_creation)).all()
+
+    dates = [week_ago + timedelta(days=i) for i in range(8)]
+    commandes = [0] * 8
+    for date, count in commande_counts:
+        if isinstance(date, str):
+            date = datetime.strptime(date, '%Y-%m-%d').date()  # Même traitement pour les commandes
+        index = (date - week_ago.date()).days
+        commandes[index] = count
+
+    return dates, commandes

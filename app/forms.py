@@ -2,7 +2,7 @@ from flask_bcrypt import check_password_hash
 from flask_login import current_user
 from flask_wtf import FlaskForm
 import re
-from wtforms import DateField, DateTimeField, FloatField, HiddenField, IntegerField, SelectMultipleField, StringField, PasswordField, SubmitField, BooleanField
+from wtforms import DateField, DateTimeField, FloatField, HiddenField, IntegerField, SelectField, SelectMultipleField, StringField, PasswordField, SubmitField, BooleanField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from app.models import User
@@ -70,7 +70,12 @@ class Updatepassword(FlaskForm):
 
 class ArticleForm(FlaskForm):
     id = HiddenField('ID de l\'article')
-    sku = StringField('Sku/Id', validators=[DataRequired()])
+    sku = SelectField('Sku/Id', validators=[DataRequired()], choices=[
+        ('conteneur', 'Conteneur'),
+        ('caisse', 'Caisse'),
+        ('pallet', 'Pallet'),
+        ('carton', 'Carton')
+    ])
     largeur = FloatField('Largeur', validators=[DataRequired()],render_kw={"placeholder": "Cm"}) 
     longueur = FloatField('Longeur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
     hauteur = FloatField('Hauteur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
@@ -140,5 +145,5 @@ class CommandeForm(FlaskForm):
     hauteur = FloatField('Hauteur', validators=[DataRequired()])
     poids = FloatField('Poids', validators=[DataRequired()])
     adresse = StringField('Adresse', validators=[DataRequired()])
-    date_commande = DateField('Date Commande', validators=[DataRequired()])
+    date_creation = DateField('Date Commande', validators=[DataRequired()])
     submit = SubmitField('Créer Commande')'''
