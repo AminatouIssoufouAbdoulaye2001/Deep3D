@@ -151,7 +151,7 @@ class Commande(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_creation = db.Column(db.DateTime, default=datetime.now())
     numero_commande = db.Column(db.String(50), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('User.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
     conteneurs = db.relationship('Conteneur', secondary=association_table_commande_conteneur, back_populates='commandes')
     articles = db.relationship('Article', secondary=association_table_article_commande, back_populates='commandes')
 
@@ -187,33 +187,36 @@ class Conteneur(db.Model):
     hauteur = db.Column(db.Float(precision=2), nullable=False)
     Poid_maximal = db.Column(db.Float(precision=2), nullable=False)
     quantite = db.Column(db.Integer(), nullable=False)
-    fragile = db.Column(db.Boolean(), default=None)
+    prix = db.Column(db.Float(), nullable=False)
+    date_creation = db.Column(db.DateTime, default=datetime.now())
     commandes = db.relationship('Commande', secondary=association_table_commande_conteneur, back_populates='conteneurs')
 
     
 
-    def __init__(self,type_conteneur, longeur, largeur, Poid_maximal, hauteur, prix, quantite):
+    def __init__(self,type_conteneur, longueur, largeur, Poid_maximal, hauteur, prix, quantite, date_creation):
         self.type_conteneur = type_conteneur
-        self.longueur = longeur
+        self.longueur = longueur
         self.largeur = largeur
-        self.poid_maximal = Poid_maximal
+        self.Poid_maximal = Poid_maximal
         self.hauteur = hauteur
         self.prix = prix
         self.quantite = quantite
+        self.date_creation = date_creation
 
     def __repr__(self):
-        return f"Conteneur(IdContaineur={self.id}, TypeContaineur={self.type_conteneur}, Longeur={self.longueur}, Largeur={self.largeur}, PoidMaximal={self.poid_maximal}, hauteur={self.hauteur}, prix={self.prix}, quantite={self.quantite})"
+        return f"Conteneur(IdContaineur={self.id}, TypeContaineur={self.type_conteneur}, Longeur={self.longueur}, Largeur={self.largeur}, PoidMaximal={self.Poid_maximal}, hauteur={self.hauteur}, prix={self.prix}, quantite={self.quantite}, date_creation={self.date_creation})"
 
     def to_dict(self):
         return {
             "id": self.id,
             "type_conteneur": self.type_conteneur,
-            "Longeur": self.longueur,
+            "Longueur": self.longueur,
             "Largeur": self.largeur,
-            "PoidMaximal": self.poid_maximal,
+            "PoidMaximal": self.Poid_maximal,
             "hauteur": self.hauteur,
             "prix": self.prix,
-            "quantite": self.quantite
+            "quantite": self.quantite,
+            "date_creation": self.date_creation,
         }
 
 

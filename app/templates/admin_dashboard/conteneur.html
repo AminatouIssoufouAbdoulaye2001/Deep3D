@@ -1,0 +1,264 @@
+{% extends 'admin_dashboard/layout.html' %}
+{% block content %}
+{% if current_user.is_admin %}
+
+<div class="container mt-5">
+    <h2>Gestion des Conteneurs</h2>
+    <div class="card conteneur">
+        <div class="card-header card-header-conteneur">
+            Ajouter un nouveau conteneur
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                {{ form.hidden_tag() }}
+                <div class="mb-3">
+                    {{ form.type_conteneur.label(class="form-control-label") }} {% if
+                        form.type_conteneur.errors %} {{ form.type_conteneur(class="form-control 
+                        form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                          {% for error in form.type_conteneur.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                        </div>
+                        {% else %} {{ form.type_conteneur(class="form-control form-control-lg") }} {%
+                        endif %}
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4">
+                        {{ form.largeur.label(class="form-control-label") }} {% if
+                            form.largeur.errors %} {{ form.largeur(class="form-control 
+                            form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                              {% for error in form.largeur.errors %}
+                              <span>{{ error }}</span>
+                              {% endfor %}
+                            </div>
+                            {% else %} {{ form.largeur(class="form-control form-control-lg") }} {%
+                            endif %}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.longueur.label(class="form-control-label") }} {% if
+                            form.longueur.errors %} {{ form.longueur(class="form-control 
+                            form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                              {% for error in form.longueur.errors %}
+                              <span>{{ error }}</span>
+                              {% endfor %}
+                            </div>
+                            {% else %} {{ form.longueur(class="form-control form-control-lg") }} {%
+                            endif %}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.hauteur.label(class="form-control-label") }} {% if
+                            form.hauteur.errors %} {{ form.hauteur(class="form-control 
+                            form-control-lg is-invalid") }}
+                            <div class="invalid-feedback">
+                              {% for error in form.hauteur.errors %}
+                              <span>{{ error }}</span>
+                              {% endfor %}
+                            </div>
+                            {% else %} {{ form.hauteur(class="form-control form-control-lg") }} {%
+                            endif %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ form.Poid_maximal.label(class="form-control-label") }} {% if
+                        form.Poid_maximal.errors %} {{ form.Poid_maximal(class="form-control
+                        form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                          {% for error in form.Poid_maximal.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                        </div>
+                        {% else %} {{ form.Poid_maximal(class="form-control form-control-lg") }} {%
+                        endif %}
+                </div>
+                <div class="mb-3">
+                    {{ form.quantite.label(class="form-control-label") }} {% if
+                        form.quantite.errors %} {{ form.quantite(class="form-control 
+                        form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                          {% for error in form.quantite.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                        </div>
+                        {% else %} {{ form.quantite(class="form-control form-control-lg") }} {%
+                        endif %}
+                </div>
+                <div class="mb-3">
+                    {{ form.prix.label(class="form-control-label") }} {% if
+                        form.prix.errors %} {{ form.prix(class="form-control 
+                        form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                          {% for error in form.prix.errors %}
+                          <span>{{ error }}</span>
+                          {% endfor %}
+                        </div>
+                        {% else %} {{ form.prix(class="form-control form-control-lg") }} {%
+                        endif %}
+                </div>
+                {{ form.submit(class="btn btn-outline-warning") }}
+            </form>
+        </div>
+    </div>
+    {% if conteneurs %}
+    <div class="card card-affichage-conteneur mt-4">
+      <div class="card-header">
+        Liste des Conteneurs
+        <form class="form-inline justify-content-end" method="get" action="{{ url_for('new_conteneur') }}">
+          <div class="input-group">
+            <input class="form-control mr-sm-2" type="search" placeholder="Rechercher par type de conteneur" aria-label="search_conteneur" name="search_conteneur">
+            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+          </div>
+      </form>
+    </div>
+    
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Dimensions (L×l×H)</th>
+                        <th>Poids Max</th>
+                        <th>Quantité</th>
+                        <th>Prix</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conteneur in conteneurs_pagination.items %}
+                    <tr>
+                        <td>{{ conteneur.id }}</td>
+                        <td>{{ conteneur.type_conteneur }}</td>
+                        <td>{{ conteneur.longueur }}cm × {{ conteneur.largeur }}cm × {{ conteneur.hauteur }}cm</td>
+                        <td>{{ conteneur.Poid_maximal }} kg</td>
+                        <td>{{ conteneur.quantite }}</td>
+                        <td>{{ conteneur.prix }}</td>
+                        <td>
+                            <button type="button" class="btn btn-outline-warning btn-sm m-1 btn-update" data-toggle="modal"
+                              data-target="#editModal{{conteneur.id}}" data-type_conteneur="{{ conteneur.type_conteneur }}"
+                              data-largeur="{{ conteneur.largeur }}" data-longueur="{{ conteneur.longueur }}"
+                              data-hauteur="{{ conteneur.hauteur }}" data-quantite="{{ conteneur.quantite }}"
+                              data-Poid_maximal="{{ conteneur.Poid_maximal }}" data-prix="{{ conteneur.prix }}"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button type="button" class="btn-danger btn-sm m-1 delete"  data-toggle="modal"
+                              data-target="#deleteModal{{conteneur.id}}"><i class="fa-solid fa-trash"></i></button>
+                             
+                          </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="card-footer">
+              <!-- Pagination des conteneurs -->
+              <nav aria-label="Page navigation example mt-3">
+                <ul class="pagination justify-content-end">
+                  <li class="page-item {% if not conteneurs_pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" {% if conteneurs_pagination.has_prev %}href="{{ url_for('new_conteneur', conteneurs_page=conteneurs_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+                  </li>
+                  {% for page_num in conteneurs_pagination.iter_pages() %}
+                    {% if page_num %}
+                      <li class="page-item {% if page_num == conteneurs_pagination.page %}active{% endif %}">
+                        <a class="page-link"  href="{{ url_for('new_conteneur', conteneurs_page=page_num) }}">{{ page_num }}</a>
+                      </li>
+                    {% else %}
+                      <li class="page-item disabled">
+                        <a class="page-link"  href="#">...</a>
+                      </li>
+                    {% endif %}
+                  {% endfor %}
+                  <li class="page-item {% if not conteneurs_pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" {% if conteneurs_pagination.has_next %}href="{{ url_for('new_conteneur', conteneurs_page=conteneurs_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+                  </li>
+                </ul>
+              </nav>
+          </div>
+          
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% for conteneur in conteneurs %}
+<div class="modal fade" id="editModal{{conteneur.id}}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Editer le conteneur</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{{ url_for('update_conteneur', id=conteneur.id) }}" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="modal-body">
+          <!-- Affichage des champs du conteneur -->
+          <div class="form-group">
+            <label for="type_conteneur">Type</label>
+            <input type="text" class="form-control" id="edit-type_conteneur" name="type_conteneur" value="{{ conteneur.type_conteneur }}">
+          </div>
+          <div class="form-group">
+            <label for="largeur">Largeur</label>
+            <input type="text" class="form-control" id="edit-largeur" name="largeur" value="{{ conteneur.largeur }}">
+          </div>
+          <div class="form-group">
+            <label for="longueur">Longueur</label>
+            <input type="text" class="form-control" id="edit-longueur" name="longueur" value="{{ conteneur.longueur }}">
+          </div>
+          <div class="form-group">
+            <label for="hauteur">Hauteur</label>
+            <input type="text" class="form-control" id="edit-hauteur" name="hauteur" value="{{ conteneur.hauteur }}">
+          </div>
+          <div class="form-group">
+            <label for="Poid_maximal">Poids</label>
+            <input type="text" class="form-control" id="edit-Poid_maximal" name="Poid_maximal" value="{{ conteneur.Poid_maximal }}">
+          </div>
+          <div class="form-group">
+            <label for="quantite">Quantité</label>
+            <input type="text" class="form-control" id="edit-quantite" name="quantite" value="{{ conteneur.quantite }}">
+          </div>
+          <div class="form-group">
+            <label for="prix">Prix</label>
+            <input type="text" class="form-control" id="edit-prix" name="prix" value="{{conteneur.prix }}">
+          </div>
+          <!-- Ajoutez d'autres champs d'new_conteneur ici -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+          <button type="submit" class="btn btn-outline-warning">Ok</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de suppression pour chaque new_conteneur -->
+<div class="modal fade" id="deleteModal{{ conteneur.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Supprimer le conteneur</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr de vouloir supprimer cet conteneur ?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+        <form action="{{ url_for('delete_conteneur', id=conteneur.id) }}" method="POST">
+          <input class="btn btn-danger" type="submit" value="Supprimer">
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+{% endif %}
+{% endblock content %}

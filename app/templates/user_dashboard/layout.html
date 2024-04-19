@@ -29,7 +29,9 @@
     <body>
       <!-- navbar -->
       <nav class="navbar">
-        <a class="deep" style="color: #ebab54; text-decoration: none;" href="{{ url_for('home') }}"><h4>Deep3DBinPacking</h4></a>
+        <a class="deep" style="color: #ebab54; text-decoration: none;" href="{{ url_for('home') }}">
+          
+          <h4>Deep3DBinPacking</h4></a>
         <div class="profile">
           {% if current_user.is_authenticated %}
           <a href="{{ url_for('account') }}"><i class="fa-solid fa-user " style="font-size: 24px; color: #49495e;"></i></a>
@@ -53,7 +55,7 @@
           </a>
         </div>
         <div class="sidebar-menu">
-          <span class="fas fa-boxes-stacked"></span>
+          <span class="fa-solid fa-box-open"></span>
           <a style="text-decoration: none; color: white;" href="{{url_for('new_article')}}">
             <p>Article</p>
           </a>
@@ -65,7 +67,7 @@
           </a>
         </div>
         <div class="sidebar-menu">
-          <span class="fas fa-chart-line"></span><a style="text-decoration: none; color: white; " href="{{url_for('charts')}}"><p>Statistique</p></a>
+          <span class="fas fa-chart-line"></span><a style="text-decoration: none; color: white;" href="{{url_for('charts')}}"><p>Statistique</p></a>
         </div>
         <div class="sidebar-menu">
           <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account')}}"><p>Profile</p></a>

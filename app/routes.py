@@ -1,23 +1,22 @@
-             
 #bibliothéques pour les différentes fonctionnalité de l'app
 from datetime import datetime, timedelta
 import os
 import secrets
 from PIL import Image
-from flask import abort, render_template, url_for, flash, redirect, request,Response
+from flask import abort, jsonify, render_template, url_for, flash, redirect, request,Response
+from flask_paginate import Pagination,get_page_args
 
 from sqlalchemy import func
 from app import app, db, bcrypt, mail
-from app.forms import (RegistrationForm, LoginForm, UpdateAccountForm,
+from app.forms import (ConteneurForm, RegistrationForm, LoginForm, UpdateAccountForm,
                        ArticleForm, RequestResetForm, ResetPasswordForm,
                        Updatepassword, UpdateAccountForm, Updatepassword,AjouterAdress)
-from app.models import Commande, User, Article, Adresse
+from app.models import Commande, Conteneur, User, Article, Adresse
 from flask_login import login_user, current_user, logout_user, login_required
 from flask_mail import Message
 import csv
 #bibliothéques pour les graphiques
 from io import StringIO
-from scipy.interpolate import make_interp_spline
 from matplotlib import pyplot as plt
 from plotly.offline import plot
 import numpy as np
@@ -35,10 +34,26 @@ def home():
 
 
 @app.route("/acceuil_admin")
+@login_required
 def acceuil_admin():
     return render_template('admin_dashboard/acceuil.html')
 
+@app.route("/list_cients")
+@login_required
+def list_clients():
+    search = request.args.get('search')
+    users_page = request.args.get('users_page', 1, type=int)
+    per_page = 10  # Nombre d'items par page
 
+    if search:
+        users_query = User.query.filter((User.prenom.ilike(f'%{search}%')) | (User.nom.ilike(f'%{search}%')))
+    else:
+        users_query = User.query
+
+    users_pagination = users_query.paginate(page=users_page, per_page=per_page, error_out=False)
+    pagination_args = Pagination(page=users_page, per_page=per_page, total=users_query.count(), css_framework='bootstrap4')
+    
+    return render_template('admin_dashboard/list_clients.html', users_pagination=users_pagination,pagination_args=pagination_args)
 
 @app.route("/acceuil_client")
 @login_required
@@ -531,13 +546,108 @@ def delete_commande(id):
     flash('Votre commande a été supprimé!', 'success')
     return redirect(url_for('article'))
         
+@app.route("/user/<int:id>/delete", methods=['POST'])
+@login_required
+def delete_user(id):
+    user = User.query.get_or_404(id)
+    if not current_user.is_admin:
+        abort(403)  # Si l'utilisateur n'est pas un administrateur, il ne peut pas supprimer d'utilisateurs
+    db.session.delete(user)
+    db.session.commit()
+    flash('L\'utilisateur a été supprimé avec succès!', 'success')
+    return redirect(url_for('list_clients'))
 
+        
 
 
 @app.route('/details_commande/<int:commande_id>')
 def details_commande(commande_id):
     commande = Commande.query.get_or_404(commande_id)
     return render_template('user_dashboard/details_commande.html', title='Détails de la Commande', commande=commande)
+
+
+
+@app.route("/new_conteneur", methods=['GET', 'POST'])
+@login_required
+def new_conteneur():
+    form = ConteneurForm()
+    if form.validate_on_submit():
+        conteneur = Conteneur(type_conteneur=form.type_conteneur.data, largeur=form.largeur.data,
+                          longueur=form.longueur.data, hauteur=form.hauteur.data,
+                          Poid_maximal=form.Poid_maximal.data, quantite=form.quantite.data,
+                          prix=form.prix.data,date_creation=datetime.now())
+        
+        db.session.add(conteneur)
+        db.session.commit()
+        flash('Conteneur ajouté avec succès!', 'success')
+        return redirect(url_for('new_conteneur'))
+    conteneurs = Conteneur.query.all() 
+
+    search_conteneur = request.args.get('search_conteneur')
+    conteneurs_page = request.args.get('conteneurs_page', 1, type=int)
+    per_page = 5 # Nombre d'items par page
+
+    if search_conteneur:
+        conteneurs_query = Conteneur.query.filter((Conteneur.type_conteneur.ilike(f'%{search_conteneur}%')))
+    else:
+        conteneurs_query = Conteneur.query
+
+    conteneurs_pagination = conteneurs_query.paginate(page=conteneurs_page, per_page=per_page, error_out=False)
+    pagination_args = Pagination(page=conteneurs_page, per_page=per_page, total=conteneurs_query.count(), css_framework='bootstrap4')
+    
+    return render_template('admin_dashboard/conteneur.html',form=form, conteneurs=conteneurs, conteneurs_pagination=conteneurs_pagination, pagination_args=pagination_args)
+
+
+@app.route('/update_conteneur/<int:id>', methods=['GET', 'POST'])
+@login_required
+def update_conteneur(id):
+    conteneur = Conteneur.query.get_or_404(id)
+    form = ConteneurForm()
+    if request.method == 'GET':
+        form.type_conteneur.data = conteneur.type_conteneur
+        form.longueur.data = conteneur.longueur
+        form.largeur.data = conteneur.largeur
+        form.hauteur.data = conteneur.hauteur
+        form.Poid_maximal.data = conteneur.Poid_maximal
+        form.quantite.data = conteneur.quantite
+        form.prix.data = conteneur.prix
+
+    elif request.method == 'POST':
+        conteneur.type_conteneur = form.type_conteneur.data 
+        conteneur.longueur = form.longueur.data 
+        conteneur.largeur = form.largeur.data 
+        conteneur.hauteur = form.hauteur.data 
+        conteneur.Poid_maximal = form.Poid_maximal.data 
+        conteneur.quantite = form.quantite.data 
+        conteneur.prix = form.prix.data 
+
+        db.session.commit()
+        flash('Votre conteneur a été bien mise à jour!', 'success')
+        return redirect(url_for('new_conteneur'))
+
+    return render_template('admin_dashboard/conteneur.html', title='Update conteneur', form=form, conteneur=conteneur)
+
+@app.route('/delete_conteneur/<int:id>', methods=['POST'])
+@login_required
+def delete_conteneur(id):
+    conteneur = Conteneur.query.get_or_404(id)
+    if not current_user.is_admin:
+        abort(403)  # Si l'utilisateur n'est pas un administrateur, il ne peut pas supprimer de conteneur
+    db.session.delete(conteneur)
+    db.session.commit()
+    flash('Le conteneur a été supprimé avec succès!', 'danger')
+    return redirect(url_for('new_conteneur'))
+
+
+
+
+
+
+
+
+
+
+
 
 
 def fetch_data(user_id):

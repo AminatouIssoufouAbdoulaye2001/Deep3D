@@ -13,8 +13,8 @@ class RegistrationForm(FlaskForm):
     prenom = StringField('prenom', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('email', validators=[DataRequired(), Email()])
     mot_de_passe = PasswordField('Mot de passe', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('mot_de_passe', message='Les mots de passe ne correspondent pas')])
-    submit = SubmitField('Sign Up')
+    confirm_password = PasswordField('Confirmé mot de passe', validators=[DataRequired(), EqualTo('mot_de_passe', message='Les mots de passe ne correspondent pas')])
+    submit = SubmitField('Se connecter')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
@@ -36,7 +36,7 @@ class RegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
     mot_de_passe = PasswordField('Mot de passe', validators=[DataRequired()])
-    remember = BooleanField('Remember Me')
+    remember = BooleanField('Rappel Moi')
     submit = SubmitField('Login')
 
 class UpdateAccountForm(FlaskForm):
@@ -52,7 +52,7 @@ class UpdateAccountForm(FlaskForm):
         if email.data != current_user.email:
             user = User.query.filter_by(email=email.data).first()
             if user:
-                raise ValidationError('That email is taken. Please choose a different one.')
+                raise ValidationError("Ce email est déja pris. Veuillez choisir un autre s'il vous plaît.")
             
             
 
@@ -84,6 +84,22 @@ class ArticleForm(FlaskForm):
     fragile = BooleanField('Fragile', default=False)
     submit = SubmitField('Ajouter')
 
+class ConteneurForm(FlaskForm):
+    id = HiddenField('ID de conteneur')
+    type_conteneur = SelectField('Type', validators=[DataRequired()], choices=[
+        ('carton', 'Carton'),
+        ('caisse', 'Caisse'),
+        ('pallet', 'Pallet'),
+        ('conteneur', 'Conteneur')
+    ])
+    largeur = FloatField('Largeur', validators=[DataRequired()],render_kw={"placeholder": "Cm"}) 
+    longueur = FloatField('Longeur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
+    hauteur = FloatField('Hauteur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
+    Poid_maximal = FloatField('Poids', validators=[DataRequired()],render_kw={"placeholder": "Kg"})
+    quantite = IntegerField('Quantité', validators=[DataRequired()])
+    prix = FloatField('Prix',validators=[DataRequired()],render_kw={"placeholder": "TND"})
+    submit = SubmitField('Ajouter')
+
 class UpdateArticleForm(FlaskForm):
     id = HiddenField('ID de l\'article')
     sku = StringField('Sku/Id')
@@ -103,7 +119,7 @@ class RequestResetForm(FlaskForm):
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user is None:
-            raise ValidationError('There is no account with that email. You must register first.')
+            raise ValidationError("Il n'y a pas de compte avec cet email. Tu dois d'abord t'enregistrer.")
         
 class ResetPasswordForm(FlaskForm):
     mot_de_passe = PasswordField('Entrez votre nouveau mot de passe', validators=[DataRequired()])
