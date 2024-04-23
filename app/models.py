@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date as dt_date
 from itsdangerous import URLSafeTimedSerializer as Serializer  
 from app import db, login_manager, app
 from flask_login import UserMixin
@@ -82,7 +82,7 @@ class Article(db.Model):
     poids = db.Column(db.Float(precision=5), nullable=False)
     quantite = db.Column(db.Integer(), nullable=False)
     fragile = db.Column(db.Boolean(), default=False) 
-    date_creation = db.Column(db.DateTime,default=datetime.now())
+    date_creation = db.Column(db.Date,default=dt_date.today())
     commandes = db.relationship('Commande', secondary=association_table_article_commande, back_populates='articles')
 
 
@@ -149,13 +149,13 @@ association_table_commande_conteneur = db.Table('commande_conteneur',
 class Commande(db.Model):
     __tablename__ = 'Commande'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    date_creation = db.Column(db.DateTime, default=datetime.now())
+    date_creation = db.Column(db.Date, default=dt_date.today())
     numero_commande = db.Column(db.String(50), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
     conteneurs = db.relationship('Conteneur', secondary=association_table_commande_conteneur, back_populates='commandes')
     articles = db.relationship('Article', secondary=association_table_article_commande, back_populates='commandes')
 
-    def __init__(self, date_creation, user_id=None):
+    def __init__(self, date_creation=date_creation, user_id=None):
         self.date_creation = date_creation
         self.articles = []
         self.user_id = user_id
@@ -163,7 +163,7 @@ class Commande(db.Model):
         
           # Générer un numéro de commande unique
     def generate_unique_numero_commande(self):
-        timestamp = datetime.now().strftime('%Y%m%d')
+        timestamp = dt_date.today().strftime('%Y%m%d')
         unique_id = uuid.uuid4().hex[:6]  # Génère un identifiant unique de 6 caractères
         return f"CMD-{timestamp}-{unique_id}"
     
@@ -188,7 +188,7 @@ class Conteneur(db.Model):
     Poid_maximal = db.Column(db.Float(precision=2), nullable=False)
     quantite = db.Column(db.Integer(), nullable=False)
     prix = db.Column(db.Float(), nullable=False)
-    date_creation = db.Column(db.DateTime, default=datetime.now())
+    date_creation = db.Column(db.Date, default=dt_date.today())
     commandes = db.relationship('Commande', secondary=association_table_commande_conteneur, back_populates='conteneurs')
 
     

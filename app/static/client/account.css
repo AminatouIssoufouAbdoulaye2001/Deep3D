@@ -79,6 +79,9 @@ div.subpage {
     transition: transform 400ms ease, box-shadow 400ms ease, -webkit-transform 400ms ease;
     box-shadow: 0 6px 12px -6px #f5d5aa;
 }
+.card{
+    border: solid 1px #f5d5aa;
+}
 .card .card-header {
     display: inline-block;
     font-size: 24px;
@@ -91,6 +94,7 @@ div.subpage {
     padding-right: 30px;
     padding-left: 32px;
 }
+
 
 .card-header:first-child {
     border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
@@ -149,6 +153,9 @@ div.subpage {
     align-items: center;
     cursor: pointer;
 }
+.btn:hover{
+    color: #fff;
+}
 .btn:not(:disabled):not(.disabled) {
     cursor: pointer;
 }
@@ -160,7 +167,6 @@ div.subpage {
     padding: 0 30px;
     text-transform: uppercase;
 }
-
 .text-uppercase {
     text-transform: uppercase !important;
 }
@@ -180,7 +186,6 @@ img {
 }
 .form-control{
     width: 100%;
-    padding: 16px 16px;
     margin-bottom: 24px;
     border: 1px solid #f5d5aa;
     border-radius: 6px;
@@ -228,7 +233,9 @@ button, input {
     background-color: #e79a32;
     color: white;
 }
-
+a:hover{
+    color: #49495e;
+}
 .box
 {
     height: 50px;

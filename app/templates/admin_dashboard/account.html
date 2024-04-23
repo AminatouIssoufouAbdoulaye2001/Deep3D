@@ -1,0 +1,6 @@
+{% extends 'admin_dashboard/layout.html' %}
+{% block content %}
+{% if current_user.is_admin %}
+{% include 'account.html'%}
+{% endif %}
+{% endblock content %}

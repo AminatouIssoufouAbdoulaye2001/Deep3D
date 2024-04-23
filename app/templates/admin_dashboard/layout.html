@@ -64,6 +64,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='admin/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='client/account.css') }}">
 
     {% if title %}
         <title>Deep3DBinPacking - {{ title }}</title>
@@ -135,7 +136,8 @@
         <li class="spacer"></li>
         <li class="profile">
             <span class="profile-image">
-                <img src="{{image}}" alt="profile" />
+              
+                <img src="{{g.image }}" alt="profile" />
             </span>
             <span class="profile-name">
                 {{current_user.nom}} {{current_user.prenom}}
@@ -161,19 +163,22 @@
       </a>
     </div>
     <div class="sidebar-menu">
+      <span class="fas fa-chart-line"></span>
+      <a style="text-decoration: none; color: white;" href="{{url_for('list_commandes')}}">
+        <p>Commandes</p>
+      </a>
+    </div>
+    <div class="sidebar-menu">
       <span class="fas fa-users"></span>
       <a style="text-decoration: none; color: white;" href="{{ url_for('list_clients') }}">
         <p>Clients</p>
       </a>
     </div>
     <div class="sidebar-menu">
-      <span class="fas fa-chart-line"></span><a style="text-decoration: none; color: white;" href="{{url_for('charts')}}"><p>Statistique</p></a>
+      <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account_admin')}}"><p>Profile</p></a>
     </div>
     <div class="sidebar-menu">
-      <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account')}}"><p>Profile</p></a>
-    </div>
-    <div class="sidebar-menu">
-      <span class="fas fa-shield-halved"></span><a style="text-decoration: none; color: white; " href="{{url_for('securite')}}"><p>Sécurité</p></a>
+      <span class="fas fa-shield-halved"></span><a style="text-decoration: none; color: white; " href="{{url_for('admin_securite')}}"><p>Sécurité</p></a>
     </div>
   </div>
 

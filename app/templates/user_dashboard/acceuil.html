@@ -1,37 +1,47 @@
 {% extends "user_dashboard/layout.html" %}
 {% block content %}
-  <div class="dashboard-container">
-    <!-- 4 cards top -->
-    <div class="card  total1">
-      <div class="info">
+  
+<div class="row col">
+  <!-- Card Total Articles -->
+  <div class="card col-md-5 total1 mb-4">
+     <div class="info">
         <div class="info-detail">
-          <h3>Total Artciles</h3>
-          <p>Nombre d'articles créés</p>
-          <h2>{{nombre_articles}} <span>articles</span></h2>
+           <h3>Total Articles</h3>
+           <h2>{{ nombre_articles }} <span>articles</span></h2>
         </div>
         <div class="info-image"><i class="fas fa-boxes-stacked"></i></div>
-      </div>
-    </div>
-  
-    <div class="card  total2">          
-      <div class="info">
+     </div>
+  </div>
+
+  <!-- Espace -->
+  <div class="m-1"></div>
+
+  <!-- Card Total Commandes -->
+  <div class="card col-md-5 total2 mb-4">
+     <div class="info">
         <div class="info-detail">
-          <h3>Total Commandes</h3>
-          <p>Nombre de commandes crées</p>
-          <h2>{{nombre_commandes}} <span>commandes</span></h2>
+           <h3>Total Commandes</h3>
+           <h2>{{ nombre_commandes }} <span>commandes</span></h2>
         </div>
         <div class="info-image"><i class="fas fa-boxes"></i></div>
-      </div>
-    </div>
-  </div> 
+     </div>
+  </div>
+</div>
+
+
     <!-- 2 cards bottom -->
     {% if articles %}
     <div class="row">
-        <div class="col-md-6" id="graph">{{ graphscatter_html|safe }}</div>
-        <div class="col-md-6">{{ graph_htmlbar|safe }}</div>
+      <div  class="col-md-6" id="graphique">{{ graph_htmlarticle|safe }}</div>
+      <div  class="col-md-6" id="graphique">{{ graph_htmlcommandes|safe }}</div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 mt-3">{{ graph_htmlbar|safe }}</div>
+      <div class="col-md-6 mt-3" id="pie-chart">{{ graph_htmlpie|safe }}</div>
+
     </div>
     <div class="row mt-3">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="card detail">
                 <div class="detail-header">
                     <form method="POST" action="{{ url_for('download_articles') }}">
@@ -86,8 +96,6 @@
                 </nav>
             </div>
         </div>
-        <div class="col-md-4" id="pie-chart">{{ graph_htmlpie|safe }}</div>
-       
     </div>
     {% endif %}
     

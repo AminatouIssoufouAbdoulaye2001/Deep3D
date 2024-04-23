@@ -20,7 +20,7 @@
                           <span>{{ error }}</span>
                           {% endfor %}
                         </div>
-                        {% else %} {{ form.type_conteneur(class="form-control form-control-lg") }} {%
+                        {% else %} {{ form.type_conteneur(class="form-control  form-control-lg") }} {%
                         endif %}
                 </div>
                 
@@ -137,12 +137,12 @@
                         <td>{{ conteneur.quantite }}</td>
                         <td>{{ conteneur.prix }}</td>
                         <td>
-                            <button type="button" class="btn btn-outline-warning btn-sm m-1 btn-update" data-toggle="modal"
+                            <button type="button" class="bto btn-outline-warning btn-sm m-1 btn-update" data-toggle="modal"
                               data-target="#editModal{{conteneur.id}}" data-type_conteneur="{{ conteneur.type_conteneur }}"
                               data-largeur="{{ conteneur.largeur }}" data-longueur="{{ conteneur.longueur }}"
                               data-hauteur="{{ conteneur.hauteur }}" data-quantite="{{ conteneur.quantite }}"
                               data-Poid_maximal="{{ conteneur.Poid_maximal }}" data-prix="{{ conteneur.prix }}"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button type="button" class="btn-danger btn-sm m-1 delete"  data-toggle="modal"
+                            <button type="button" class="btn-danger bto btn-sm m-1 delete"  data-toggle="modal"
                               data-target="#deleteModal{{conteneur.id}}"><i class="fa-solid fa-trash"></i></button>
                              
                           </td>
@@ -259,6 +259,6 @@
 </div>
 {% endfor %}
 
-
 {% endif %}
+
 {% endblock content %}

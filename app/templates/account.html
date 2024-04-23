@@ -1,0 +1,254 @@
+<div class="row mr-0">
+    <div class="col subpage">
+        <div class="row m-t-50">
+            <div class="col subpage-menu">
+                <ul>
+                    <li><a class="nav-link active" id="profile-tab" href="#profile-section">MON PROFIL</a></li>
+                    <li><a class="nav-link" id="address-tab" href="#address-section">MON ADRESSE</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="container">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="profile-section" role="tabpanel"
+                    aria-labelledby="profile-tab">
+                    <div class="row">
+                        <div class="col">
+                            <div class="bag"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="subpage-content">
+                                <div class="Customer-container">
+                                    <div class="card">
+                                        <div class="card-header">Mon Profil</div>
+                                        <form method="POST" action="" enctype="multipart/form-data">
+                                            {{ form_account.csrf_token }}
+                                            <div class="card-content">
+                                                <div class="row">
+                                                    <div class="col-4 bg-light p-4 " style="height: 350px;">
+                                                        <div class="user-photo-img mx-auto">
+                                                            <div class="user-photo-img-circle text-center">
+                                                                <img class="rounded"  
+                                                                src="{{ g.image }}">
+                                                            </div>
+                                                        </div>
+                                                            {{ form_account.image.label() }}
+                                                        {{ form_account.image(class="form-control-file") }}
+                                                        {% if form_account.image.error %}
+                                                        {% for error in form_account.image.errors %}
+                                                        <span class="text-danger">{{ error }}</span><br>
+                                                        {% endfor %}
+                                                        {% endif %}
+                                                        <div class="user-photo-desc p-2 text-center">
+                                                            Vous pouvez télécharger des images jusqu'à 256x256 (png, jpg). Votre avatar apparaît dans votre profil public et dans les notifications de votre équipe.
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    <div class="col flex-column d-flex justify-content-start">
+                                                        <div class="row">
+                                                            <div class="col"></div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col form-field-block form-group">
+                                                                {{ form_account.nom.label(class="form-control-label") }}
+                                                                {% if form_account.nom.errors %}
+                                                                {{ form_account.nom(class="form-control form-control-lg
+                                                                is-invalid") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in form_account.nom.errors %}
+                                                                    <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                                {% else %}
+                                                                {{ form_account.nom(class="form-control
+                                                                form-control-lg") }}
+                                                                {% endif %}
+                                                            </div>
+                                                            <div class="col form-field-block form-group">
+                                                                {{ form_account.prenom.label(class="form-control-label")
+                                                                }}
+                                                                {% if form_account.prenom.errors %}
+                                                                {{ form_account.prenom(class="form-control
+                                                                form-control-lg is-invalid") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in form_account.prenom.errors %}
+                                                                    <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                                {% else %}
+                                                                {{ form_account.prenom(class="form-control
+                                                                form-control-lg") }}
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col form-field-block form-group">
+                                                                {{ form_account.email.label(class="form-control-label")
+                                                                }}
+                                                                {% if form_account.email.errors %}
+                                                                {{ form_account.email(class="form-control
+                                                                form-control-lg is-invalid") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in form_account.email.errors %}
+                                                                    <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                                {% else %}
+                                                                {{ form_account.email(class="form-control
+                                                                form-control-lg") }}
+                                                                {% endif %}
+                                                            </div>
+
+                                                            <div class="col form-field-block form-group">
+                                                                {{
+                                                                form_account.telephone.label(class="form-control-label")
+                                                                }}
+                                                                {% if form_account.telephone.errors %}
+                                                                {{ form_account.telephone(class="form-control
+                                                                form-control-lg is-invalid") }}
+                                                                <div class="invalid-feedback">
+                                                                    {% for error in form_account.telephone.errors %}
+                                                                    <span>{{ error }}</span>
+                                                                    {% endfor %}
+                                                                </div>
+                                                                {% else %}
+                                                                {{ form_account.telephone(class="form-control
+                                                                form-control-lg") }}
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        <div class="row mt-auto align-content-end">
+                                                            <div class="col d-flex justify-content-end">
+                                                                {{ form_account.submit(class="btn btn-primary") }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="address-section" role="tabpanel"
+                    aria-labelledby="address-tab">
+                    <div class="row">
+                        <div class="col">
+                            <div class="bag"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="subpage-content">
+                                <div class="Customer-container">
+                                    <div class="card">
+                                        <div class="card-header"> Mon adresse</div>
+                                        <form method="POST" action="">
+                                            {{ form_newadresse.csrf_token }}
+                                            <div class="card-content">
+                                                <div class="col flex-column d-flex justify-content-start">
+                                                    <div class="row">
+                                                        <div class="col"></div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col form-field-block form-group">
+                                                            {{ form_newadresse.rue.label(class="form-control-label") }}
+                                                            {% if form_newadresse.rue.errors %}
+                                                            {{ form_newadresse.rue(class="form-control form-control-lg
+                                                            is-invalid") }}
+                                                            <div class="invalid-feedback">
+                                                                {% for error in form_newadresse.rue.errors %}
+                                                                <span>{{ error }}</span>
+                                                                {% endfor %}
+                                                            </div>
+                                                            {% else %}
+                                                            {{ form_newadresse.rue(class="form-control form-control-lg")
+                                                            }}
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col form-field-block form-group">
+                                                            {{
+                                                            form_newadresse.code_postal.label(class="form-control-label")
+                                                            }}
+                                                            {% if form_newadresse.code_postal.errors %}
+                                                            {{ form_newadresse.code_postal(class="form-control
+                                                            form-control-lg is-invalid") }}
+                                                            <div class="invalid-feedback">
+                                                                {% for error in form_newadresse.code_postal.errors %}
+                                                                <span>{{ error }}</span>
+                                                                {% endfor %}
+                                                            </div>
+                                                            {% else %}
+                                                            {{ form_newadresse.code_postal(class="form-control
+                                                            form-control-lg") }}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col form-field-block form-group">
+                                                            {{ form_newadresse.pays.label(class="form-control-label") }}
+                                                            {% if form_newadresse.pays.errors %}
+                                                            {{ form_newadresse.pays(class="form-control form-control-lg
+                                                            is-invalid") }}
+                                                            <div class="invalid-feedback">
+                                                                {% for error in form_newadresse.pays.errors %}
+                                                                <span>{{ error }}</span>
+                                                                {% endfor %}
+                                                            </div>
+                                                            {% else %}
+                                                            {{ form_newadresse.pays(class="form-control
+                                                            form-control-lg") }}
+                                                            {% endif %}
+                                                        </div>
+                                                        <div class="col form-field-block form-group">
+                                                            {{ form_newadresse.ville.label(class="form-control-label")
+                                                            }}
+                                                            {% if form_newadresse.ville.errors %}
+                                                            {{ form_newadresse.ville(class="form-control form-control-lg
+                                                            is-invalid") }}
+                                                            <div class="invalid-feedback">
+                                                                {% for error in form_newadresse.ville.errors %}
+                                                                <span>{{ error }}</span>
+                                                                {% endfor %}
+                                                            </div>
+                                                            {% else %}
+                                                            {{ form_newadresse.ville(class="form-control
+                                                            form-control-lg") }}
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mt-auto align-content-end">
+                                                        <div class="col d-flex justify-content-end">
+                                                            {% if existing_address %}
+                                                            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+                                                            {% else %}
+                                                            <button type="submit" class="btn btn-primary">Ajouter</button>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Assurez-vous d'inclure jQuery avant Bootstrap.js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Inclure Bootstrap.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/js/bootstrap.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/account.js') }}"></script>

@@ -28,14 +28,14 @@
 
     <body>
       <!-- navbar -->
-      <nav class="navbar">
+      <nav class="navbar ">
         <a class="deep" style="color: #ebab54; text-decoration: none;" href="{{ url_for('home') }}">
-          
-          <h4>Deep3DBinPacking</h4></a>
+          <h4>Deep3DBinPacking</h4>
+        </a>
         <div class="profile">
           {% if current_user.is_authenticated %}
-          <a href="{{ url_for('account') }}"><i class="fa-solid fa-user " style="font-size: 24px; color: #49495e;"></i></a>
-          <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket" style="font-size: 24px; color: #49495e;"></i> </a> 
+          <a href="{{ url_for('account') }}"><i class="fa-solid fa-user " style="font-size: 24px; color: #ebab54;"></i></a>
+          <a href="{{ url_for('logout') }}"><i class="fa-solid fa-right-from-bracket" style="font-size: 24px; color: #ebab54;"></i> </a> 
           {% endif %}
         </div>
       </nav>
@@ -67,40 +67,51 @@
           </a>
         </div>
         <div class="sidebar-menu">
-          <span class="fas fa-chart-line"></span><a style="text-decoration: none; color: white;" href="{{url_for('charts')}}"><p>Statistique</p></a>
-        </div>
-        <div class="sidebar-menu">
           <span class="fas fa-cog"></span><a style="text-decoration: none; color: white; " href="{{url_for('account')}}"><p>Profile</p></a>
         </div>
         <div class="sidebar-menu">
           <span class="fas fa-shield-halved"></span><a style="text-decoration: none; color: white; " href="{{url_for('securite')}}"><p>Sécurité</p></a>
         </div>
+        <div class="sidebar-menu">
+          <span class="fa-solid fa-circle-info"></span><a style="text-decoration: none; color: white;" href="{{url_for('about')}}"><p>Aide</p></a>
+        </div>
       </div>
-  
-      <script src="script.js"></script>
       <main role="main">
         <div class="row">
           <div class="col-lg-12">
             {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                {% for category, message in messages %}
-                  <div class="alert alert-{{ category }}">
-                    {{ message }}
-                  </div>
-                {% endfor %}
-              {% endif %}
-            {% endwith %}
-            {% block content %}{% endblock %}
-          </div>
-        </div>
-      </main>
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+      
+                  {% block content %}{% endblock %}
+                </div>
+              </div>
+            </main>
+            <script>
+              window.setTimeout(function() {
+                $(".alert").fadeTo(500, 0).slideUp(500, function(){
+                  $(this).remove();
+                });
+              }, 3000);
+            </script>
 
 
+<!-- jQuery -->
+<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js" integrity="sha256-eGE6blurk5sHj+rmkfsGYeKyZx3M4bG+ZlFyA7Kns7E=" crossorigin="anonymous"></script>
 
-          <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<!-- Popper.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     </body>
 </html>

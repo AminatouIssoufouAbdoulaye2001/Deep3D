@@ -89,23 +89,17 @@ body{
     color: #ebab54;
     
   }
-  .form-control{
-    width: 100%;
-    margin-bottom: 24px;
-    border: 1px solid #f5d5aa;
-    border-radius: 6px;
-    font-size: 16px;
-    line-height: 20px;
-  }
+  
   .conteneur{
     background-color: #fcf9f4;
     border: solid 1px #ebab54;
     box-shadow: 0 10px 12px -6px #ebab54;
-    height: 650px;
+    height: 700px;
   }
   .card-affichage-conteneur{
     border: solid 1px #ebab54;
     background-color: #fcf9f4;
+    height: 500px;
   }
   .alert-success {
     margin-top: 20px;
@@ -119,4 +113,21 @@ body{
     border-color: #f5c6cb;
     color: #721c24;
   }
-  
+
+
+.bto{
+  border-radius: 6px;
+  font-size: 15px;
+  line-height: 10px;
+  position: static;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+.bto:hover{
+  color: #fff;
+}
+.thead-commandes{
+  background-color: #49495E;
+  color: #fff;
+}

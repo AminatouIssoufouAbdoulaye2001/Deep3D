@@ -47,7 +47,15 @@ class UpdateAccountForm(FlaskForm):
     telephone = IntegerField('Téléphone', validators=[])
     submit = SubmitField('Metre à jour')
 
-            
+class AdminAccountForm(FlaskForm):
+    nom = StringField('Nom', validators=[])
+    prenom = StringField('Prenom', validators=[])
+    email = StringField('Email', validators=[Email()])
+    image = FileField(' ', validators=[FileAllowed(['jpg', 'png'])])
+    telephone = IntegerField('Téléphone', validators=[])
+    submit = SubmitField('Metre à jour')
+
+
     def validate_email(self, email):
         if email.data != current_user.email:
             user = User.query.filter_by(email=email.data).first()
@@ -70,14 +78,9 @@ class Updatepassword(FlaskForm):
 
 class ArticleForm(FlaskForm):
     id = HiddenField('ID de l\'article')
-    sku = SelectField('Sku/Id', validators=[DataRequired()], choices=[
-        ('conteneur', 'Conteneur'),
-        ('caisse', 'Caisse'),
-        ('pallet', 'Pallet'),
-        ('carton', 'Carton')
-    ])
+    sku = StringField("Id/Sku",validators=[DataRequired()])
     largeur = FloatField('Largeur', validators=[DataRequired()],render_kw={"placeholder": "Cm"}) 
-    longueur = FloatField('Longeur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
+    longueur = FloatField('Longueur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
     hauteur = FloatField('Hauteur', validators=[DataRequired()],render_kw={"placeholder": "Cm"})
     poids = FloatField('Poids', validators=[DataRequired()],render_kw={"placeholder": "Kg"})
     quantite = IntegerField('Quantité', validators=[DataRequired()])

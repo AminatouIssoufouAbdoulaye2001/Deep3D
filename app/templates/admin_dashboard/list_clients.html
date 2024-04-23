@@ -1,26 +1,22 @@
 {% extends 'admin_dashboard/layout.html' %}
 {% block content %}
 {% if current_user.is_admin %}
-<div class="container mt-6">
+<div class="container mt-4">
+    <h1 class="mb-4">Liste des Clients</h1>
+    <!-- Barre de recherche -->
+    <form class="mb-3" method="get" action="{{ url_for('list_clients') }}">
+        <div class="input-group">
+            <input class="form-control" type="search" placeholder="Rechercher par nom ou prénom"
+                aria-label="Search" name="search">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+        </div>
+
+    </form>
+    <!-- Fin barre de recherche -->
     <div class="row mt-6">
         <div class="col-sm-12">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Barre de recherche -->
-                    <div class="row mb-4">
-                        <div class="col">
-                            <h4 class="card-title">Liste des Clients</h4>
-                        </div>
-                        <div class="col">
-                            <form class="form-inline justify-content-end" method="get" action="{{ url_for('list_clients') }}">
-                                <input class="form-control mr-sm-2" type="search" placeholder="Rechercher par nom ou prénom" aria-label="Search" name="search">
-                                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Rechercher</button>
-                            </form>
-                            
-                        </div>
-                    </div>
-                    <!-- Fin barre de recherche -->
-
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="thead-light">
@@ -38,23 +34,32 @@
                                 {% for user in users_pagination.items %}
                                 <tr>
                                     <td>{{ user.id }}</td>
-                                    <td><img src="{{ url_for('static', filename='images/' + user.image) }}" alt="Photo de profil" class="img-fluid rounded-circle" style="width: 50px; height: 50px;"></td>
+                                    <td><img src="{{ url_for('static', filename='images/' + user.image) }}"
+                                            alt="Photo de profil" class="img-fluid rounded-circle"
+                                            style="width: 50px; height: 50px;"></td>
                                     <td>{{ user.prenom }}</td>
                                     <td>{{ user.nom }}</td>
                                     <td>{{ user.email }}</td>
                                     <td>{{ user.telephone }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-danger btn-sm m-1 delete" data-toggle="modal" data-target="#deleteModal{{ user.id }}"><i class="fas fa-trash"></i></button>
-                                        <button type="button" class="btn btn-warning btn-sm m-1 view-address" data-toggle="modal" data-target="#addressModal{{ user.id }}"><i class="fas fa-map-marked-alt"></i></button>
+                                        <button type="button" class=" bto btn-danger btn-sm m-1 delete"
+                                            data-toggle="modal" data-target="#deleteModal{{ user.id }}"><i
+                                                class="fa-solid fa-user-minus"></i></button>
+                                        <button type="button" class="bto btn-warning btn-sm m-1 view-address"
+                                            data-toggle="modal" data-target="#addressModal{{ user.id }}"><i
+                                                class="fas fa-map-marked-alt"></i></button>
                                     </td>
                                 </tr>
                                 <!-- Modal de confirmation de suppression -->
-                                <div class="modal fade" id="deleteModal{{user.id}}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel{{user.id}}" aria-hidden="true">
+                                <div class="modal fade" id="deleteModal{{user.id}}" tabindex="-1" role="dialog"
+                                    aria-labelledby="deleteModalLabel{{user.id}}" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="deleteModalLabel{{user.id}}">Confirmation de suppression</h5>
-                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <h5 class="modal-title" id="deleteModalLabel{{user.id}}">Confirmation de
+                                                    suppression</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -62,21 +67,25 @@
                                                 Êtes-vous sûr de vouloir supprimer cet utilisateur ?
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                                <button type="button" class="btn btn-outline-secondary"
+                                                    data-dismiss="modal">Annuler</button>
                                                 <form action="{{ url_for('delete_user', id=user.id) }}" method="POST">
-                                                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-user-minus"></i></button>
+                                                    <button type="submit" class="btn btn-outline-success">Ok</button>
                                                 </form>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <!-- Modal pour visualiser l'adresse -->
-                                <div class="modal fade" id="addressModal{{ user.id }}" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel{{ user.id }}" aria-hidden="true">
+                                <div class="modal fade" id="addressModal{{ user.id }}" tabindex="-1" role="dialog"
+                                    aria-labelledby="addressModalLabel{{ user.id }}" aria-hidden="true">
                                     <div class="modal-dialog" role="document">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title" id="addressModalLabel{{ user.id }}">Adresses de {{ user.prenom }} {{ user.nom }}</h5>
-                                                <button type="button" the="close" data-dismiss="modal" aria-label="Close">
+                                                <h5 class="modal-title" id="addressModalLabel{{ user.id }}">Adresses de
+                                                    {{ user.prenom }} {{ user.nom }}</h5>
+                                                <button type="button" the="close" data-dismiss="modal"
+                                                    aria-label="Close">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
                                             </div>
@@ -93,7 +102,8 @@
                                                 </ul>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Fermer</button>
                                             </div>
                                         </div>
                                     </div>
@@ -105,27 +115,31 @@
                         <nav aria-label="Page navigation example mt-3">
                             <ul class="pagination justify-content-end">
                                 <li class="page-item {% if not users_pagination.has_prev %}disabled{% endif %}">
-                                    <a class="page-link" {% if users_pagination.has_prev %}href="{{ url_for('list_clients', users_page=users_pagination.prev_num) }}"{% endif %}><i class="fas fa-angle-left"></i></a>
+                                    <a class="page-link" {% if users_pagination.has_prev
+                                        %}href="{{ url_for('list_clients', users_page=users_pagination.prev_num) }}" {%
+                                        endif %}><i class="fas fa-angle-left"></i></a>
                                 </li>
                                 {% for page_num in users_pagination.iter_pages() %}
-                                    {% if page_num %}
-                                        <li class="page-item {% if page_num == users_pagination.page %}active{% endif %}">
-                                            <a class="page-link" href="{{ url_for('list_clients', users_page=page_num) }}">{{ page_num }}</a>
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item disabled">
-                                            <span class="page-link">...</span>
-                                        </li>
-                                    {% endif %}
+                                {% if page_num %}
+                                <li class="page-item {% if page_num == users_pagination.page %}active{% endif %}">
+                                    <a class="page-link" href="{{ url_for('list_clients', users_page=page_num) }}">{{
+                                        page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                                {% endif %}
                                 {% endfor %}
                                 <li class="page-item {% if not users_pagination.has_next %}disabled{% endif %}">
-                                    <a class="page-link" {% if users_pagination.has_next %}href="{{ url_for('list_clients', users_page=users_pagination.next_num) }}"{% endif %}><i class="fas fa-angle-right"></i></a>
+                                    <a class="page-link" {% if users_pagination.has_next
+                                        %}href="{{ url_for('list_clients', users_page=users_pagination.next_num) }}" {%
+                                        endif %}><i class="fas fa-angle-right"></i></a>
                                 </li>
                             </ul>
                         </nav>
                     </div>
-                </div>
-            </div>
+
         </div>
     </div>
 </div>

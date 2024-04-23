@@ -1,4 +1,74 @@
-{% extends "layout.html" %}
-{% block content %}
-    <h1>About Page</h1>
-{% endblock content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>À propos de Deep3DBinPacking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #fcf9f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        svg{
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>À propos de Deep3DBinPacking</h2>
+        <svg width="70" height="70" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <!-- Face arrière -->
+            <polygon points="50,50 100,100 150,50" fill="#3498db" />
+          
+            <!-- Ligne de droite -->
+            <polygon points="100,100 150,50 150,150 100,200" fill="#2980b9" />
+          
+            <!-- Ligne inférieure -->
+            <polygon points="50,50 100,100 100,200 50,150" fill="#2c3e50" />
+          
+            <!-- Boîte supérieure -->
+            <polygon points="100,100 150,150 100,200 50,150" fill="#49495E" />
+          
+            <!-- Face avant -->
+            <polygon points="50,50 100,0 150,50" fill="#49495E" />
+          
+            <!-- Ligne de gauche -->
+            <polygon points="50,50 100,0 100,100 50,150" fill="#fff" />
+          
+            <!-- Ligne supérieure -->
+            <polygon points="100,0 150,50 150,150 100,100" fill="#f1c40f" />
+        </svg>
+        
+        <p>Deep3DBinPacking est une solution innovante dans le domaine de l'emballage et de la logistique, basée sur l'algorithme du bin packing en 3D. Notre application révolutionne la manière dont les entreprises gèrent leur processus d'emballage en optimisant l'utilisation de l'espace et en réduisant les coûts de transport.</p>
+        <p>Grâce à Deep3DBinPacking, les entreprises peuvent créer et gérer des articles avec une précision remarquable, en spécifiant les dimensions, les poids et d'autres attributs importants. En utilisant ces données, notre algorithme de bin packing en 3D trouve la meilleure façon d'organiser ces articles dans des conteneurs ou des emballages, minimisant ainsi les espaces vides et maximisant l'efficacité.</p>
+        <p>L'une des fonctionnalités clés de Deep3DBinPacking est la création de commandes à partir des articles sélectionnés. Cette fonctionnalité simplifie le processus de gestion des stocks et des commandes, permettant aux utilisateurs de créer rapidement des envois optimisés pour leurs clients.</p>
+        <p>Chez Deep3DBinPacking, nous sommes déterminés à fournir à nos utilisateurs une expérience exceptionnelle. Notre interface conviviale et nos outils puissants permettent aux entreprises de toutes tailles de gérer efficacement leur logistique d'emballage, réduisant ainsi les coûts et augmentant la satisfaction client.</p>
+        <p>Rejoignez-nous dès aujourd'hui et découvrez comment Deep3DBinPacking peut transformer votre processus d'emballage et de livraison, vous aidant à atteindre de nouveaux sommets en termes d'efficacité et de rentabilité.</p>
+    </div>
+</body>
+</html>

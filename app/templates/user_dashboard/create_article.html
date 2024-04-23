@@ -16,7 +16,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.sku(class="form-control select form-control-lg") }}
+            {{ form.sku(class="form-control form-control-lg") }}
         {% endif %}
     </div>
       <div class="col">
@@ -127,9 +127,9 @@
                   data-target="#editModal{{article.id}}" data-sku="{{ article.sku }}"
                   data-largeur="{{ article.largeur }}" data-longueur="{{ article.longueur }}"
                   data-hauteur="{{ article.hauteur }}" data-quantite="{{ article.quantite }}"
-                  data-poids="{{ article.poids }}" data-fragile="{{ article.fragile }}">Modifier</button>
+                  data-poids="{{ article.poids }}" data-fragile="{{ article.fragile }}"><i class="fa-regular fa-pen-to-square"></i></button>
                 <button type="button" class="btn btn-sm m-1 delete"  data-toggle="modal"
-                  data-target="#deleteModal{{article.id}}">Supprimer</button>
+                  data-target="#deleteModal{{article.id}}"><i class="fa-solid fa-trash-can"></i></button>
                  
               </td>
             </tr>

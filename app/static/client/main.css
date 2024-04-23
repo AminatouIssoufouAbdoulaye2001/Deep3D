@@ -7,7 +7,7 @@
   }
   
   body{
-    background-color: #f4f4fb;
+    background-color: #fcf9f4;
   }
   
   h2{
@@ -28,7 +28,7 @@
     height: 55px;
     top: 0;
     left: 0;
-    background-color: #fff; 
+    background-color: #49495e; 
     z-index: 2;
     padding-left: 6rem;
   }
@@ -61,6 +61,7 @@
     float: right;
     font-size: 20px;
     cursor: pointer;
+    color: #ebab54;
   }
   
   #toggle {
@@ -398,4 +399,16 @@
   transform: translate(-50%, -50%);
   text-align: center;
   box-shadow: 0 20px 12px -6px #f5d5aa;
+}
+.alert-success {
+  margin-top: 20px;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+  color: #155724;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
 }

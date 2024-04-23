@@ -1,0 +1,60 @@
+{% extends 'admin_dashboard/layout.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Liste des commandes</h1>
+    <form method="GET" action="{{ url_for('list_commandes') }}" class="mb-3">
+        <div class="input-group">
+            <input type="text" name="search_commande" class="form-control" placeholder="Rechercher par numéro de commande ou date...">
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Rechercher</button>
+            </div>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead class="thead-commandes">
+                <tr>
+                    <th scope="col">Numéro de commande</th>
+                    <th scope="col">Date de création</th>
+                    <th scope="col">Utilisateur</th>
+                    <th scope="col">Détails de la commande</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for commande in commandes_pagination.items %}
+                <tr>
+                    <td>{{ commande.numero_commande }}</td>
+                    <td>{{ commande.date_creation }}</td>
+                    <td>{{ commande.user.nom }} {{ commande.user.prenom }}</td>
+                    <td>
+                        <a href="#" class="btn btn-primary btn-sm">Voir détails</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination des commandes -->
+    <nav aria-label="Page navigation example mt-3">
+        <ul class="pagination justify-content-end">
+            <li class="page-item {% if not commandes_pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" {% if commandes_pagination.has_prev %}href="{{ url_for('list_commandes', commandes_page=commandes_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+            </li>
+            {% for page_num in commandes_pagination.iter_pages() %}
+                {% if page_num %}
+                    <li class="page-item {% if page_num == commandes_pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('list_commandes', commandes_page=page_num) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not commandes_pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" {% if commandes_pagination.has_next %}href="{{ url_for('list_commandes', commandes_page=commandes_pagination.next_num) }}"{% endif %}><i class="fas fa-angles-right"></i></a>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% endblock %}

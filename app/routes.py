@@ -1,12 +1,15 @@
 #bibliothéques pour les différentes fonctionnalité de l'app
-from datetime import datetime, timedelta
+from datetime import date as dt_date
+import datetime
+from datetime import timedelta
+
 import os
 import secrets
 from PIL import Image
-from flask import abort, jsonify, render_template, url_for, flash, redirect, request,Response
+from flask import abort, g, jsonify, render_template, url_for, flash, redirect, request,Response
 from flask_paginate import Pagination,get_page_args
 
-from sqlalchemy import func
+from sqlalchemy import extract, func
 from app import app, db, bcrypt, mail
 from app.forms import (ConteneurForm, RegistrationForm, LoginForm, UpdateAccountForm,
                        ArticleForm, RequestResetForm, ResetPasswordForm,
@@ -31,62 +34,81 @@ number_commandes_per_page = 5
 def home():
     return render_template('home.html')
 
+@app.route("/about")
+def about():
 
+    return render_template('user_dashboard/about.html')
 
 @app.route("/acceuil_admin")
 @login_required
 def acceuil_admin():
-    return render_template('admin_dashboard/acceuil.html')
+    Conteneurs = current_user.is_admin
+    nombre_conteneurs = Conteneur.query.count()
+    # Interrogation de la base de données pour compter les articles par type de SKU
+    data = db.session.query(Conteneur.type_conteneur, db.func.count(Conteneur.id)).group_by(Conteneur.type_conteneur).all()
+    data = pd.DataFrame(data, columns=['type_conteneur', 'count'])
 
-@app.route("/list_cients")
-@login_required
-def list_clients():
-    search = request.args.get('search')
-    users_page = request.args.get('users_page', 1, type=int)
-    per_page = 10  # Nombre d'items par page
+    # Création du graphique en barres par type de Sku
+    fig = go.Figure(data=[go.Bar(
+        x=data['type_conteneur'],
+        y=data['count'],
+        marker_color=['#49495E', '#ebab54', '#49495E', '#ebab54']  # Différentes couleurs pour chaque type de SKU
+    )])
 
-    if search:
-        users_query = User.query.filter((User.prenom.ilike(f'%{search}%')) | (User.nom.ilike(f'%{search}%')))
-    else:
-        users_query = User.query
-
-    users_pagination = users_query.paginate(page=users_page, per_page=per_page, error_out=False)
-    pagination_args = Pagination(page=users_page, per_page=per_page, total=users_query.count(), css_framework='bootstrap4')
-    
-    return render_template('admin_dashboard/list_clients.html', users_pagination=users_pagination,pagination_args=pagination_args)
+    fig.update_layout(
+        title='Nombre de conteneur par type',
+        xaxis_title='Type de conteneur',
+        yaxis_title='Nombre de conteneur',
+        xaxis=dict(type='category')  # Catégorise l'axe des x
+    )
+    graph_htmlbartype = plot(fig, output_type='div')
+    return render_template('admin_dashboard/acceuil.html', graph_htmlbartype=graph_htmlbartype,Conteneurs=Conteneurs, nombre_conteneurs=nombre_conteneurs)
 
 @app.route("/acceuil_client")
 @login_required
 def acceuil_client():
        # Filtrer les commandes restantes ayant au moins un article
-
     nombre_articles = Article.query.filter_by(user_id=current_user.id).count()
     nombre_commandes = Commande.query.filter_by(user_id=current_user.id).count()
     # Récupérer les articles de la base de données
     article =  current_user.articles
     commandes = current_user.commande
-
-
     #Pagination
     page = request.args.get('page', 1, type=int)
     articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
 
     dates, articles, commandes = fetch_data(user_id=current_user.id)
 
-    # Création du graphique combiné
+    # Création du graphique des articles crées par jours
+    dates, articles = fetch_data_articles(user_id=current_user.id)
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dates, y=articles, mode='lines+markers', name='Articles', line=dict(color='#49495E',shape='spline'),  fillcolor='rgba(0, 0, 0, 0.3)',  fill='tozeroy'))
-    fig.add_trace(go.Scatter(x=dates, y=commandes, mode='lines+markers', name='Commandes', line=dict(color='#ebab54',shape='spline'),fillcolor='rgba(235, 160, 84, 0.3)', fill='tozeroy'))
-
+    fig.add_trace(go.Scatter(x=dates, y=articles, mode='lines+markers', name='Articles', line=dict(color='#49495E',shape='spline')))
     fig.update_layout(
-        title='Évolution quotidienne des articles et des commandes créés',
+        title='Évolution quotidienne des articles créés',
         xaxis_title='Date',
         yaxis_title='Nombre',
         xaxis=dict(tickformat='%d-%m')
     )
 
-    graphscatter_html = plot(fig, output_type='div')
+    graph_htmlarticle = plot(fig, output_type='div')
 
+    dates, commandes = fetch_data_commandes(user_id=current_user.id)
+
+    # Création du graphique des commandes crées par jours
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=commandes, mode='lines+markers', name='Commandes', line=dict(color='#ebab54')))
+
+    # Mettre à jour la mise en page du graphique
+    fig.update_layout(
+        title='Évolution quotidienne des commandes créées',
+        xaxis_title='Date',
+        yaxis_title='Nombre de commandes',
+        xaxis=dict(tickformat='%d-%m')
+    )
+    # Générer le code HTML pour le graphique des commandes
+    graph_htmlcommandes = plot(fig, output_type='div')
+
+     # Création du graphique en pie pour les articles et commandes
     total_articles, total_commandes = fetch_totals(user_id=current_user.id)
 
     labels = ['Articles', 'Commandes']
@@ -99,91 +121,28 @@ def acceuil_client():
     graph_htmlpie = plot(fig, output_type='div')
 
     # Interrogation de la base de données pour compter les articles par type de SKU
-    data = db.session.query(Article.sku, db.func.count(Article.id)).group_by(Article.sku).filter_by(user_id=current_user.id).all()
-    data = pd.DataFrame(data, columns=['sku', 'count'])
+    data = db.session.query(Article.fragile, db.func.count(Article.id)).group_by(Article.fragile).filter_by(user_id=current_user.id).all()
+    data = pd.DataFrame(data, columns=['fragile', 'count'])
 
-    # Création du graphique en barres
+    # Création du graphique en barres par type de Sku
     fig = go.Figure(data=[go.Bar(
-        x=data['sku'],
+        x=data['fragile'],
         y=data['count'],
         marker_color=['#49495E', '#ebab54', '#49495E', '#ebab54']  # Différentes couleurs pour chaque type de SKU
     )])
 
     fig.update_layout(
-        title='Nombre d\'articles par type de SKU',
+        title='Nombre d\'articles Fragile',
         xaxis_title='Type de SKU',
         yaxis_title='Nombre d\'articles',
         xaxis=dict(type='category')  # Catégorise l'axe des x
     )
     graph_htmlbar = plot(fig, output_type='div')
 
-    return render_template('user_dashboard/acceuil.html', graph_htmlbar=graph_htmlbar, graph_htmlpie=graph_htmlpie, graphscatter_html=graphscatter_html, nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=article, commandes=commandes)
+    return render_template('user_dashboard/acceuil.html', graph_htmlbar=graph_htmlbar, graph_htmlpie=graph_htmlpie, graph_htmlarticle=graph_htmlarticle, graph_htmlcommandes=graph_htmlcommandes, nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=article, commandes=commandes)
 
 
-@app.route("/charts")
-@login_required
-def charts():
-    nb_articles =  current_user.articles
-    dates, articles = fetch_data_articles(user_id=current_user.id)
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dates, y=articles, mode='lines+markers', name='Articles', line=dict(color='#49495E')))
-    fig.update_layout(
-        title='Évolution quotidienne des articles créés',
-        xaxis_title='Date',
-        yaxis_title='Nombre',
-        xaxis=dict(tickformat='%d-%m')
-    )
-
-    graph_htmlarticle = plot(fig, output_type='div')
-
-    dates, commandes = fetch_data_commandes(user_id=current_user.id)
-
-    # Créer la trace pour les commandes
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dates, y=commandes, mode='lines+markers', name='Commandes', line=dict(color='#ebab54')))
-
-    # Mettre à jour la mise en page du graphique
-    fig.update_layout(
-        title='Évolution quotidienne des commandes créées',
-        xaxis_title='Date',
-        yaxis_title='Nombre de commandes',
-        xaxis=dict(tickformat='%d-%m')
-    )
-
-    # Générer le code HTML pour le graphique
-    graph_htmlcommandes = plot(fig, output_type='div')
-            
-    return render_template('user_dashboard/statistique.html',graph_htmlarticle=graph_htmlarticle,graph_htmlcommandes=graph_htmlcommandes,nb_articles=nb_articles)
-
-@app.route("/articles")
-def article():
-
-    articles = current_user.articles
-    #Pagination des articles
-    page = request.args.get('page', 1, type=int)
-    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
-    
-    #Pagination des commandes
-    commande_page = request.args.get('commandes_page', 1, type=int)
-    commandes_pagination = Commande.query.filter_by(user_id=current_user.id).order_by(Commande.id.desc()).paginate(page=commande_page, per_page=number_commandes_per_page, error_out=False)
-
-    # Récupérer toutes les commandes de l'utilisateur
-    user_commandes = Commande.query.filter_by(user_id=current_user.id).all()
-
-    # Filtrer et supprimer les commandes qui ont 0 article
-    for commande in user_commandes:
-        if len(commande.articles) == 0:
-            db.session.delete(commande)
-
-    # Committer les suppressions
-    db.session.commit()
-
-    # Mettre à jour la liste des commandes de l'utilisateur après la suppression
-    user_commandes = [commande for commande in user_commandes if len(commande.articles) > 0]
-    # Rendre le template avec les données mises à jour
-    return render_template('user_dashboard/list_article.html', articles=articles, articles_pagination=articles_pagination, commandes_pagination=commandes_pagination, commandes=user_commandes)
-
-
+#Register
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -197,10 +156,9 @@ def register():
         flash("Enregistrement réussi ! Veuillez vous connecter.", 'success')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+#Fin Register
 
-
-print("L'administrateur a été ajouté avec succès à la base de données.")
-
+#Connexion
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -229,8 +187,9 @@ def admin_dashboard():
         return render_template('admin_dashboard.html')
     else:
         abort(403)  # Accès interdit pour les utilisateurs non-administrateurs
+#Fin connexion
 
-
+#Modification du mot de passe par Email
 def send_reset_email(user):
     token = user.get_reset_token()
     msg = Message('Réinitialisation de votre mot de passe Deep3D',
@@ -245,7 +204,6 @@ Ce lien est valable une fois et pour une durée de 30 minutes. Passé ce délai,
 Si vous n'êtes pas à l'origine de cette demande, ne tenez pas compte de cet e-mail.
 '''
     mail.send(msg)
-
 
 @app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():
@@ -275,14 +233,14 @@ def reset_token(token):
         flash('Votre mot de passe a été mis à jour! Vous pouvez maintenant vous connecter', 'success')
         return redirect(url_for('login'))
     return render_template('reset_token.html', title='Reset Password', form=form)
-
+#Fin Modification
 
 
 @app.route("/logout")
 def logout():
     logout_user()
     return redirect(url_for('home'))
-
+#Téléchargement d'image
 def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
@@ -297,172 +255,17 @@ def save_picture(form_picture):
 
     return picture_fn
 
-@app.route("/account", methods=['GET', 'POST'])
-@login_required
-def account():
-    existing_address = Adresse.query.filter_by(user_id=current_user.id).first()
-    form_account = UpdateAccountForm()
-    form_newadresse = AjouterAdress()
-
-    if form_account.validate_on_submit():
-        if form_account.email.data != current_user.email and User.query.filter_by(email=form_account.email.data).first():
-            flash('Cet email est déjà utilisé par un autre utilisateur. Veuillez en choisir un autre.', 'danger')
-        else:
-            if form_account.image.data:
-                image = save_picture(form_account.image.data)
-                current_user.image = image
-            current_user.nom = form_account.nom.data
-            current_user.prenom = form_account.prenom.data
-            current_user.email = form_account.email.data
-            current_user.telephone = form_account.telephone.data 
-            db.session.commit()
-            flash('Votre profil a été mis à jour!', 'success')
-
-        return redirect(url_for('account'))
-    if form_newadresse.validate_on_submit():
-        if existing_address:
-            # Modifier l'adresse existante
-            existing_address.rue = form_newadresse.rue.data
-            existing_address.code_postal = form_newadresse.code_postal.data
-            existing_address.pays = form_newadresse.pays.data
-            existing_address.ville = form_newadresse.ville.data
-            message = 'Votre adresse a été modifiée avec succès!'
-        else:
-            # Ajouter une nouvelle adresse
-            new_address = Adresse(
-                rue=form_newadresse.rue.data,
-                code_postal=form_newadresse.code_postal.data,
-                pays=form_newadresse.pays.data,
-                ville=form_newadresse.ville.data,
-                user_id=current_user.id
-            )
-            db.session.add(new_address)
-            message = 'Votre adresse a été ajoutée avec succès!'
-
-        db.session.commit()
-        flash(message, 'success')
-        return redirect(url_for('account'))
-
-
-
-    # Afficher les formulaires
-    image = url_for('static', filename='images/' + current_user.image)
-    form_account.nom.data = current_user.nom
-    form_account.prenom.data = current_user.prenom
-    form_account.email.data = current_user.email 
-    form_account.telephone.data = current_user.telephone
-
-    if existing_address:
-        form_newadresse.rue.data = existing_address.rue
-        form_newadresse.code_postal.data = existing_address.code_postal
-        form_newadresse.pays.data = existing_address.pays
-        form_newadresse.ville.data = existing_address.ville
+#Affichage de l'image global
+@app.before_request
+def before_request():
+    # Assurez-vous que l'utilisateur est authentifié avant de récupérer l'image
+    if current_user.is_authenticated:
+        # Définissez image dans le contexte global g
+        g.image = url_for('static', filename='images/' + current_user.image) if current_user.image else None
     else:
-        # Définir les valeurs par défaut pour un nouvel utilisateur
-        form_newadresse.rue.data = ""
-        form_newadresse.code_postal.data = ""
-        form_newadresse.pays.data = ""
-        form_newadresse.ville.data = ""
+        g.image = None
 
-    return render_template('user_dashboard/account.html', image=image, title='Account', form_account=form_account, form_newadresse=form_newadresse,
-                           existing_address=existing_address)
-
-
-
-@app.route("/update_password", methods=['GET', 'POST'])
-@login_required
-def securite():
-    form_password = Updatepassword()  # Formulaire de mise à jour du mot de passe
-    if form_password.validate_on_submit():
-        # Mettre à jour le mot de passe de l'utilisateur
-        if form_password.mot_de_passe.data != current_user.mot_de_passe:
-            hashed_password = bcrypt.generate_password_hash(form_password.mot_de_passe.data).decode('utf-8')
-            current_user.mot_de_passe = hashed_password
-            db.session.commit()
-            flash('Votre mot de passe a été mis à jour avec succès.', 'success')
-            return redirect(url_for('account'))
-        else:
-            flash('Le nouveau mot de passe doit être différent de l\'ancien.', 'danger')
-            return redirect(url_for('account')) 
-    
-    return render_template('user_dashboard/update_password.html', form_password=form_password)
-
-
-@app.route("/new_article", methods=['GET', 'POST'])
-@login_required
-def new_article():
-    form = ArticleForm()
-    page = request.args.get('page', 1, type=int)
-    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
-
-    '''for article in articles_pagination:
-        article.largeur = int(article.largeur)
-        article.longueur = int(article.longueur)
-        article.hauteur = int(article.hauteur)
-        article.poids = int(article.poids)'''
-        
-    articles = articles_pagination.items
-    #articles = Article.query.all() 
-    if form.validate_on_submit():
-        article = Article(sku=form.sku.data, largeur=form.largeur.data,
-                          longueur=form.longueur.data, hauteur=form.hauteur.data,
-                          poids=form.poids.data, quantite=form.quantite.data,
-                          fragile=form.fragile.data,date_creation=datetime.now(), user_id=current_user.id)
-        
-        db.session.add(article)
-        db.session.commit()
-        flash('Article bien enregistré!', 'success')
-        return redirect(url_for('new_article'))
-    
-    return render_template('user_dashboard/create_article.html', title='New Article', form=form, articles=articles, articles_pagination=articles_pagination)
-
-
-@app.route("/article/<int:article_id>")
-def get_article(id):
-    article = Article.query.get_or_404(id)
-    return render_template('user_dashboard/create_article.html', article=article)
-
-@app.route('/update_product/<int:id>', methods=['GET', 'POST'])
-@login_required
-def update_article(id):
-    article = Article.query.get_or_404(id)
-    form = ArticleForm()
-    if request.method == 'GET':
-        form.sku.data = article.sku
-        form.longueur.data = article.longueur
-        form.largeur.data = article.largeur
-        form.hauteur.data = article.hauteur
-        form.poids.data = article.poids
-        form.quantite.data = article.quantite
-        form.fragile.data = article.fragile
-
-    elif request.method == 'POST':
-        article.sku = form.sku.data 
-        article.longueur = form.longueur.data 
-        article.largeur = form.largeur.data 
-        article.hauteur = form.hauteur.data 
-        article.poids = form.poids.data 
-        article.quantite = form.quantite.data 
-        article.fragile = form.fragile.data 
-
-        db.session.commit()
-        flash('Votre Article a été bien mise à jour!', 'success')
-        return redirect(url_for('new_article'))
-    
-    return render_template('user_dashboard/create_article.html', title='Update article', form=form, article=article)
-
-
-@app.route("/article/<int:id>/delete", methods=['POST'])
-@login_required
-def delete_article(id):
-    article = Article.query.get_or_404(id)
-    if article.user_id != current_user.id:
-        abort(403)
-    db.session.delete(article)
-    db.session.commit()
-    flash('Votre article a été supprimé!', 'success')
-    return redirect(url_for('new_article'))
-
+#Création de fichier csv pour les articles sélectionnés
 @app.route("/download_articles", methods=['POST'])
 @login_required
 def download_articles():
@@ -507,7 +310,41 @@ def download_articles():
         flash('Aucun article trouvé pour téléchargement.', 'warning')
         return redirect(url_for('acceuil_client'))
 
+#Création d'article
+@app.route("/new_article", methods=['GET', 'POST'])
+@login_required
+def new_article():
+    form = ArticleForm()
+    page = request.args.get('page', 1, type=int)
+    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
 
+    '''for article in articles_pagination:
+        article.largeur = int(article.largeur)
+        article.longueur = int(article.longueur)
+        article.hauteur = int(article.hauteur)
+        article.poids = int(article.poids)'''
+        
+    articles = articles_pagination.items
+    #articles = Article.query.all() 
+    if form.validate_on_submit():
+        article = Article(sku=form.sku.data, largeur=form.largeur.data,
+                          longueur=form.longueur.data, hauteur=form.hauteur.data,
+                          poids=form.poids.data, quantite=form.quantite.data,
+                          fragile=form.fragile.data,date_creation=dt_date.today(), user_id=current_user.id)
+        
+        db.session.add(article)
+        db.session.commit()
+        flash('Article bien enregistré!', 'success')
+        return redirect(url_for('new_article'))
+    
+    return render_template('user_dashboard/create_article.html', title='New Article', form=form, articles=articles, articles_pagination=articles_pagination)
+
+@app.route("/article/<int:article_id>")
+def get_article(id):
+    article = Article.query.get_or_404(id)
+    return render_template('user_dashboard/create_article.html', article=article)
+
+#Création de commande
 @app.route('/create_commande', methods=['POST'])
 @login_required
 def create_commande():
@@ -518,7 +355,7 @@ def create_commande():
             return redirect(url_for('article'))
 
         # Create a new Commande object
-        commande = Commande(date_creation=datetime.now(), user_id=current_user.id)  # Assuming Commande model has a date_creation field
+        commande = Commande(date_creation=dt_date.today(), user_id=current_user.id)  # Assuming Commande model has a date_creation field
 
         for article_id in selected_articles:
             article = Article.query.get(article_id)
@@ -535,38 +372,13 @@ def create_commande():
         user_commandes = Commande.query.filter_by(user_id=current_user.id)
         return redirect(url_for('article',commandes=user_commandes))
 
-@app.route("/commande/<int:id>/delete", methods=['POST'])
-@login_required
-def delete_commande(id):
-    commande = Commande.query.get_or_404(id)
-    if commande.user_id != current_user.id:
-        abort(403)
-    db.session.delete(commande)
-    db.session.commit()
-    flash('Votre commande a été supprimé!', 'success')
-    return redirect(url_for('article'))
-        
-@app.route("/user/<int:id>/delete", methods=['POST'])
-@login_required
-def delete_user(id):
-    user = User.query.get_or_404(id)
-    if not current_user.is_admin:
-        abort(403)  # Si l'utilisateur n'est pas un administrateur, il ne peut pas supprimer d'utilisateurs
-    db.session.delete(user)
-    db.session.commit()
-    flash('L\'utilisateur a été supprimé avec succès!', 'success')
-    return redirect(url_for('list_clients'))
-
-        
-
-
 @app.route('/details_commande/<int:commande_id>')
 def details_commande(commande_id):
     commande = Commande.query.get_or_404(commande_id)
     return render_template('user_dashboard/details_commande.html', title='Détails de la Commande', commande=commande)
 
 
-
+#Création du conteneur
 @app.route("/new_conteneur", methods=['GET', 'POST'])
 @login_required
 def new_conteneur():
@@ -575,7 +387,7 @@ def new_conteneur():
         conteneur = Conteneur(type_conteneur=form.type_conteneur.data, largeur=form.largeur.data,
                           longueur=form.longueur.data, hauteur=form.hauteur.data,
                           Poid_maximal=form.Poid_maximal.data, quantite=form.quantite.data,
-                          prix=form.prix.data,date_creation=datetime.now())
+                          prix=form.prix.data,date_creation=dt_date.today())
         
         db.session.add(conteneur)
         db.session.commit()
@@ -596,8 +408,288 @@ def new_conteneur():
     pagination_args = Pagination(page=conteneurs_page, per_page=per_page, total=conteneurs_query.count(), css_framework='bootstrap4')
     
     return render_template('admin_dashboard/conteneur.html',form=form, conteneurs=conteneurs, conteneurs_pagination=conteneurs_pagination, pagination_args=pagination_args)
+#Fin création
 
+# Affichages des articles, commandes et conteneurs crées 
+@app.route("/articles")
+def article():
 
+    articles = current_user.articles
+    #Pagination des articles
+    page = request.args.get('page', 1, type=int)
+    articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
+    
+    #Pagination des commandes
+    commande_page = request.args.get('commandes_page', 1, type=int)
+    commandes_pagination = Commande.query.filter_by(user_id=current_user.id).order_by(Commande.id.desc()).paginate(page=commande_page, per_page=number_commandes_per_page, error_out=False)
+
+    # Récupérer toutes les commandes de l'utilisateur
+    user_commandes = Commande.query.filter_by(user_id=current_user.id).all()
+
+    # Filtrer et supprimer les commandes qui ont 0 article
+    for commande in user_commandes:
+        if len(commande.articles) == 0:
+            db.session.delete(commande)
+
+    # Committer les suppressions
+    db.session.commit()
+
+    # Mettre à jour la liste des commandes de l'utilisateur après la suppression
+    user_commandes = [commande for commande in user_commandes if len(commande.articles) > 0]
+    # Rendre le template avec les données mises à jour
+    return render_template('user_dashboard/list_article.html', articles=articles, articles_pagination=articles_pagination, commandes_pagination=commandes_pagination, commandes=user_commandes)
+
+@app.route("/list_cients")
+@login_required
+def list_clients():
+    search = request.args.get('search')
+    users_page = request.args.get('users_page', 1, type=int)
+    per_page = 10  # Nombre d'items par page
+
+    if search:
+        users_query = User.query.filter((User.prenom.ilike(f'%{search}%')) | (User.nom.ilike(f'%{search}%')))
+    else:
+        users_query = User.query
+
+    users_pagination = users_query.paginate(page=users_page, per_page=per_page, error_out=False)
+    pagination_args = Pagination(page=users_page, per_page=per_page, total=users_query.count(), css_framework='bootstrap4')
+    
+    return render_template('admin_dashboard/list_clients.html', users_pagination=users_pagination,pagination_args=pagination_args)
+@app.route("/list_commandes")
+@login_required
+def list_commandes():
+    search_commande = request.args.get('search_commande')
+    commandes_page = request.args.get('commandes_page', 1, type=int)
+    per_page = 4  # Nombre d'items par page
+
+    if search_commande:
+        commandes_query = Commande.query.filter((Commande.numero_commande.ilike(f'%{search_commande}%')) | (Commande.date_creation.ilike(f'%{search_commande}%')))
+    else:
+        commandes_query = Commande.query
+
+    commandes_pagination = commandes_query.paginate(page=commandes_page, per_page=per_page, error_out=False)
+    pagination_args = Pagination(page=commandes_page, per_page=per_page, total=commandes_query.count(), css_framework='bootstrap4')
+    return render_template('admin_dashboard/list_commandes.html', commandes_pagination=commandes_pagination,pagination_args=pagination_args)
+#Fin Affichage
+
+#les Différentes modification apporté au seins des différentes fonctionnalités
+
+#Modification du Mot de passe Clients
+@app.route("/update_password", methods=['GET', 'POST'])
+@login_required
+def securite():
+    form_password = Updatepassword()  # Formulaire de mise à jour du mot de passe
+
+    if current_user.is_admin:
+        
+        return admin_securite()
+    
+    if form_password.validate_on_submit():
+        # Mettre à jour le mot de passe de l'utilisateur
+        if form_password.mot_de_passe.data != current_user.mot_de_passe:
+            hashed_password = bcrypt.generate_password_hash(form_password.mot_de_passe.data).decode('utf-8')
+            current_user.mot_de_passe = hashed_password
+            db.session.commit()
+            flash('Votre mot de passe a été mis à jour avec succès.', 'success')
+            return redirect(url_for('securite'))
+        else:
+            flash('Le nouveau mot de passe doit être différent de l\'ancien.', 'danger')
+            return redirect(url_for('securite')) 
+    
+    return render_template('user_dashboard/update_password.html', form_password=form_password)
+
+#Modification du Mot de passe Admin
+@app.route("/admin/update_password", methods=['GET', 'POST'])
+@login_required
+def admin_securite():
+
+    form_password = Updatepassword()  # Formulaire de mise à jour du mot de passe
+
+    if form_password.validate_on_submit():
+        # Mettre à jour le mot de passe de l'utilisateur
+        if form_password.mot_de_passe.data != current_user.mot_de_passe:
+            hashed_password = bcrypt.generate_password_hash(form_password.mot_de_passe.data).decode('utf-8')
+            current_user.mot_de_passe = hashed_password
+            db.session.commit()
+            flash('Votre mot de passe a été mis à jour avec succès.', 'success')
+            return redirect(url_for('admin_securite'))
+        else:
+            flash('Le nouveau mot de passe doit être différent de l\'ancien.', 'danger')
+            return redirect(url_for('admin_securite')) 
+
+    return render_template('admin_dashboard/update_password.html', form_password=form_password)
+
+#Mises à jour du compte Clients
+@app.route("/account", methods=['GET', 'POST'])
+@login_required
+def account():
+    existing_address = Adresse.query.filter_by(user_id=current_user.id).first()
+    form_account = UpdateAccountForm()
+    form_newadresse = AjouterAdress()
+
+    if current_user.is_admin:
+        
+        return account_admin()
+
+    if form_account.validate_on_submit():
+        if form_account.email.data != current_user.email and User.query.filter_by(email=form_account.email.data).first():
+            flash('Cet email est déjà utilisé par un autre utilisateur. Veuillez en choisir un autre.', 'danger')
+        else:
+            if form_account.image.data:
+                image = save_picture(form_account.image.data)
+                current_user.image = image
+            current_user.nom = form_account.nom.data
+            current_user.prenom = form_account.prenom.data
+            current_user.email = form_account.email.data
+            current_user.telephone = form_account.telephone.data 
+            db.session.commit()
+            flash('Votre profil a été mis à jour!', 'success')
+
+        return redirect(url_for('account'))
+    if form_newadresse.validate_on_submit():
+        if existing_address:
+            # Modifier l'adresse existante
+            existing_address.rue = form_newadresse.rue.data
+            existing_address.code_postal = form_newadresse.code_postal.data
+            existing_address.pays = form_newadresse.pays.data
+            existing_address.ville = form_newadresse.ville.data
+            message = 'Votre adresse a été modifiée avec succès!'
+        else:
+            # Ajouter une nouvelle adresse
+            new_address = Adresse(
+                rue=form_newadresse.rue.data,
+                code_postal=form_newadresse.code_postal.data,
+                pays=form_newadresse.pays.data,
+                ville=form_newadresse.ville.data,
+                user_id=current_user.id
+            )
+            db.session.add(new_address)
+            message = 'Votre adresse a été ajoutée avec succès!'
+
+        db.session.commit()
+        flash(message, 'success')
+        return redirect(url_for('account'))
+
+    # Afficher les formulaires
+    image = url_for('static', filename='images/' + current_user.image)
+    form_account.nom.data = current_user.nom
+    form_account.prenom.data = current_user.prenom
+    form_account.email.data = current_user.email 
+    form_account.telephone.data = current_user.telephone
+
+    if existing_address:
+        form_newadresse.rue.data = existing_address.rue
+        form_newadresse.code_postal.data = existing_address.code_postal
+        form_newadresse.pays.data = existing_address.pays
+        form_newadresse.ville.data = existing_address.ville
+    else:
+        # Définir les valeurs par défaut pour un nouvel utilisateur
+        form_newadresse.rue.data = ""
+        form_newadresse.code_postal.data = ""
+        form_newadresse.pays.data = ""
+        form_newadresse.ville.data = ""
+
+    return render_template('user_dashboard/account.html', image=image, title='Account', form_account=form_account, form_newadresse=form_newadresse,
+                           existing_address=existing_address)
+
+#Mises à jour du compte Admin
+@app.route("/admin/account", methods=['GET', 'POST'])
+@login_required
+def account_admin():
+    existing_address = Adresse.query.filter_by(user_id=current_user.id).first()
+    form_account = UpdateAccountForm()
+    form_newadresse = AjouterAdress()
+
+    if form_account.validate_on_submit():
+        if form_account.email.data != current_user.email and User.query.filter_by(email=form_account.email.data).first():
+            flash('Cet email est déjà utilisé par un autre utilisateur. Veuillez en choisir un autre.', 'danger')
+        else:
+            if form_account.image.data:
+                image = save_picture(form_account.image.data)
+                current_user.image = image
+            current_user.nom = form_account.nom.data
+            current_user.prenom = form_account.prenom.data
+            current_user.email = form_account.email.data
+            current_user.telephone = form_account.telephone.data 
+            db.session.commit()
+            flash('Votre profil a été mis à jour!', 'success')
+
+        return redirect(url_for('account'))
+    if form_newadresse.validate_on_submit():
+        if existing_address:
+            # Modifier l'adresse existante
+            existing_address.rue = form_newadresse.rue.data
+            existing_address.code_postal = form_newadresse.code_postal.data
+            existing_address.pays = form_newadresse.pays.data
+            existing_address.ville = form_newadresse.ville.data
+            message = 'Votre adresse a été modifiée avec succès!'
+        else:
+            # Ajouter une nouvelle adresse
+            new_address = Adresse(
+                rue=form_newadresse.rue.data,
+                code_postal=form_newadresse.code_postal.data,
+                pays=form_newadresse.pays.data,
+                ville=form_newadresse.ville.data,
+                user_id=current_user.id
+            )
+            db.session.add(new_address)
+            message = 'Votre adresse a été ajoutée avec succès!'
+
+        db.session.commit()
+        flash(message, 'success')
+        return redirect(url_for('account_admin'))
+
+    # Afficher les formulaires
+    form_account.nom.data = current_user.nom
+    form_account.prenom.data = current_user.prenom
+    form_account.email.data = current_user.email 
+    form_account.telephone.data = current_user.telephone
+
+    if existing_address:
+        form_newadresse.rue.data = existing_address.rue
+        form_newadresse.code_postal.data = existing_address.code_postal
+        form_newadresse.pays.data = existing_address.pays
+        form_newadresse.ville.data = existing_address.ville
+    else:
+        # Définir les valeurs par défaut pour un nouvel utilisateur
+        form_newadresse.rue.data = ""
+        form_newadresse.code_postal.data = ""
+        form_newadresse.pays.data = ""
+        form_newadresse.ville.data = ""
+    return render_template('admin_dashboard/account.html', title='Account', form_account=form_account, form_newadresse=form_newadresse,
+                           existing_address=existing_address)
+
+#Mises à jour des articles
+@app.route('/update_product/<int:id>', methods=['GET', 'POST'])
+@login_required
+def update_article(id):
+    article = Article.query.get_or_404(id)
+    form = ArticleForm()
+    if request.method == 'GET':
+        form.sku.data = article.sku
+        form.longueur.data = article.longueur
+        form.largeur.data = article.largeur
+        form.hauteur.data = article.hauteur
+        form.poids.data = article.poids
+        form.quantite.data = article.quantite
+        form.fragile.data = article.fragile
+
+    elif request.method == 'POST':
+        article.sku = form.sku.data 
+        article.longueur = form.longueur.data 
+        article.largeur = form.largeur.data 
+        article.hauteur = form.hauteur.data 
+        article.poids = form.poids.data 
+        article.quantite = form.quantite.data 
+        article.fragile = form.fragile.data 
+
+        db.session.commit()
+        flash('Votre Article a été bien mise à jour!', 'success')
+        return redirect(url_for('new_article'))
+    
+    return render_template('user_dashboard/create_article.html', title='Update article', form=form, article=article)
+
+#Mises à jour des conteneurs
 @app.route('/update_conteneur/<int:id>', methods=['GET', 'POST'])
 @login_required
 def update_conteneur(id):
@@ -626,7 +718,24 @@ def update_conteneur(id):
         return redirect(url_for('new_conteneur'))
 
     return render_template('admin_dashboard/conteneur.html', title='Update conteneur', form=form, conteneur=conteneur)
+#Fim Modification
 
+
+#Suppression des différentes fonctions
+
+#Suppression des clients
+@app.route("/user/<int:id>/delete", methods=['POST'])
+@login_required
+def delete_user(id):
+    user = User.query.get_or_404(id)
+    if not current_user.is_admin:
+        abort(403)  # Si l'utilisateur n'est pas un administrateur, il ne peut pas supprimer d'utilisateurs
+    db.session.delete(user)
+    db.session.commit()
+    flash('L\'utilisateur a été supprimé avec succès!', 'success')
+    return redirect(url_for('list_clients'))
+
+#Suppression des conteneurs
 @app.route('/delete_conteneur/<int:id>', methods=['POST'])
 @login_required
 def delete_conteneur(id):
@@ -637,6 +746,33 @@ def delete_conteneur(id):
     db.session.commit()
     flash('Le conteneur a été supprimé avec succès!', 'danger')
     return redirect(url_for('new_conteneur'))
+
+#Suppression des articles
+@app.route("/article/<int:id>/delete", methods=['POST'])
+@login_required
+def delete_article(id):
+    article = Article.query.get_or_404(id)
+    if article.user_id != current_user.id:
+        abort(403)
+    db.session.delete(article)
+    db.session.commit()
+    flash('Votre article a été supprimé!', 'success')
+    return redirect(url_for('new_article'))
+
+#Suppression des commandes
+@app.route("/commande/<int:id>/delete", methods=['POST'])
+@login_required
+def delete_commande(id):
+    commande = Commande.query.get_or_404(id)
+    if commande.user_id != current_user.id:
+        abort(403)
+    db.session.delete(commande)
+    db.session.commit()
+    flash('Votre commande a été supprimé!', 'success')
+    return redirect(url_for('article'))
+        
+#Fin Suppression
+
 
 
 
@@ -651,7 +787,7 @@ def delete_conteneur(id):
 
 
 def fetch_data(user_id):
-    today = datetime.utcnow()
+    today = dt_date.today()  # Obtenez la date actuelle en utilisant datetime.date
     week_ago = today - timedelta(days=7)
 
     article_counts = db.session.query(func.date(Article.date_creation), func.count(Article.id))\
@@ -666,22 +802,20 @@ def fetch_data(user_id):
     articles = [0] * 8
     commandes = [0] * 8
 
-    for date, count in article_counts:
-        if isinstance(date, str):
-            date = datetime.strptime(date, '%Y-%m-%d').date()  # Assurez-vous que le format de date correspond à ce que vous récupérez
-        index = (date - week_ago.date()).days
+    for date_str, count in article_counts:
+        date = dt_date.fromisoformat(date_str)  # Utilisez la méthode fromisoformat de datetime.date
+        index = (date - week_ago).days
         articles[index] = count
 
-    for date, count in commande_counts:
-        if isinstance(date, str):
-            date = datetime.strptime(date, '%Y-%m-%d').date()  # Même traitement pour les commandes
-        index = (date - week_ago.date()).days
+    for date_str, count in commande_counts:
+        date = dt_date.fromisoformat(date_str)  # Utilisez la méthode fromisoformat de datetime.date
+        index = (date - week_ago).days
         commandes[index] = count
 
     return dates, articles, commandes
 
 def fetch_totals(user_id):
-    week_ago = datetime.utcnow() - timedelta(days=7)
+    week_ago = dt_date.today() - timedelta(days=7)
     total_articles = db.session.query(func.count(Article.id))\
         .filter(Article.date_creation >= week_ago, Article.user_id == user_id).scalar()
     total_commandes = db.session.query(func.count(Commande.id))\
@@ -689,31 +823,28 @@ def fetch_totals(user_id):
     return total_articles, total_commandes
 
 def fetch_data_articles(user_id):
-
-    today = datetime.utcnow()
+    today = dt_date.today()  # Obtenez uniquement la date sans l'heure
     week_ago = today - timedelta(days=7)
 
     article_counts = db.session.query(func.date(Article.date_creation), func.count(Article.id))\
         .filter(Article.date_creation >= week_ago, Article.user_id == user_id)\
         .group_by(func.date(Article.date_creation)).all()
 
-
     dates = [week_ago + timedelta(days=i) for i in range(8)]
     articles = [0] * 8
 
-    for date, count in article_counts:
-        if isinstance(date, str):
-            date = datetime.strptime(date, '%Y-%m-%d').date()  # Assurez-vous que le format de date correspond à ce que vous récupérez
-        index = (date - week_ago.date()).days
-        articles[index] = count
+    for date_str, count in article_counts:
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()  # Convertissez la chaîne en objet date
+        if isinstance(date_obj, datetime.date):
+            index = (date_obj - week_ago).days  # Utilisez directement la soustraction pour obtenir le nombre de jours
+            articles[index] = count
 
     return dates, articles
 
+
 def fetch_data_commandes(user_id):
-
-    today = datetime.utcnow()
+    today = dt_date.today()
     week_ago = today - timedelta(days=7)
-
 
     commande_counts = db.session.query(func.date(Commande.date_creation), func.count(Commande.id))\
         .filter(Commande.date_creation >= week_ago, Commande.user_id == user_id)\
@@ -721,10 +852,32 @@ def fetch_data_commandes(user_id):
 
     dates = [week_ago + timedelta(days=i) for i in range(8)]
     commandes = [0] * 8
-    for date, count in commande_counts:
-        if isinstance(date, str):
-            date = datetime.strptime(date, '%Y-%m-%d').date()  # Même traitement pour les commandes
-        index = (date - week_ago.date()).days
-        commandes[index] = count
+
+    for date_str, count in commande_counts:
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()  # Convertissez la chaîne en objet date
+        if isinstance(date_obj, datetime.date):
+            index = (date_obj - week_ago).days
+            commandes[index] = count
 
     return dates, commandes
+
+
+@app.route("/charts")
+@login_required
+def charts():
+    nb_articles =  current_user.articles  
+    dates, articles, commandes = fetch_data(user_id=current_user.id)
+        # Création du graphique combiné
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=articles, mode='lines+markers', name='Articles', line=dict(color='#49495E',shape='spline'),  fillcolor='rgba(0, 0, 0, 0.3)',  fill='tozeroy'))
+    fig.add_trace(go.Scatter(x=dates, y=commandes, mode='lines+markers', name='Commandes', line=dict(color='#ebab54',shape='spline'),fillcolor='rgba(235, 160, 84, 0.3)', fill='tozeroy'))
+
+    fig.update_layout(
+        title='Évolution quotidienne des articles et des commandes créés',
+        xaxis_title='Date',
+        yaxis_title='Nombre',
+        xaxis=dict(tickformat='%d-%m')
+    )
+
+    graphscatter_html = plot(fig, output_type='div')  
+    return render_template('user_dashboard/statistique.html',nb_articles=nb_articles, graphscatter_html=graphscatter_html)
