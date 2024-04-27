@@ -94,13 +94,13 @@
     padding-right: 30px;
   }
   
+
   .sidebar-menu:hover{
     color: #ebab54;
     background-color: #f8f8f8;
   }
-  .sidebar-menu a p:hover{
+  .sidebar-menu:hover a p{
     color: #ebab54;
-    background-color: #f8f8f8;
   }
   
   #toggle:checked ~ .sidebar{

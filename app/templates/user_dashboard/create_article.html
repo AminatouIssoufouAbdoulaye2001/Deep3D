@@ -183,35 +183,105 @@
         <div class="modal-body">
           <!-- Affichage des champs de l'article -->
           <div class="form-group">
-            <label for="sku">Sku/Id</label>
-            <input type="text" class="form-control" id="edit-sku" name="sku" value="{{ article.sku }}">
+            <div class="col">
+              {{ form.sku.label(class="form-control-label") }}
+              {% if form.sku.errors %}
+                  {{ form.sku(class="form-control form-control-lg is-invalid", id="edit-sku") }}
+                  <div class="invalid-feedback">
+                      {% for error in form.sku.errors %}
+                          <span>{{ error }}</span>
+                      {% endfor %}
+                  </div>
+              {% else %}
+                  {{ form.sku(class="form-control form-control-lg", id="edit-sku", value=article.sku) }}
+              {% endif %}
+              
+          </div>
           </div>
           <div class="form-group">
-            <label for="largeur">Largeur</label>
-            <input type="text" class="form-control" id="edit-largeur" name="largeur" value="{{ article.largeur }}">
+            <div class="col">
+              {{ form.largeur.label(class="form-control-label") }} {% if
+              form.largeur.errors %} {{ form.largeur(class="form-control 
+              form-control-lg is-invalid",  id="edit-largeur", value=article.largeur) }}
+              <div class="invalid-feedback">
+                {% for error in form.largeur.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.largeur(class="form-control form-control-lg",  id="edit-largeur", value=article.largeur)  }} {%
+              endif %}
+            </div>
           </div>
           <div class="form-group">
-            <label for="longueur">Longueur</label>
-            <input type="text" class="form-control" id="edit-longueur" name="longueur" value="{{ article.longueur }}">
+            <div class="col">
+              {{ form.longueur.label(class="form-control-label") }} {% if
+              form.longueur.errors %} {{ form.longueur(class="form-control 
+              form-control-lg is-invalid",  id="edit-longueur", value=article.longueur) }}
+              <div class="invalid-feedback">
+                {% for error in form.longueur.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.longueur(class="form-control form-control-lg",  id="edit-longueur", value=article.longueur)  }} {%
+              endif %}
+            </div>
           </div>
           <div class="form-group">
-            <label for="hauteur">Hauteur</label>
-            <input type="text" class="form-control" id="edit-hauteur" name="hauteur" value="{{ article.hauteur }}">
+            <div class="col">
+              {{ form.hauteur.label(class="form-control-label") }} {% if
+              form.hauteur.errors %} {{ form.hauteur(class="form-control 
+              form-control-lg is-invalid",  id="edit-hauteur", value=article.hauteur) }}
+              <div class="invalid-feedback">
+                {% for error in form.hauteur.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.hauteur(class="form-control form-control-lg",  id="edit-hauteur", value=article.hauteur)  }} {%
+              endif %}
+            </div>
           </div>
           <div class="form-group">
-            <label for="poids">Poids</label>
-            <input type="text" class="form-control" id="edit-poids" name="poids" value="{{ article.poids }}">
+            <div class="col">
+              {{ form.poids.label(class="form-control-label") }} {% if
+              form.poids.errors %} {{ form.poids(class="form-control 
+              form-control-lg is-invalid",  id="edit-poids", value=article.poids) }}
+              <div class="invalid-feedback">
+                {% for error in form.poids.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.poids(class="form-control form-control-lg",  id="edit-poids", value=article.poids)  }} {%
+              endif %}
+            </div>
           </div>
           <div class="form-group">
-            <label for="quantite">Quantité</label>
-            <input type="text" class="form-control" id="edit-quantite" name="quantite" value="{{ article.quantite }}">
+            <div class="col">
+              {{ form.quantite.label(class="form-control-label") }} {% if
+              form.quantite.errors %} {{ form.quantite(class="form-control 
+              form-control-lg is-invalid",  id="edit-quantite", value=article.quantite) }}
+              <div class="invalid-feedback">
+                {% for error in form.quantite.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.quantite(class="form-control form-control-lg",  id="edit-quantite", value=article.quantite)  }} {%
+              endif %}
+            </div>
           </div>
           <div class="form-group">
-            <label for="fragile">Fragile</label>
-            <input type="checkbox" class="form-control" id="edit-fragile" name="fragile" {% if article.fragile %}
-              checked {% endif %} value="{{ article.fragile }}">
+            <div class="col">
+              {{ form.fragile.label(class="form-control-label") }} {% if
+              form.fragile.errors %} {{ form.fragile(class="form-control 
+              form-control-lg is-invalid",  id="edit-fragile", value=article.fragile) }}
+              <div class="invalid-feedback">
+                {% for error in form.fragile.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+              {% else %} {{ form.fragile(class="form-control form-control-lg",  id="edit-fragile", value=article.fragile)  }} {%
+              endif %}
+            </div>
           </div>
-          <!-- Ajoutez d'autres champs d'article ici -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>

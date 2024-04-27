@@ -2,58 +2,60 @@
 {% block content %}
 <div class="row mt-3">
     <!-- column -->
-    <div class="col-sm-12 col-lg-4">
-        <div class="card card-admin card-hover">
+    <div class="col-sm-4 col-lg-4">
+        <div class="card card-admin card-hover ">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="mr-4">
-                        <small>Total Conteneurs</small>
-                        <h4 class="mb-0">{{nombre_conteneurs}}</h4>
+                        <small>Totals Conteneurs</small>
+                        <h4 class="mb-0">{{ nombre_conteneurs }}</h4>
                     </div>
                     <div class="chart ml-auto">
-                        asdfadf
+                        
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- column -->
-    <div class="col-sm-12 col-lg-4">
-        <div class="card card-admin card-hover bg-red">
-            <div class="card-body">
-                <div class="d-flex">
-                    <div class="mr-4">
-                        <small>Wallet Balance</small>
-                        <h4 class="mb-0">$3,567.53</h4>
-                    </div>
-                    <div class="chart ml-auto">
-                        asdfadf
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- column -->
-    <div class="col-sm-12 col-lg-4">
-        <div class="card card-admin card-hover bg-green">
-            <div class="card-body">
-                <div class="d-flex">
-                    <div class="mr-4">
-                        <small>Wallet Balance</small>
-                        <h4 class="mb-0">$3,567.53</h4>
-                    </div>
-                    <div class="chart ml-auto">
-                        asdfadf
+        <!-- column -->
+        <div class="col-sm-4 col-lg-4">
+            <div class="card card-admin card-hover" style="background-color: #49495E;">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="mr-4">
+                            <small>Totals Commandes</small>
+                            <h4 class="mb-0">{{ nombre_commandes }}</h4>
+                        </div>
+                        <div class="chart ml-auto">
+                            
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <!-- column -->
+        <div class="col-sm-4 col-lg-4">
+            <div class="card card-admin card-hover">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="mr-4">
+                            <small>Totals Clients</small>
+                            <h4 class="mb-0">{{ nombre_clients }}</h4>
+                        </div>
+                        <div class="chart ml-auto">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 </div>
+
 {% if nombre_conteneurs > 0 %}
 <div class="row">
+    <div  class="col-md-6">{{ graph_htmlconteneurs|safe }}</div>
     <div  class="col-md-6">{{ graph_htmlbartype|safe }}</div>
-   
   </div>
   {% endif %}
+
     {% endblock content %}

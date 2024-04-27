@@ -4,9 +4,9 @@
     <h1 class="mb-4">Liste des commandes</h1>
     <form method="GET" action="{{ url_for('list_commandes') }}" class="mb-3">
         <div class="input-group">
-            <input type="text" name="search_commande" class="form-control" placeholder="Rechercher par numéro de commande ou date...">
+            <input type="text" name="search_commande" class="form-control mr-sm-1" placeholder="Rechercher par numéro de commande ou date...">
             <div class="input-group-append">
-                <button type="submit" class="btn btn-primary">Rechercher</button>
+                <button type="submit" class="bto btn-primary">Rechercher</button>
             </div>
         </div>
     </form>
@@ -33,9 +33,8 @@
             {% endfor %}
             </tbody>
         </table>
-    </div>
-    <!-- Pagination des commandes -->
-    <nav aria-label="Page navigation example mt-3">
+           <!-- Pagination des commandes -->
+    <nav aria-label="Page navigation example mt-5">
         <ul class="pagination justify-content-end">
             <li class="page-item {% if not commandes_pagination.has_prev %}disabled{% endif %}">
                 <a class="page-link" {% if commandes_pagination.has_prev %}href="{{ url_for('list_commandes', commandes_page=commandes_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
@@ -56,5 +55,7 @@
             </li>
         </ul>
     </nav>
+    </div>
+ 
 </div>
 {% endblock %}

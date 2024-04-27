@@ -6,7 +6,7 @@ from datetime import timedelta
 import os
 import secrets
 from PIL import Image
-from flask import abort, g, jsonify, render_template, url_for, flash, redirect, request,Response
+from flask import abort, g, jsonify, render_template, session, url_for, flash, redirect, request,Response
 from flask_paginate import Pagination,get_page_args
 
 from sqlalchemy import extract, func
@@ -25,7 +25,7 @@ from plotly.offline import plot
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
-
+from playsound import playsound
 
 number_articles_per_page = 5
 number_commandes_per_page = 5
@@ -42,8 +42,26 @@ def about():
 @app.route("/acceuil_admin")
 @login_required
 def acceuil_admin():
-    Conteneurs = current_user.is_admin
+    nombre_commandes = Commande.query.count()
     nombre_conteneurs = Conteneur.query.count()
+    nombre_clients = User.query.count()
+    nombre_articles = Article.query.count()
+    dates, conteneurs = fetch_data_conteneurs()
+
+    # Création du graphique des conteneurs crées par jours
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=conteneurs, mode='lines+markers', name='Conteneur', line=dict(color='#ebab54')))
+
+    # Mettre à jour la mise en page du graphique
+    fig.update_layout(
+        title='Évolution quotidienne des conteneurs créées',
+        xaxis_title='Date',
+        yaxis_title='Nombre de commandes',
+        xaxis=dict(tickformat='%d-%m'),
+        xaxis_tickangle=-45, 
+    )
+    # Générer le code HTML pour le graphique des commandes
+    graph_htmlconteneurs = plot(fig, output_type='div')
     # Interrogation de la base de données pour compter les articles par type de SKU
     data = db.session.query(Conteneur.type_conteneur, db.func.count(Conteneur.id)).group_by(Conteneur.type_conteneur).all()
     data = pd.DataFrame(data, columns=['type_conteneur', 'count'])
@@ -59,10 +77,13 @@ def acceuil_admin():
         title='Nombre de conteneur par type',
         xaxis_title='Type de conteneur',
         yaxis_title='Nombre de conteneur',
-        xaxis=dict(type='category')  # Catégorise l'axe des x
+        xaxis=dict(type='category'),  # Catégorise l'axe des x
+        bargap=0.3,  # Espacement entre les barres
+        bargroupgap=0.1,  # Espacement entre les groupes de barres
+        xaxis_tickangle=-45, 
     )
     graph_htmlbartype = plot(fig, output_type='div')
-    return render_template('admin_dashboard/acceuil.html', graph_htmlbartype=graph_htmlbartype,Conteneurs=Conteneurs, nombre_conteneurs=nombre_conteneurs)
+    return render_template('admin_dashboard/acceuil.html',nombre_articles=nombre_articles, nombre_clients= nombre_clients, nombre_commandes=nombre_commandes,  graph_htmlbartype=graph_htmlbartype, nombre_conteneurs=nombre_conteneurs, graph_htmlconteneurs=graph_htmlconteneurs)
 
 @app.route("/acceuil_client")
 @login_required
@@ -71,7 +92,6 @@ def acceuil_client():
     nombre_articles = Article.query.filter_by(user_id=current_user.id).count()
     nombre_commandes = Commande.query.filter_by(user_id=current_user.id).count()
     # Récupérer les articles de la base de données
-    article =  current_user.articles
     commandes = current_user.commande
     #Pagination
     page = request.args.get('page', 1, type=int)
@@ -326,7 +346,7 @@ def new_article():
         
     articles = articles_pagination.items
     #articles = Article.query.all() 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         article = Article(sku=form.sku.data, largeur=form.largeur.data,
                           longueur=form.longueur.data, hauteur=form.hauteur.data,
                           poids=form.poids.data, quantite=form.quantite.data,
@@ -337,6 +357,21 @@ def new_article():
         flash('Article bien enregistré!', 'success')
         return redirect(url_for('new_article'))
     
+    #total_stock = sum(article.quantite for article in articles)  # Calcul du stock total
+    total_stock = Article.query.filter_by(user_id=current_user.id).count()
+
+    # Vérification du stock total et ajout d'un message d'alerte si nécessaire
+ # Vérification du stock total et ajout d'un message d'alerte si nécessaire
+    if total_stock < 10 and not session.get('alert_displayed'):
+        flash('Attention ! Le stock total des articles est inférieur à 10.', 'warning')
+        session['alert_displayed'] = True
+        # Vérifier si le son d'alerte a déjà été joué
+        if not session.get('alert_sound_played'):
+            for i in range(0, 2):
+                playsound("app/static/audio/bip.mp3")  # Jouer le fichier audio
+            # Marquer que le son d'alerte a été joué pour cette session
+            session['alert_sound_played'] = True
+        
     return render_template('user_dashboard/create_article.html', title='New Article', form=form, articles=articles, articles_pagination=articles_pagination)
 
 @app.route("/article/<int:article_id>")
@@ -689,6 +724,7 @@ def update_article(id):
     
     return render_template('user_dashboard/create_article.html', title='Update article', form=form, article=article)
 
+
 #Mises à jour des conteneurs
 @app.route('/update_conteneur/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -861,6 +897,24 @@ def fetch_data_commandes(user_id):
 
     return dates, commandes
 
+def fetch_data_conteneurs():
+    today = dt_date.today()
+    week_ago = today - timedelta(days=7)
+
+    conteneur_counts = db.session.query(func.date(Conteneur.date_creation), func.count(Conteneur.id))\
+        .filter(Conteneur.date_creation >= week_ago)\
+        .group_by(func.date(Conteneur.date_creation)).all()
+
+    dates = [week_ago + timedelta(days=i) for i in range(8)]
+    Conteneurs = [0] * 8
+
+    for date_str, count in conteneur_counts:
+        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()  # Convertissez la chaîne en objet date
+        if isinstance(date_obj, datetime.date):
+            index = (date_obj - week_ago).days
+            Conteneurs[index] = count
+
+    return dates, Conteneurs
 
 @app.route("/charts")
 @login_required

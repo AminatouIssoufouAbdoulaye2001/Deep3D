@@ -108,8 +108,8 @@
         Liste des Conteneurs
         <form class="form-inline justify-content-end" method="get" action="{{ url_for('new_conteneur') }}">
           <div class="input-group">
-            <input class="form-control mr-sm-2" type="search" placeholder="Rechercher par type de conteneur" aria-label="search_conteneur" name="search_conteneur">
-            <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i></button>
+            <input class="form-control mr-sm-1" type="search" placeholder="Rechercher par type de conteneur" aria-label="search_conteneur" name="search_conteneur">
+            <button type="submit" class="bto btn-primary"><i class="fa fa-search"></i></button>
           </div>
       </form>
     </div>
@@ -120,6 +120,7 @@
                     <tr>
                         <th>ID</th>
                         <th>Type</th>
+                        <th>Date création</th>
                         <th>Dimensions (L×l×H)</th>
                         <th>Poids Max</th>
                         <th>Quantité</th>
@@ -132,6 +133,7 @@
                     <tr>
                         <td>{{ conteneur.id }}</td>
                         <td>{{ conteneur.type_conteneur }}</td>
+                        <td>{{ conteneur.date_creation }}</td>
                         <td>{{ conteneur.longueur }}cm × {{ conteneur.largeur }}cm × {{ conteneur.hauteur }}cm</td>
                         <td>{{ conteneur.Poid_maximal }} kg</td>
                         <td>{{ conteneur.quantite }}</td>

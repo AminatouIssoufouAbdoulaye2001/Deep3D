@@ -143,7 +143,7 @@
                 {{current_user.nom}} {{current_user.prenom}}
             </span>
             <span class="profile-info">
-                Administration
+                Administrateur
             </span>
         </li>
     </ul>
@@ -190,7 +190,7 @@
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          <div class="alert mt-3 alert-{{ category }} alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <span aria-hidden="true">&times;</span>

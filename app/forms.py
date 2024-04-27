@@ -1,3 +1,4 @@
+from flask import flash
 from flask_bcrypt import check_password_hash
 from flask_login import current_user
 from flask_wtf import FlaskForm
@@ -5,7 +6,7 @@ import re
 from wtforms import DateField, DateTimeField, FloatField, HiddenField, IntegerField, SelectField, SelectMultipleField, StringField, PasswordField, SubmitField, BooleanField
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from app.models import User
+from app.models import Article, Conteneur, User
 
 
 class RegistrationForm(FlaskForm):
@@ -87,6 +88,35 @@ class ArticleForm(FlaskForm):
     fragile = BooleanField('Fragile', default=False)
     submit = SubmitField('Ajouter')
 
+
+    def validate(self):
+        if not super(ArticleForm, self).validate():
+            return False
+
+        # Validation de la longueur par rapport à la largeur
+        if self.longueur.data <= self.largeur.data:
+            self.longueur.errors.append("La longueur doit être supérieure à la largeur.")
+            return False
+
+        # Validation du SKU
+        existing_article = Article.query.filter_by(sku=self.sku.data, user_id=current_user.id).first()
+        if existing_article and existing_article.id != self.id.data:
+            self.sku.errors.append('Cet SKU existe déjà pour un autre article. Veuillez en choisir un autre.')
+            return False
+
+        # Validation des dimensions
+        existing_article = Article.query.filter_by(
+            largeur=self.largeur.data,
+            longueur=self.longueur.data,
+            hauteur=self.hauteur.data,
+            poids=self.poids.data
+        ).first()
+        if existing_article:
+            flash('Un article avec les mêmes dimensions existe déjà.', 'error')
+            return False
+
+        return True
+
 class ConteneurForm(FlaskForm):
     id = HiddenField('ID de conteneur')
     type_conteneur = SelectField('Type', validators=[DataRequired()], choices=[
@@ -103,6 +133,23 @@ class ConteneurForm(FlaskForm):
     prix = FloatField('Prix',validators=[DataRequired()],render_kw={"placeholder": "TND"})
     submit = SubmitField('Ajouter')
 
+
+
+    def validate(self, extra_validators=None):
+        if not super(ConteneurForm, self).validate(extra_validators):
+            return False
+        existing_conteneur = Conteneur.query.filter_by(
+            largeur=self.largeur.data,
+            longueur=self.longueur.data,
+            Poid_maximal=self.Poid_maximal.data,
+            quantite=self.quantite.data,
+            prix=self.prix.data
+        ).first()
+        if existing_conteneur:
+            flash('Un article avec les mêmes dimensions existe déjà.', 'error')
+            return False
+        return True
+
 class UpdateArticleForm(FlaskForm):
     id = HiddenField('ID de l\'article')
     sku = StringField('Sku/Id')
@@ -113,6 +160,39 @@ class UpdateArticleForm(FlaskForm):
     quantite = IntegerField('Quantité')
     fragile = BooleanField('Fragile')
     submit = SubmitField('Mettre à jour')
+    
+    def validate(self,extra_validators=None):
+        # Appeler la méthode parent validate
+        if not super(ArticleForm, self).validate(extra_validators):
+            return False
+
+        # Valider la longueur par rapport à la largeur
+        if self.longueur.data <= self.largeur.data:
+            self.longueur.errors.append("La longueur doit être supérieure à la largeur.")
+            return False
+
+        return True
+    
+    def validate_sku(self, sku):
+        existing_article = Article.query.filter_by(sku=sku.data and Article.user_id==current_user.id).first()
+        if existing_article and existing_article.id != self.id.data:
+            raise ValidationError('Cet SKU existe déjà pour un autre article. Veuillez en choisir un autre.')
+
+    def validate(self, extra_validators=None):
+        if not super(ArticleForm, self).validate(extra_validators):
+            return False
+
+        existing_article = Article.query.filter_by(
+            largeur=self.largeur.data,
+            longueur=self.longueur.data,
+            hauteur=self.hauteur.data,
+            poids=self.poids.data
+        ).first()
+
+        if existing_article:
+            flash('Un article avec les mêmes dimensions existe déjà.', 'error')
+            return False
+        return True
 
 class RequestResetForm(FlaskForm):
     email = StringField('Adress email',
