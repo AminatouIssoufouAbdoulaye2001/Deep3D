@@ -93,6 +93,7 @@ def acceuil_client():
     nombre_commandes = Commande.query.filter_by(user_id=current_user.id).count()
     # Récupérer les articles de la base de données
     commandes = current_user.commande
+    articles = current_user.articles
     #Pagination
     page = request.args.get('page', 1, type=int)
     articles_pagination = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc()).paginate(page=page, per_page=number_articles_per_page, error_out=False)
@@ -159,7 +160,7 @@ def acceuil_client():
     )
     graph_htmlbar = plot(fig, output_type='div')
 
-    return render_template('user_dashboard/acceuil.html', graph_htmlbar=graph_htmlbar, graph_htmlpie=graph_htmlpie, graph_htmlarticle=graph_htmlarticle, graph_htmlcommandes=graph_htmlcommandes, nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=article, commandes=commandes)
+    return render_template('user_dashboard/acceuil.html', graph_htmlbar=graph_htmlbar, graph_htmlpie=graph_htmlpie, graph_htmlarticle=graph_htmlarticle, graph_htmlcommandes=graph_htmlcommandes, nombre_articles=nombre_articles, articles_pagination=articles_pagination, nombre_commandes=nombre_commandes, articles=articles, commandes=commandes)
 
 
 #Register
@@ -360,18 +361,16 @@ def new_article():
     #total_stock = sum(article.quantite for article in articles)  # Calcul du stock total
     total_stock = Article.query.filter_by(user_id=current_user.id).count()
 
-    # Vérification du stock total et ajout d'un message d'alerte si nécessaire
- # Vérification du stock total et ajout d'un message d'alerte si nécessaire
-    if total_stock < 10 and not session.get('alert_displayed'):
+    if total_stock < 10 and not session.get('alert_displayed') and current_user.id ==current_user.id:
         flash('Attention ! Le stock total des articles est inférieur à 10.', 'warning')
         session['alert_displayed'] = True
-        # Vérifier si le son d'alerte a déjà été joué
-        if not session.get('alert_sound_played'):
+        # Vérifier si le son d'alerte a déjà été joué pour cet utilisateur
+        if not session.get('alert_sound_played') and current_user.id==current_user.id:
             for i in range(0, 2):
                 playsound("app/static/audio/bip.mp3")  # Jouer le fichier audio
-            # Marquer que le son d'alerte a été joué pour cette session
+            # Marquer que le son d'alerte a été joué pour cet utilisateur
             session['alert_sound_played'] = True
-        
+
     return render_template('user_dashboard/create_article.html', title='New Article', form=form, articles=articles, articles_pagination=articles_pagination)
 
 @app.route("/article/<int:article_id>")
@@ -495,7 +494,7 @@ def list_clients():
 def list_commandes():
     search_commande = request.args.get('search_commande')
     commandes_page = request.args.get('commandes_page', 1, type=int)
-    per_page = 4  # Nombre d'items par page
+    per_page = 5 # Nombre d'items par page
 
     if search_commande:
         commandes_query = Commande.query.filter((Commande.numero_commande.ilike(f'%{search_commande}%')) | (Commande.date_creation.ilike(f'%{search_commande}%')))
