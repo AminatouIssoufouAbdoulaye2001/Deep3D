@@ -5,6 +5,7 @@ from datetime import timedelta
 
 import os
 import secrets
+from threading import Thread
 from PIL import Image
 from flask import abort, g, jsonify, render_template, session, url_for, flash, redirect, request,Response
 from flask_paginate import Pagination,get_page_args
@@ -179,7 +180,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 #Fin Register
 
-#Connexion
+# Connexion
 @app.route("/login", methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -189,16 +190,20 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and bcrypt.check_password_hash(user.mot_de_passe, form.mot_de_passe.data):
-            login_user(user, remember=form.remember.data)
-            next_page = request.args.get('next')
-            if current_user.is_admin:
-                return redirect(next_page) if next_page else redirect(url_for('acceuil_admin'))
+            if user.active:  # Vérification de l'état actif du compte utilisateur
+                login_user(user, remember=form.remember.data)
+                next_page = request.args.get('next')
+                if current_user.is_admin:
+                    return redirect(next_page) if next_page else redirect(url_for('acceuil_admin'))
+                else:
+                    return redirect(next_page) if next_page else redirect(url_for('acceuil_client'))
             else:
-                return redirect(next_page) if next_page else redirect(url_for('acceuil_client'))   
+                flash('Votre compte a été désactivé par l\'administrateur. Veuillez contacter le support.', 'danger')
         else:  
             flash('Connexion échouée. Veuillez vérifier votre email et votre mot de passe', 'danger')
             
     return render_template('login.html', title='Login', form=form)
+
 
 @app.route("/admin/dashboard")
 @login_required
@@ -209,6 +214,20 @@ def admin_dashboard():
     else:
         abort(403)  # Accès interdit pour les utilisateurs non-administrateurs
 #Fin connexion
+
+@app.route('/user/<int:user_id>/toggle_active', methods=['POST'])
+@login_required
+def toggle_user_active(user_id):
+    user = User.query.get_or_404(user_id)
+    user.active = not user.active  # Inverse l'état d'activation
+    db.session.commit()
+    if user.active:
+        message='L\'utilisateur a été activé avec succès.'
+    else:
+        message='L\'utilisateur a été désactivé avec succès.'
+
+    flash(message, 'success')
+    return redirect(url_for('list_clients'))  # Redirige vers la page d'administration
 
 #Modification du mot de passe par Email
 def send_reset_email(user):
@@ -442,7 +461,24 @@ def new_conteneur():
     pagination_args = Pagination(page=conteneurs_page, per_page=per_page, total=conteneurs_query.count(), css_framework='bootstrap4')
     
     return render_template('admin_dashboard/conteneur.html',form=form, conteneurs=conteneurs, conteneurs_pagination=conteneurs_pagination, pagination_args=pagination_args)
+
 #Fin création
+#Création du conteneur
+@app.route("/alert_stock_conteneur", methods=['GET', 'POST'])
+@login_required
+def alert_stock_conteneur():
+    total_stock = Conteneur.query.count()
+
+    if total_stock < 10:
+        flash('Attention ! Le stock total des conteneurs est inférieur à 10.', 'warning')
+        for i in range(0, 2):
+            playsound("app/static/audio/bip.mp3")  # Jouer le fichier audio
+
+    # Appeler la fonction d'alerte dans un thread séparé
+
+    # Rediriger vers la vue de création de conteneur
+    return redirect(url_for('new_conteneur'))
+
 
 # Affichages des articles, commandes et conteneurs crées 
 @app.route("/articles")

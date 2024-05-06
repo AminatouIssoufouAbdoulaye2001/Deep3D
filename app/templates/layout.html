@@ -70,7 +70,16 @@
         </div>
       </div>
     </main>
-
+    <script type="text/javascript">
+      // Sélectionnez tous les éléments avec la classe "alert" et masquez-les après 3 secondes
+      setTimeout(function() {
+        var alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+          alert.style.display = 'none';
+        });
+      }, 5000); // 5000 ms = 5 secondes
+    </script>
+    
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

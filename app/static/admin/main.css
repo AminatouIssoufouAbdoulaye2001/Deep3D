@@ -131,3 +131,7 @@ body{
   background-color: #49495E;
   color: #fff;
 }
+td{
+  text-align: center;
+  vertical-align: middle;
+}

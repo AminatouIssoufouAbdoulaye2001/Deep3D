@@ -146,7 +146,7 @@ class ConteneurForm(FlaskForm):
             prix=self.prix.data
         ).first()
         if existing_conteneur:
-            flash('Un article avec les mêmes dimensions existe déjà.', 'error')
+            flash('Un conteneur avec les mêmes dimensions existe déjà.', 'error')
             return False
         return True
 

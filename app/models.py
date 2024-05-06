@@ -21,6 +21,7 @@ class User(db.Model, UserMixin):
     telephone = db.Column(db.Integer, default=None)
     email = db.Column(db.String(255), unique=True, nullable=False)
     code_enregistrement = db.Column(db.String(20), default=None)
+    active = db.Column(db.Boolean, default=True)  # Champ pour indiquer si le compte est actif
     # Relation entre User et Article avec backref 'user'
     articles = db.relationship('Article', backref='User', lazy=True)
     commande = db.relationship('Commande', backref='user', lazy=True)
