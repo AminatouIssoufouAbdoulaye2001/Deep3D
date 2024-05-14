@@ -13,11 +13,13 @@
     <div class="table-responsive">
         <table class="table table-striped">
             <thead class="thead-commandes">
-                <tr>
+                <tr class="text-center">
                     <th scope="col">Numéro de commande</th>
                     <th scope="col">Date de création</th>
                     <th scope="col">Utilisateur</th>
                     <th scope="col">Détails de la commande</th>
+                    <th scope="col">Action</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -27,7 +29,10 @@
                     <td>{{ commande.date_creation }}</td>
                     <td>{{ commande.user.nom }} {{ commande.user.prenom }}</td>
                     <td>
-                        <a href="#" class="btn btn-primary btn-sm">Voir détails</a>
+                        <button class="btn btn-primary btn-sm voir-details"  data-commande-id="{{ commande.id }}" data-bs-toggle="modal" data-bs-target="#commandeDetailsModal">Voir détails</button>
+                    </td>
+                    <td>
+                        <a href="#" class="btn btn-primary btn-sm">Emballer</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -56,6 +61,42 @@
         </ul>
     </nav>
     </div>
- 
+
 </div>
+{% for commande in commandes_pagination.items  %}
+<!-- Modal pour les détails de la commande -->
+<div class="modal fade" id="commandeDetailsModal" tabindex="-1" aria-labelledby="commandeDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg  modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="commandeIdModal"></h5>
+          </div>
+          <div class="modal-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr style="background-color: #49495e; color: white;">
+                        <th scope="col">ID/SKU</th>
+                        <th scope="col">Largeur</th>
+                        <th scope="col">Longueur</th>
+                        <th scope="col">Hauteur</th>
+                        <th scope="col">Poids</th>
+                        <th scope="col">Quantité</th>
+                        <th scope="col">Fragile</th>
+                      </tr>
+                    </thead>
+                    <tbody id="articlesList">
+                        <!-- Les articles associés à la commande seront affichés ici -->
+                    </tbody>
+                  </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+{%endfor%}
+<script src="{{ url_for('static', filename='scripts/detailcommande.js') }}"></script>
+
 {% endblock %}

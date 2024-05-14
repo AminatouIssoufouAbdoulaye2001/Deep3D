@@ -26,15 +26,15 @@
                                 </div>
                                 <div class="form-group">
                                     <span>{{ form.mot_de_passe.label(class="form-control-label") }} *</span>
-                                    {% if form.mot_de_passe.errors %} {{form.mot_de_passe(class="form-control
+                                    {% if form.mot_de_passe.errors %} {{form.mot_de_passe(class="form-control 
                                     form-control-lg is-invalid") }}
                                     <div class="">
                                         {% for error in form.mot_de_passe.errors %}
                                         <span title="required">{{ error }}*</span>
                                         {% endfor %}
                                     </div>
-                                    {% else %} {{ form.mot_de_passe(class="form-control
-                                    form-control-lg") }} {% endif %}
+                                    {% else %} {{ form.mot_de_passe(class="form-control  form-control-lg password-input") }}
+                                    {% endif %}
                                 </div>
         
                                 <div class="form-row" pt-4>
@@ -68,4 +68,57 @@
         </div>
     </div>
 </div>
+<!-- Assurez-vous que jQuery est inclus dans votre page HTML -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Ajoutez ce script à la fin de votre page HTML -->
+<script>
+    $(document).ready(function(){
+        // Fonction pour ajouter l'icône d'affichage/masquage du mot de passe
+        function addPasswordToggleIcon() {
+            // Sélectionnez le champ de mot de passe et son conteneur
+            var passwordField = $('.password-input');
+            var passwordContainer = passwordField.closest('.form-group');
+
+            // Créez l'icône d'affichage/masquage du mot de passe
+            var icon = $('<i>').addClass('toggle-password fa fa-eye').attr('aria-hidden', 'true');
+
+            // Fonction pour basculer la visibilité du mot de passe
+            function togglePasswordVisibility() {
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    passwordField.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            }
+
+            // Ajoutez l'icône à l'intérieur du champ de mot de passe
+            passwordField.after(icon);
+
+            // Cachez l'icône initialement
+            icon.hide();
+
+            // Ajoutez un écouteur d'événements pour détecter la saisie dans le champ de mot de passe
+            passwordField.on('input', function() {
+                if ($(this).val().trim() !== '') {
+                    icon.show();
+                } else {
+                    icon.hide();
+                }
+            });
+
+            // Ajoutez un écouteur d'événements pour basculer la visibilité du mot de passe lorsque l'utilisateur clique sur l'icône
+            icon.on('click', function() {
+                togglePasswordVisibility();
+            });
+        }
+
+        // Appelez la fonction pour ajouter l'icône lorsque le document est chargé
+        addPasswordToggleIcon();
+    });
+</script>
+
+    
 {% endblock content %}

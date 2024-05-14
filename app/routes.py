@@ -531,15 +531,37 @@ def list_commandes():
     search_commande = request.args.get('search_commande')
     commandes_page = request.args.get('commandes_page', 1, type=int)
     per_page = 5 # Nombre d'items par page
+    articles = current_user.articles
+
+    commandes_query = Commande.query.all()
 
     if search_commande:
         commandes_query = Commande.query.filter((Commande.numero_commande.ilike(f'%{search_commande}%')) | (Commande.date_creation.ilike(f'%{search_commande}%')))
     else:
         commandes_query = Commande.query
-
     commandes_pagination = commandes_query.paginate(page=commandes_page, per_page=per_page, error_out=False)
     pagination_args = Pagination(page=commandes_page, per_page=per_page, total=commandes_query.count(), css_framework='bootstrap4')
-    return render_template('admin_dashboard/list_commandes.html', commandes_pagination=commandes_pagination,pagination_args=pagination_args)
+    return render_template('admin_dashboard/list_commandes.html', articles=articles,commandes_pagination=commandes_pagination,pagination_args=pagination_args,commandes=commandes_query)
+@app.route('/get_articles/<int:commande_id>')
+def get_articles(commande_id):
+    # Récupérer les articles associés à la commande spécifique avec l'ID commande_id
+    commande = Commande.query.get_or_404(commande_id)
+
+    articles_data = []
+    for article in commande.articles:
+        article_dict = {
+            'sku': article.sku,
+            'largeur': article.largeur,
+            'longueur': article.longueur,
+            'hauteur': article.hauteur,
+            'poids': article.poids,
+            'quantite': article.quantite,
+            'fragile': article.fragile,
+            'commande_id': commande_id  
+        }
+        articles_data.append(article_dict)
+
+    return jsonify(articles_data)
 #Fin Affichage
 
 #les Différentes modification apporté au seins des différentes fonctionnalités
