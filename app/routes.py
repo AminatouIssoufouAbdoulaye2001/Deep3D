@@ -562,6 +562,20 @@ def get_articles(commande_id):
         articles_data.append(article_dict)
 
     return jsonify(articles_data)
+
+@app.route('/pack-articles', methods=['POST'])
+def pack_articles():
+  commande_id = request.form['commande_id']  # Get commandeId from request
+
+  # Retrieve articles associated with commandeId from the database
+  articles = get_articles(commande_id)
+
+  # Process and pack the articles using your Python logic
+  pack_articles(articles)
+
+  # Return a response indicating success or failure
+  return jsonify({'status': 'success'})
+
 #Fin Affichage
 
 #les Différentes modification apporté au seins des différentes fonctionnalités

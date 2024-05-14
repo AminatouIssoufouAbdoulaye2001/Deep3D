@@ -32,7 +32,7 @@
                         <button class="btn btn-primary btn-sm voir-details"  data-commande-id="{{ commande.id }}" data-bs-toggle="modal" data-bs-target="#commandeDetailsModal">Voir détails</button>
                     </td>
                     <td>
-                        <a href="#" class="btn btn-primary btn-sm">Emballer</a>
+                        <button class="btn btn-primary btn-sm emballer" data-commande-id="{{ commande.id }}">Emballer</button>
                     </td>
                 </tr>
             {% endfor %}
@@ -98,5 +98,6 @@
 </div>
 {%endfor%}
 <script src="{{ url_for('static', filename='scripts/detailcommande.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/emballer.js') }}"></script>
 
 {% endblock %}
