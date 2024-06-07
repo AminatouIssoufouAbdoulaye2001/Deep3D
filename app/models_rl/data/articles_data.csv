@@ -1,0 +1,8 @@
+sku,largeur,longueur,hauteur,poids,quantite,fragile
+SKU001,10.0,10.0,10.0,2.0,4,True
+SKU002,24.0,26.0,22.0,2.8,2,False
+SKU003,19.28,15.0,6.0,2.7,6,True
+SKU004,30.0,70.9,20.0,8.0,10,False
+SKU005,60.0,90.25,35.9,20.75,13,True
+SKU001,10.0,10.0,10.0,2.0,4,True
+SKU006,25.0,45.0,25.0,15.0,2,False

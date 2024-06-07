@@ -1,0 +1,4 @@
+Type,Largeur,Longueur,Hauteur,Poids_max,Quantite,Prix
+carton,100.0,150.0,70.0,25.0,2,75.0
+conteneur,19.7,25.0,11.25,2.0,1,10.0
+caisse,10.0,15.0,12.0,3.0,4,20.0

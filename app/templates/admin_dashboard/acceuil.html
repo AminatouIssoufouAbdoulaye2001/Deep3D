@@ -56,6 +56,41 @@
     <div  class="col-md-6">{{ graph_htmlconteneurs|safe }}</div>
     <div  class="col-md-6">{{ graph_htmlbartype|safe }}</div>
   </div>
+  <div class="row mt-3">
+    <div class="col-md-10">
+        <div class="card detail">
+            <div class="detail-header">
+                <form method="POST" action="{{ url_for('download_conteneur') }}">
+                    <button type="submit" class="mb-3 download" style="background-color: #49495e;color: #fff;
+                    border: 1px solid #49495e; height: 40px;">Télécharger</button>
+                    <table>
+                        <tr>
+                            <th>type_conteneur</th>
+                            <th>Largeur</th>
+                            <th>Longueur</th>
+                            <th>Hauteur</th>
+                            <th>Poid_maximal</th>
+                            <th>Quantité</th>
+                            <th>prix</th>
+                        </tr>
+                        {% for conteneur in conteneurs %}
+                        <tr>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.type_conteneur}}</td>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.largeur}}</td>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.longueur}}</td>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.hauteur}}</td>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.Poid_maximal}}</td>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.quantite}}</td>
+                            <td style="border: 1px solid black;padding: 5px; text-align: center;">{{conteneur.prix}}</td>
+                            <td><input style="width: 20px; height: 20px; margin-left: 20px;" type="checkbox" name="selected_conteneurs" value="{{ conteneur.id }}"></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
   {% endif %}
 
     {% endblock content %}

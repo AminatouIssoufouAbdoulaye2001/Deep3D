@@ -32,7 +32,7 @@
                         <button class="btn btn-primary btn-sm voir-details"  data-commande-id="{{ commande.id }}" data-bs-toggle="modal" data-bs-target="#commandeDetailsModal">Voir détails</button>
                     </td>
                     <td>
-                        <button class="btn btn-primary btn-sm emballer" data-commande-id="{{ commande.id }}">Emballer</button>
+                        <button class="btn btn-primary btn-sm emballer"  data-commande-id="{{ commande.id }}">Emballer</button>
                     </td>
                 </tr>
             {% endfor %}
@@ -70,6 +70,9 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="commandeIdModal"></h5>
+            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
           </div>
           <div class="modal-body">
             <div class="table-responsive">
@@ -96,8 +99,10 @@
         </div>
     </div>
 </div>
+</div>
 {%endfor%}
+
 <script src="{{ url_for('static', filename='scripts/detailcommande.js') }}"></script>
-<script src="{{ url_for('static', filename='scripts/emballer.js') }}"></script>
+
 
 {% endblock %}

@@ -1,0 +1,70 @@
+.table-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem; /* Space between tables */
+}
+
+.table-container .table-wrapper {
+    flex: 1;
+    min-width: 200px; /* Adjust this value based on your layout */
+}
+
+.text-18 {
+    font-size: 18px;
+}
+
+.form.simple.gray {
+    width: 100%;
+    background-color: #f9f9f9;
+    border: 1px solid #dee2e6;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+    border-collapse: collapse;
+}
+
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    text-align: left;
+}
+
+.table-bordered th {
+    background-color: #f1f1f1;
+}
+
+.table-container .table-wrapper .text-18 {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.table-container .table-wrapper table {
+    width: 100%;
+}
+
+.card-box.active {
+    border: 2px solid #ebab54;
+    background-color: #FCF9F4;
+}
+table td {
+    border-bottom: 1px solid #e0e3e7;
+}
+.orange-container {
+    background-color: #FFEBCC;
+    border: 2px solid #FFA500;
+    padding: 10px;
+    border-radius: 5px;
+}
+.card-box {
+    border: 2px solid #FFA500;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #FCF9F4;
+}
+.fa-eye {
+    color: #FFA500;
+}

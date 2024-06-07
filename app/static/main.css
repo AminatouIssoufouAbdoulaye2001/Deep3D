@@ -1,11 +1,11 @@
 body {
 
   color: #333333;
-  margin-top: 4rem;
+
   font-family:  "Courier New",;
-  font-family: "Source Sans Pro";
+  font-family: 'Spectral', serif;
   font-size: 0.875rem;
-  font-weight: 400;
+  font-weight: 200px;
   line-height: 1.5;
   color: #49495e;
   text-align: left;
@@ -19,38 +19,6 @@ body {
     background-size: 100% 50%;
   background-repeat: repeat-y;
 }
-
-
-html {  
-  font-family: sans-serif;
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: rgba(0,0,0,0)
-}
-:root{
-  --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace
-
-}
-h1, h2, h3, h4, h5, h6 {
-  color: #444444;
-}
-
-.bg-steel {
-  background-color: #5f788a;
-}
-
-.site-header .navbar-nav .nav-link {
-  color: #cbd5db;
-}
-
-.site-header .navbar-nav .nav-link:hover {
-  color: #ffffff;
-}
-
-.site-header .navbar-nav .nav-link.active {
-  font-weight: 500;
-}
-
 
 
 .article-content {
@@ -97,9 +65,33 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 2.5rem;
 }
 
-
-
-
+.top-spacer {
+  height: 40px;
+}
+div .header {
+  display: block;
+  font-weight: 700px;
+  line-height: 58px;
+  font-size: 40px;
+  margin-bottom: 16px;
+  text-align: center;
+  text-transform: none;
+  color: #49495e;
+}
+.divider {
+  width: 100%; /* Largeur de la ligne */
+  height: 2px; /* Épaisseur de la ligne */
+  background: repeating-linear-gradient(
+    290deg, /* Angle de la ligne en degrés */
+    transparent, /* Couleur du segment transparent */
+    transparent 5px, /* Longueur du segment transparent */
+    black 5px, /* Couleur du segment opaque */
+    black 10px /* Longueur du segment opaque */
+  );
+  background-size: 10px 2px; /* Taille de chaque répétition de motif */
+  background-repeat: repeat-x; /* Répéter horizontalement */
+  background-position: 0 0; /* Position de départ */
+}
 .fixed-top {
   position: fixed;
   top: 0;
@@ -163,4 +155,107 @@ h1, h2, h3, h4, h5, h6 {
   color: #fff;
   font-size: 16px;
   text-transform: uppercase;
+}
+*#dm *.dmBody div.u_1084052336 {
+  float: none !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: auto !important;
+  position: relative !important;
+  height: auto !important;
+  padding-top: 60px !important;
+  padding-left: 50px !important;
+  padding-bottom: 125.5px !important;
+  max-width: 100% !important;
+  padding-right: 50px !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  background-attachment: fixed !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+  margin-left: 0px !important;
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+  margin-right: 0px !important;
+}
+.section-hero {
+  position: relative;
+  overflow: hidden;
+  display: block;
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-bottom: 50px;
+  margin: 0;
+}
+.custom-container {
+  position: static;
+  display: block;
+  overflow: visible;
+  height: auto;
+  max-width: 1140px;
+  margin-right: auto;
+  margin-left: auto;
+  flex-direction: column;
+  text-align: left;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  min-width: 0;
+  max-width: 100%;
+}
+.bottom-spacer {
+  height: 50px;
+}
+.card.assistant {
+  width: 1100px;
+  min-height: 550px;
+}
+.card {
+  position: relative;
+  z-index: 0;
+  border: solid 1px #f5d5aa;
+  border-radius: 6px;
+  background-color: #fff;
+  transition: transform 400ms ease, box-shadow 400ms ease, -webkit-transform 400ms ease;
+  box-shadow: 0 6px 12px -6px #f5d5aa;
+}
+.assistant input[type=radio]:checked + .show {
+  display: block;
+  animation: fadeEffect 2s ease;
+}
+.assistant input[type=radio] + .show {
+  display: none;
+}
+
+.card.assistant fieldset {
+  min-height: 550px;
+  border: 1px solid #f5d5aa;
+  border-radius: 4px;
+}
+fieldset {
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+.card .card-content {
+  padding: 24px 32px 32px 32px;
+}
+.text{
+  font-size: 16px;
+}
+.text-18 {
+  color: #5a5a74;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0;
 }

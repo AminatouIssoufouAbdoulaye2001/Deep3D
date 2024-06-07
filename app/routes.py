@@ -27,6 +27,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 from playsound import playsound
+from app.models_rl.bin import *
 
 number_articles_per_page = 5
 number_commandes_per_page = 5
@@ -38,13 +39,14 @@ def home():
 @app.route("/about")
 def about():
 
-    return render_template('user_dashboard/about.html')
+    return render_template('admin_dashboard/emballage.html')
 
 @app.route("/acceuil_admin")
 @login_required
 def acceuil_admin():
     nombre_commandes = Commande.query.count()
     nombre_conteneurs = Conteneur.query.count()
+    conteneurs = Conteneur.query.all()
     nombre_clients = User.query.count()
     nombre_articles = Article.query.count()
     dates, conteneurs = fetch_data_conteneurs()
@@ -84,7 +86,7 @@ def acceuil_admin():
         xaxis_tickangle=-45, 
     )
     graph_htmlbartype = plot(fig, output_type='div')
-    return render_template('admin_dashboard/acceuil.html',nombre_articles=nombre_articles, nombre_clients= nombre_clients, nombre_commandes=nombre_commandes,  graph_htmlbartype=graph_htmlbartype, nombre_conteneurs=nombre_conteneurs, graph_htmlconteneurs=graph_htmlconteneurs)
+    return render_template('admin_dashboard/acceuil.html',nombre_articles=nombre_articles, nombre_clients= nombre_clients, nombre_commandes=nombre_commandes, conteneurs=conteneurs,   graph_htmlbartype=graph_htmlbartype, nombre_conteneurs=nombre_conteneurs, graph_htmlconteneurs=graph_htmlconteneurs)
 
 @app.route("/acceuil_client")
 @login_required
@@ -298,9 +300,8 @@ def save_picture(form_picture):
 #Affichage de l'image global
 @app.before_request
 def before_request():
-    # Assurez-vous que l'utilisateur est authentifié avant de récupérer l'image
     if current_user.is_authenticated:
-        # Définissez image dans le contexte global g
+        # Définition de l'image dans le contexte global g
         g.image = url_for('static', filename='images/' + current_user.image) if current_user.image else None
     else:
         g.image = None
@@ -349,6 +350,48 @@ def download_articles():
     else:
         flash('Aucun article trouvé pour téléchargement.', 'warning')
         return redirect(url_for('acceuil_client'))
+
+
+@app.route("/download_conteneur", methods=['POST'])
+@login_required
+def download_conteneur():
+    selected_conteneur_ids = request.form.getlist('selected_conteneurs')
+
+    if selected_conteneur_ids:
+        # Télécharger les conteneurs sélectionnés
+        conteneurs = Conteneur.query.filter(Conteneur.id.in_(selected_conteneur_ids)).all()
+    else:
+        # Télécharger tous les conteneurs
+        conteneurs = Conteneur.query.all()
+
+    if not conteneurs:
+        flash('Aucun conteneur trouvé pour téléchargement.', 'warning')
+        return redirect(url_for('acceuil_admin'))
+
+    # Créer un fichier CSV avec les données des conteneurs
+    output = StringIO()
+    fieldnames = ['type_conteneur', 'largeur', 'longueur', 'hauteur', 'Poid_maximal', 'quantite', 'prix']
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+
+    writer.writeheader()
+    for conteneur in conteneurs:
+        writer.writerow({
+            'type_conteneur': conteneur.type_conteneur,
+            'largeur': conteneur.largeur,
+            'longueur': conteneur.longueur,
+            'hauteur': conteneur.hauteur,
+            'Poid_maximal': conteneur.Poid_maximal,
+            'quantite': conteneur.quantite,
+            'prix': conteneur.prix
+        })
+
+    content_type = 'text/csv'
+    response = Response(output.getvalue(), content_type=content_type)
+    response.headers["Content-Disposition"] = f"attachment; filename=conteneurs_data.csv"
+
+    return response
+
+
 
 #Création d'article
 @app.route("/new_article", methods=['GET', 'POST'])
@@ -563,18 +606,32 @@ def get_articles(commande_id):
 
     return jsonify(articles_data)
 
-@app.route('/pack-articles', methods=['POST'])
+@app.route('/pack_articles', methods=['POST'])
 def pack_articles():
-  commande_id = request.form['commande_id']  # Get commandeId from request
+    data = request.json  # Get JSON data from request
+    commande_id = data['commande_id']  # Get commandeId from the data
 
-  # Retrieve articles associated with commandeId from the database
-  articles = get_articles(commande_id)
+    # Retrieve articles associated with commandeId from the database
+    commande = Commande.query.get_or_404(commande_id)
+    articles = []
+    for article in commande.articles:
+        article_dict = {
+            'sku': article.sku,
+            'largeur': article.largeur,
+            'longueur': article.longueur,
+            'hauteur': article.hauteur,
+            'poids': article.poids,
+            'quantite': article.quantite,
+            'fragile': article.fragile,
+            'commande_id': commande_id  
+        }
+        articles.append(article_dict)
 
-  # Process and pack the articles using your Python logic
-  pack_articles(articles)
+    # Process and pack the articles using your Python logic
+    result = model_pack_articles(articles)
 
-  # Return a response indicating success or failure
-  return jsonify({'status': 'success'})
+    # Return a response indicating success or failure
+    return jsonify(result.to_dict(orient='records'))
 
 #Fin Affichage
 
