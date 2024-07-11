@@ -27,9 +27,11 @@ def model_pack_articles(df_article, model_used=args.model_used):
     df_article["Hauteur"] = df_article['hauteur']
     df_article["Poids"] = df_article['poids']
     df_article["Quantite"] = df_article['quantite']
+    df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
+    df_article['Quantite'] = 1
     df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
 
-    df_carton = pd.read_csv("app/models_rl/data/conteneurs_data.csv")
+    df_carton = pd.read_csv("app/models_rl/data/bins.csv")
     df_carton = df_carton[['Longueur', 'Largeur', 'Hauteur', 'Poids_max','Prix', 'Quantite', 'Type']]
     ## BIN PACK
     print("dataFrame avant model")
@@ -52,4 +54,3 @@ def model_pack_articles(df_article, model_used=args.model_used):
     else :
         bin = Bin(df_article, df_carton)
         return bin.pack()
-

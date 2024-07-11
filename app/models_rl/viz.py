@@ -13,9 +13,10 @@ def view(pred, df_article, df_carton):
     df_article["id"] = df_article.index
     res = res.join(df_article.set_index('id'), on='id_article')
     res["article_volume"] = res['Longueur'] * res['Largeur']  * res['Hauteur']* res["Quantite"]
-    res = res[["id_article", "id_carton", "article_volume", "Poids"]]
+    res["Poids_Qte"] = res["Poids"]*res["Quantite"]
+    res = res[["id_article", "id_carton", "article_volume", "Poids", "Poids_Qte"]]
     res["cumul_volume"] = res.groupby("id_carton")["article_volume"].transform("sum")
-    res["cumul_poids"] = res.groupby("id_carton")["Poids"].transform("sum")
+    res["cumul_poids"] = res.groupby("id_carton")["Poids_Qte"].transform("sum")
     df_carton["id"] = df_carton.index
     res = res.join(df_carton.set_index('id'), on='id_carton')
     res["box_volume"] = res['Longueur'] * res['Largeur']  * res['Hauteur']
@@ -24,12 +25,12 @@ def view(pred, df_article, df_carton):
     res["esp_inocc"] = np.round(100*(res["box_volume"] - res["cumul_volume"])/res["box_volume"],2)
     res["poids_inocc"] = np.round(100*(res["Poids_max"] - res["cumul_poids"])/res["Poids_max"],2)
 
-    list_def = ["id_article","id_carton","box_volume","article_volume", "cumul_volume", "esp_inocc", "poids_inocc"]
+    list_def = ["id_article","id_carton","box_volume","article_volume", "cumul_volume", "esp_inocc", "cumul_poids", "Poids_max", "poids_inocc"]
     #list_def = ["id_article","id_carton", "esp_inocc", "poids_inocc"]
     #print("Descrition du resultat - Emballages : \n",
     #res[list_def])
     
-    #res = res[list_def]
+    res = res[list_def]
     #res.columns = [" ID Item "," ID Bin "," Volume Bin "," Volume Item ", " Volume all Items ", " Espace non occupé ", " Poids restant (perc) "]
     return res# [list_def] #res[["id_article","id_carton","box_volume", "article_volume", "esp_inocc"]].head())
 
@@ -47,7 +48,7 @@ class Bin:
         #df['diff'] = np.abs(df['v'] - float(a))
         df.loc[:, 'diff'] = np.abs(df['v'] - float(a))
         #df['indicator'] = (df['v']>a)*(df['Poids_max']>b)
-        df.loc[:, 'indicator'] = (df['v'] >= a) & (df['Poids_max'] >= b)
+        df.loc[:, 'indicator'] = (df['v'] > a) & (df['Poids_max'] > b)
 
         # Multiply absolute differences and indicators
         #df['diff_indicator'] = df['diff'] * df['indicator']
@@ -55,7 +56,7 @@ class Bin:
 
         # Sort by diff_indicator and get the index of the minimum value
         df = df[df["indicator"]==1]["diff_indicator"]
-        print(df)
+
         if df.empty: 
             return None
         return df.idxmin()
@@ -142,8 +143,6 @@ class Bin:
                 break
             
         # résultat d'emballage
-        print("\n\nRésultat d'emballage des articles")
-        print(df)
         # Affichage des resultats
         return view(df, df_article, df_carton)
     

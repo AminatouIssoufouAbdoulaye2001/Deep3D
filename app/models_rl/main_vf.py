@@ -1,16 +1,23 @@
 import random
+import sys
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import pandas as pd
 import argparse
 import collections
 import warnings
-from environnement.env import Environment
-from dqnet.agent import DQNAgent
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'app/models_rl'))
+from app.models_rl.environnement.env import Environment
+from app.models_rl.dqnet.agent import DQNAgent
 import tensorflow as tf
 import numpy as np
 from time import time as t
-from viz import *
+from time import sleep
+from app.models_rl.viz import *
+
+sys.path.append(os.path.join(os.path.dirname(__file__), 'gitviz'))
+from app.models_rl.gitviz.test import pack_viz
 # Ignorer les avertissements "SettingWithCopyWarning"
 warnings.filterwarnings('ignore')
 
@@ -31,7 +38,7 @@ parser.add_argument('--nb_article', type=int, default=4, help='Max timesteps')
 
 
 
-def train(env, agent, action_size, episodes = 20, batch_size =32, plot=True):
+def train1(env, agent, action_size, episodes = 20, batch_size =2, plot=True):
 
     state_size = state_size = len(env.items_data(0))  #env.get_state_size()
     #action_size = len(cartons_df)
@@ -59,34 +66,39 @@ def train(env, agent, action_size, episodes = 20, batch_size =32, plot=True):
             print("state : " , state)
             next_state, reward, lost_space, box_volume, article_volume, done, info = env.step(action)
             print("next_state : " , next_state)
-            print("+++++++++++++++++++++++++++")
+            print("done : ", done)
             
             if len(info)==0:
                 action_contraint = action
                 constraint = True
                 score.append(reward)
+                print("ok pour l'article : ", state, " dans carton ", action)
             else : 
                 constraint = False
             
-            val_next_state = env.items_data(next_state)
-            val_next_state = tf.convert_to_tensor(val_next_state, dtype=tf.float32)
-            val_next_state = np.reshape(val_next_state, [1, state_size])
             
-            agent.remember(val_state, action, reward, val_next_state, done)
+            if not done :
+                val_next_state = env.items_data(next_state)
+                val_next_state = tf.convert_to_tensor(val_next_state, dtype=tf.float32)
+                val_next_state = np.reshape(val_next_state, [1, state_size])
+                agent.remember(val_state, action, reward, val_next_state, done)
+            else:
+                print(f"\nEpisode: {e}/{episodes}, Score: {np.mean(score)}, e: {agent.epsilon:.2}\n")
+                break
+            
+            #agent.remember(val_state, action, reward, val_next_state, done)
             state = next_state
             val_state = val_next_state
-            if done:
-                print(f"Episode: {e}/{episodes}, Score: {time}, e: {agent.epsilon:.2}")
-                break
+
             if len(agent.memory) > batch_size:
                 agent.replay(batch_size)
             
         scores.append(np.mean(score))
         times.append(t()-start)
         if e >= 20 and e % 5 :
-            savepath = "save/model_" + str (e) + "nb.h5" 
+            savepath = "save/model_" + str (e) + ".weights.h5" 
             agent.save(savepath)
-    agent.save("save/model.h5") 
+    agent.save("save/model.weights.h5") 
     # Afficher les graphiques de performance
     if plot:
         plt.figure(figsize=(12, 6))
@@ -105,6 +117,121 @@ def train(env, agent, action_size, episodes = 20, batch_size =32, plot=True):
         plt.savefig('save/train_times.png')
         #plt.show()
 
+from time import time
+
+def train(env, agent, action_size, episodes = 20, batch_size =2, plot=True):
+    state_size = len(env.items_data(0))
+    scores = []
+    times = []
+    act_times = []
+    step_times = []
+    remember_times = []
+    replay_times = []
+
+    for e in range(episodes):
+        state = env.reset()
+        val_state = env.items_data(state)
+        val_state = tf.convert_to_tensor(val_state, dtype=tf.float32) 
+        val_state = np.reshape(val_state, [1, state_size])
+        done = False
+        
+        constraint = False
+        action_contraint = 0
+        start = time()
+        score = 0
+        list_states = list(range(action_size))
+        while not done:
+            if constraint:
+                action = action_contraint
+            else:
+                start_act = time()
+                #action = agent.act(val_state)
+                action = agent.act1(val_state, list_states)
+                act_times.append(time() - start_act)
+            
+            start_step = time()
+            next_state, reward, lost_space, box_volume, article_volume, done, info = env.step(action)
+            step_times.append(time() - start_step)
+            
+            if len(info) == 0:
+                action_contraint = action
+                constraint = True
+                score += reward
+                list_states = list(range(action_size))
+            else:
+                if action in list_states:list_states.remove(action)
+                constraint = False
+            
+            if not done:
+                val_next_state = env.items_data(next_state)
+                val_next_state = tf.convert_to_tensor(val_next_state, dtype=tf.float32)
+                val_next_state = np.reshape(val_next_state, [1, state_size])
+                start_remember = time()
+                agent.remember(val_state, action, reward, val_next_state, done)
+                remember_times.append(time() - start_remember)
+            else:
+                print(f"\nEpisode: {e+1}/{episodes}, Score: {np.round(score,2)}, e: {agent.epsilon:.2}\n")
+                
+            
+            state = next_state
+            val_state = val_next_state
+
+            if len(agent.memory) > batch_size:
+                start_replay = time()
+                agent.replay(batch_size)
+                replay_times.append(time() - start_replay)
+            
+        scores.append(score)
+        times.append(time() - start)
+        if e >= 10 and e % 5 == 0:
+            savepath = "save/model_" + str(e) + ".weights.h5" 
+            agent.save(savepath)
+    
+    agent.save("save/model.weights.h5")
+    
+    # Afficher les graphiques de performance
+    if plot:
+        plt.figure(figsize=(12, 6))
+        plt.plot(scores)
+        plt.xlabel('Episodes')
+        plt.ylabel('Reward')
+        plt.title('Espace occupé par episode')
+        plt.savefig('save/train.png')
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(times)
+        plt.xlabel('Episodes')
+        plt.ylabel('Time (s)')
+        plt.title('Temps par episode')
+        plt.savefig('save/train_times.png')
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(act_times)
+        plt.xlabel('Steps')
+        plt.ylabel('Time (s)')
+        plt.title('Time for agent.act')
+        plt.savefig('save/act_times.png')
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(step_times)
+        plt.xlabel('Steps')
+        plt.ylabel('Time (s)')
+        plt.title('Time for env.step')
+        plt.savefig('save/step_times.png')
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(remember_times)
+        plt.xlabel('Steps')
+        plt.ylabel('Time (s)')
+        plt.title('Time for agent.remember')
+        plt.savefig('save/remember_times.png')
+        
+        plt.figure(figsize=(12, 6))
+        plt.plot(replay_times)
+        plt.xlabel('Steps')
+        plt.ylabel('Time (s)')
+        plt.title('Time for agent.replay')
+        plt.savefig('save/replay_times.png')
 
 def evaluate(env, agent, state_size):
     # Use the trained model to make decisions in the environment
@@ -116,27 +243,27 @@ def evaluate(env, agent, state_size):
     constraint = False
     action_contraint = 0
     matching = []
-    tested_actions = set()
+    tested_actions = list(range(action_size))
     
     while not done:
         if constraint:
             action = action_contraint
         else:
-            #action = agent.act1(val_state, tested_actions)
-            action = agent.act(val_state)
+            action = agent.act1(val_state, tested_actions)
+            #print("valeurs à tester : ", tested_actions)
+            #action = agent.act(val_state)
 
         next_state, reward, lost_space, box_volume, article_volume, done, info = env.step(action)
         
-        if next_state==state:
-            tested_actions.add(action)
         if len(info)==0:
             
             action_contraint = action
             constraint = True
             matching.append([state, action])
-            tested_actions = set()
+            tested_actions = list(range(action_size))
         else : 
             constraint = False
+            if action in tested_actions:tested_actions.remove(action)
         
         state = next_state  # Update current state
 
@@ -218,19 +345,24 @@ def test(env, agent, action_size, episodes = 10, plot = True):
     return Q.argmax(1)
 
 
+
 if __name__ == '__main__':
 
     args = parser.parse_args()
 
     if args.train:
-        df_article = pd.read_csv("app/models_rl/data/articles_data.csv")
+        df_article = pd.read_csv("data/articles_data.csv")
         new_names = {'longueur': 'Longueur', 'largeur': 'Largeur',
         "hauteur": "Hauteur", "poids": "Poids", "quantite": "Quantite"}
         df_article = df_article.rename(columns=new_names)
         df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
+        df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
+        df_article['Quantite'] = 1
         print( "Nombre Articles : ", len(df_article)) 
+        print( "Nombre Articles : \n", df_article)
+        #sleep(10000) 
         df_article = df_article[:args.nb_article]
-        df_carton = pd.read_csv("app/models_rl/data/conteneurs_data.csv")
+        df_carton = pd.read_csv("data/bins.csv") # conteneurs_data
         df_carton = df_carton[['Longueur', 'Largeur', 'Hauteur', 'Poids_max','Prix', 'Quantite', 'Type']]
         #df_carton = df_carton[1:]
         print( "Nombre Cartons : ", len(df_carton)) 
@@ -246,42 +378,54 @@ if __name__ == '__main__':
 
         train(env, agent, action_size, episodes=args.episodes)
     
-    if args.test or not args.train:
+    if args.test and not args.train:
         print("=============== Test modèle : ====================\n\n")
-        df_article = pd.read_csv("app/models_rl/data/articles_data.csv")
+        df_article = pd.read_csv("data/articles_data.csv")
         new_names = {'longueur': 'Longueur', 'largeur': 'Largeur',
         "hauteur": "Hauteur", "poids": "Poids", "quantite": "Quantite"}
         df_article = df_article.rename(columns=new_names)
         df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
-        df_article = df_article[:4]
+        df_article = df_article[:args.nb_article]
+        df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
+        df_article['Quantite'] = 1
         print( "Nombre Articles : ", len(df_article)) 
 
-        df_carton = pd.read_csv("app/models_rl/data/conteneurs_data.csv")
+        df_carton = pd.read_csv("data/bins.csv") # conteneurs_data
         df_carton = df_carton[['Longueur', 'Largeur', 'Hauteur', 'Poids_max','Prix', 'Quantite', 'Type']]
+        #for col in ['Poids_max']:
+        #df_carton[col] = 4.5*df_carton[col]
         #df_carton = df_carton[1:]
         print( "Nombre Cartons : ", len(df_carton)) 
 
 
         # Initialiser l'env
         print("+++++++ ENVIRONNEMENT ++++++++++")
+        #"""
         env = Environment( df_article , df_carton)
 
         state_size = len(env.items_data(0))  #env.get_state_size()
         action_size = len(df_carton)
         agent = DQNAgent(state_size, action_size, args)
-        #agent.load("save/model.h5")
+        print(agent._build_model().summary())
+        agent.load("save/model.weights.h5")
 
         #res = test(env, agent, action_size, 20)
         #print("id_carton : ", res)
 
         ## Eval model
         pred = evaluate(env, agent, state_size)
-        #print("\n\nres : ", pred)
+        #"""
+        viz_result = view(pred, df_article, df_carton)
+        #print(viz_result)
+        #print("===========")
 
-        view(pred, df_article, df_carton)
-
-        ## BIN PACK
+        ### BIN PACK
         bin = Bin(df_article, df_carton)
-        bin.pack()
+        res = bin.pack()
+        print(res)
 
+        ### 
+        df_carton['id_carton'] = df_carton.index
+        df_article['id_article'] = df_article.index
+        #pack_viz(viz_result, df_article, df_carton)
 

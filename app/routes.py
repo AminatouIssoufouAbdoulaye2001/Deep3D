@@ -2,15 +2,14 @@
 from datetime import date as dt_date
 import datetime
 from datetime import timedelta
-
+import sys
 import os
 import secrets
-from threading import Thread
 from PIL import Image
 from flask import abort, g, jsonify, render_template, session, url_for, flash, redirect, request,Response
-from flask_paginate import Pagination,get_page_args
+from flask_paginate import Pagination
 
-from sqlalchemy import extract, func
+from sqlalchemy import  func
 from app import app, db, bcrypt, mail
 from app.forms import (ConteneurForm, RegistrationForm, LoginForm, UpdateAccountForm,
                        ArticleForm, RequestResetForm, ResetPasswordForm,
@@ -27,6 +26,8 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 from playsound import playsound
+from app.models import *
+sys.path.append(os.path.join(os.path.dirname(__file__), 'app/models_rl'))
 from app.models_rl.bin import *
 
 number_articles_per_page = 5
@@ -217,7 +218,6 @@ def admin_dashboard():
         abort(403)  # Accès interdit pour les utilisateurs non-administrateurs
 #Fin connexion
 
-@app.route('/user/<int:user_id>/toggle_active', methods=['POST'])
 @login_required
 def toggle_user_active(user_id):
     user = User.query.get_or_404(user_id)
@@ -579,12 +579,52 @@ def list_commandes():
     commandes_query = Commande.query.all()
 
     if search_commande:
-        commandes_query = Commande.query.filter((Commande.numero_commande.ilike(f'%{search_commande}%')) | (Commande.date_creation.ilike(f'%{search_commande}%')))
+        commandes_query = Commande.query.filter((Commande.numero_commande.ilike(f'%{search_commande}%')) | (Commande.date_creation.ilike(f'%{search_commande}%')) |(Commande.status.ilike(f'%{search_commande}%')))
     else:
         commandes_query = Commande.query
     commandes_pagination = commandes_query.paginate(page=commandes_page, per_page=per_page, error_out=False)
     pagination_args = Pagination(page=commandes_page, per_page=per_page, total=commandes_query.count(), css_framework='bootstrap4')
     return render_template('admin_dashboard/list_commandes.html', articles=articles,commandes_pagination=commandes_pagination,pagination_args=pagination_args,commandes=commandes_query)
+@app.route('/cancel_order/<int:order_id>', methods=['POST'])
+@login_required
+def cancel_order(order_id):
+    order = Commande.query.get(order_id)
+    if order:
+        order.status = 'Annuler'
+        db.session.commit()
+        flash('La commande a été annulée avec succès.', 'success')
+    else:
+        flash('La commande spécifiée n\'existe pas.', 'danger')
+    return redirect(url_for('list_commandes'))
+
+@app.route('/validate_order/<int:order_id>', methods=['POST'])
+@login_required
+def validate_order(order_id):
+    order = Commande.query.get(order_id)
+    if order:
+        order.status = 'Valider'
+        db.session.commit()
+        flash('La commande a été validée avec succès.', 'success')
+    else:
+        flash('La commande spécifiée n\'existe pas.', 'danger')
+    return redirect(url_for('list_commandes'))
+@app.route('/emballer_order/<int:order_id>', methods=['POST'])
+@login_required
+def emballer_order(order_id):
+    order = Commande.query.get(order_id)
+    if order:
+        order.status = 'Emballer'
+        db.session.commit()
+        flash('La commande a été emabllé avec succès.', 'success')
+    else:
+        flash('La commande spécifiée n\'existe pas.', 'danger')
+    return redirect(url_for('list_commandes'))
+@app.route('/suivi_commande/<int:order_id>')
+def suivi_commande(order_id):
+    # Récupérer la commande depuis la base de données
+    commande = Commande.query.get_or_404(order_id)
+    return render_template('user_dashboard/list_article.html', commande=commande)
+
 @app.route('/get_articles/<int:commande_id>')
 def get_articles(commande_id):
     # Récupérer les articles associés à la commande spécifique avec l'ID commande_id
@@ -629,6 +669,7 @@ def pack_articles():
 
     # Process and pack the articles using your Python logic
     result = model_pack_articles(articles)
+
 
     # Return a response indicating success or failure
     return jsonify(result.to_dict(orient='records'))

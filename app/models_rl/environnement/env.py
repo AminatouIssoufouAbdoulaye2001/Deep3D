@@ -1,6 +1,14 @@
 
 import numpy as np
 
+def median_index(lst):
+    # Create a list of tuples (element, index)
+    indexed_lst = [(value, index) for index, value in enumerate(lst)]
+    # Sort the list by the elements
+    sorted_lst = sorted(indexed_lst, key=lambda x: x[0])
+    # Return the index of the median element
+    return sorted_lst[1][1]
+
 class Environment:
     def __init__(self, articles_df, cartons_df):
         self.articles_df = articles_df
@@ -48,6 +56,8 @@ class Environment:
             reward = 0  # Penalty for selecting an unsuitable carton
             done = False
             info = {"message": "Article ne convient pas au carton"}
+            #print("====== Not fit \narticle : \n", article)
+            #print("carton : \n", chosen_carton, "\n\n============================\n")
             lost_space = np.inf
             box_volume = 0
             article_volume = 0
@@ -72,13 +82,28 @@ class Environment:
         done = self.current_article_index >= len(self.articles_df)
         self.current_carton = chosen_carton if not done else None
         
-        ## Redimensionnement du carton choisi : *    
-        #print("Cartons show : \n", self.cartons_df) 
+        ## Redimensionnement du carton choisi : *   
+        values_article = [article['Longueur'], article['Largeur'], article['Hauteur']]
+        val_quant = article['Quantite']
+        values_article = [float(val_quant*el) for el in values_article]
+    
+        values_carton = [chosen_carton['Longueur'], chosen_carton['Largeur'], chosen_carton['Hauteur']]
+        # Trier les valeurs
+        values_article = sorted(values_article)
+        values_carton = sorted(values_carton)
+        values_result = [float(values_carton[i] - values_article[i]) for i in range(len(values_article))]
+        idx_max = values_result.index(max(values_result))
+        idx_min = values_result.index(min(values_result))
+        #idx_moyen = 3 - idx_max - idx_min
+        idx_moyen = median_index(values_result)
         
-        self.cartons_df.iloc[action,:] = [
-                                        float(chosen_carton["Longueur"]) - float(article['Quantite']*article['Longueur']),\
-                                          float(chosen_carton["Largeur"]) - float(article['Quantite']*article['Largeur']),\
-                                          float(chosen_carton["Hauteur"]) - float(article['Quantite']*article['Hauteur']),\
+        ############################################################
+        ### Very important : bin sizes update 
+        
+        self.cartons_df.iloc[action,:] = [values_result[idx_max],values_carton[idx_moyen], values_carton[idx_min],
+                                        #float(chosen_carton["Longueur"]) - float(article['Quantite']*article['Longueur']),\
+                                        #  float(chosen_carton["Largeur"]) - float(article['Quantite']*article['Largeur']),\
+                                        #  float(chosen_carton["Hauteur"]) - float(article['Quantite']*article['Hauteur']),\
                                           float(chosen_carton["Poids_max"]) - float(article['Quantite']*article['Poids']),\
                                           float(chosen_carton["Prix"]),\
                                           int(chosen_carton["Quantite"]),\
@@ -111,8 +136,11 @@ class Environment:
         
     def _fits_in_carton(self, article, carton):
 
-        article_L_l_h = np.array(np.array(article[["Longueur", "Largeur", "Hauteur"]] ))
+        article_L_l_h = float(article['Quantite'])*np.array(np.array(article[["Longueur", "Largeur", "Hauteur"]] ))
         carton_L_l_h = np.array(np.array(carton[["Longueur", "Largeur", "Hauteur"]] ))
+        
+        article_L_l_h = np.sort(article_L_l_h)
+        carton_L_l_h = np.sort(carton_L_l_h)
 
         condition_dimensions = np.sort(carton_L_l_h) > np.sort(article_L_l_h)
         # index_sort_dim_article = np.argsort(article_L_l_h)

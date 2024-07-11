@@ -44,17 +44,18 @@ def process_form():
     
     return jsonify(result)
 
-def main_function(model_used = True):
+def main_function(model_used = False):
         print("=============== EValuation du modèle : ====================\n\n")
         df_article = pd.read_csv("data/articles_data.csv")
         new_names = {'longueur': 'Longueur', 'largeur': 'Largeur',
         "hauteur": "Hauteur", "poids": "Poids", "quantite": "Quantite"}
         df_article = df_article.rename(columns=new_names)
-        df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
-        df_article = df_article[:2]
+        df_article = df_article[['sku', 'Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
+        df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
+        df_article['Quantite'] = 1
         print( "Nombre Articles : ", len(df_article)) 
 
-        df_carton = pd.read_csv("data/conteneurs_data.csv")
+        df_carton = pd.read_csv("data/bins.csv")
         df_carton = df_carton[['Longueur', 'Largeur', 'Hauteur', 'Poids_max','Prix', 'Quantite', 'Type']]
         ## BIN PACK
         if model_used :
@@ -64,10 +65,11 @@ def main_function(model_used = True):
             state_size = len(env.items_data(0))  #env.get_state_size()
             action_size = len(df_carton)
             agent = DQNAgent(state_size, action_size, args)
+            agent.load("save/model.weights.h5")
 
             #agent.load("save/model.h5")
 
-            pred = evaluate(env, agent, state_size)
+            pred = test(env, agent, state_size)
             #print("\n\nres : ", pred)
 
             return view(pred, df_article, df_carton)

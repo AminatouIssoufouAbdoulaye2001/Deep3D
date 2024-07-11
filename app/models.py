@@ -153,6 +153,7 @@ class Commande(db.Model):
     date_creation = db.Column(db.Date, default=dt_date.today())
     numero_commande = db.Column(db.String(50), unique=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('User.id'))
+    status = db.Column(db.String(20), nullable=False, default='pending')  # Exemple : 'pending', 'cancelled', 'validated'
     conteneurs = db.relationship('Conteneur', secondary=association_table_commande_conteneur, back_populates='commandes')
     articles = db.relationship('Article', secondary=association_table_article_commande, back_populates='commandes')
 

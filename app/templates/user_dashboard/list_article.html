@@ -68,14 +68,14 @@
               <th scope="col">N° Commande</th>
               <th scope="col">Date Commande</th>
               <th scope="col">Quantité d'articles</th>
-              <th scope="col">Actions</th>
+              <th scope="col" class="text-center">Actions</th>
           </tr>
       </thead>
       <tbody> 
         {% for commande in commandes %}
           <tr>
               <td>{{ commande.numero_commande }}</td>
-              <td>
+              <td class="text-center">
                 {% if commande.date_creation %}
                     {{ commande.date_creation.strftime('%d/%m/%Y') }}
                 {% else %}
@@ -84,11 +84,27 @@
                 {% endif %}
             </td>
             
-              <td>{{ commande.articles|length }}</td>
+              <td class="text-center">{{ commande.articles|length }}</td>
               <td>
                   <button class="" data-bs-toggle="modal" style="background-color: #ebab54; border: #ebab54; color: black; border: 1px solid #49495e; height: 40px;" data-bs-target="#commandeDetailsModal-{{ commande.id }}">Voir articles</button>
                   <button type="button" class="btn-sm m-1 delete"  style="background-color: #49495e; color: #fff; border: 1px solid #49495e; height: 40px;" data-toggle="modal" data-target="#deleteModal{{commande.id}}">Supprimer</button>
               </td>
+              <td>
+                {% if commande.status == 'Annuler' %}
+                  <span class="badge bg-danger mb-2" style="font-size: 18px; color:#fff">{{ commande.status }}</span>
+                  <p>La commande a été annulée.</p>
+                {% elif commande.status == 'Valider' %}
+                  <span class="badge bg-success mb-1" style="font-size: 18px; color:#fff">{{ commande.status }}</span>
+                  <p>La commande a été validée et est en cours de traitement.</p>
+                  {% elif commande.status == 'Emballer' %}
+                  <span class="badge bg-warning mb-1" style="font-size: 18px; color:#fff">{{ commande.status }}</span>
+                  <p>La commande a été emballer avec succès.</p>
+                {% else %}
+                  <span class="badge bg-secondary mb-1" style="font-size: 18px; color:#fff">{{ commande.status }}</span>
+                  <p>La commande est en attente de validation.</p>
+                {% endif %}
+              </td>
+              
           </tr>
           {% endfor %}
       </tbody>

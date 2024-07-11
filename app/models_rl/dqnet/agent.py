@@ -5,6 +5,7 @@ import tensorflow as tf
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
+from time import time, sleep
 
 class DQNAgent:
     def __init__(self, state_size, action_size,args):
@@ -38,20 +39,21 @@ class DQNAgent:
         act_values = self.model.predict(state)
         return np.argmax(act_values[0])
     
-    def act1(self, state, excluded_actions=[]):
+    def act1(self, state, ma_liste):
         
-        if np.random.rand() <= self.epsilon:
-            possible_actions = list(set(range(self.action_size)) - set(excluded_actions))
-            
+        if ma_liste:#np.random.rand() <= self.epsilon:
+            return random.choice(ma_liste)
+            #possible_actions = list(set(range(self.action_size)) - set(excluded_actions))
+            """
             if possible_actions:
                 return random.choice(possible_actions)
             else:
                 return random.randrange(self.action_size)
-            
+            """
         act_values = self.model.predict(state)
         sorted_actions = np.argsort(act_values[0])[::-1]  # Sort actions by predicted value (descending)
         for action in sorted_actions:
-            if action not in excluded_actions:
+            if action in ma_liste:
                 return action
         return sorted_actions[0]  # Return the best available action if all preferred actions are excluded
     
@@ -63,7 +65,7 @@ class DQNAgent:
                 target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
             target_f = self.model.predict(state)
             target_f[0][action] = target
-            self.model.fit(state, target_f, epochs= self.epoch, verbose=0)
+            self.model.fit(state, target_f, epochs=1, verbose=1)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
     
