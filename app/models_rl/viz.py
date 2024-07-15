@@ -1,6 +1,70 @@
 import numpy as np
 import pandas as pd
 
+def view(pred, df_article, df_carton): 
+    # Vérifier si pred est un DataFrame
+    if isinstance(pred, pd.DataFrame):
+        res = pred.copy()
+    else:
+        res = pd.DataFrame(pred, columns=["id_carton"])
+        res["id_article"] = res.index
+    
+    df_article["id"] = df_article.index
+    res = res.join(df_article.set_index('id'), on='id_article')
+    res["article_volume"] = res['Longueur'] * res['Largeur'] * res['Hauteur'] * res["Quantite"]
+    res["Poids_Qte"] = res["Poids"] * res["Quantite"]
+
+    res["cumul_volume"] = res.groupby("id_carton")["article_volume"].transform("sum")
+    res["cumul_poids"] = res.groupby("id_carton")["Poids_Qte"].transform("sum")
+    df_carton["id"] = df_carton.index
+    res = res.rename(columns = {
+        'Longueur': 'Longueur Item (cm)',
+        'Largeur': 'Largeur Item (cm)',
+        'Hauteur': 'Hauteur Item (cm)',
+        'Poids': 'Poids Item (kg)',
+        'Quantite': 'Quantite Item',
+        'v': 'v_last'
+    })
+    res = res.join(df_carton.set_index('id'), on='id_carton')
+    res["box_volume"] = res['Longueur'] * res['Largeur'] * res['Hauteur']
+     # Calcul des indicateurs 
+    res["esp_inocc"] = np.round(100 * (res["box_volume"] - res["cumul_volume"]) / res["box_volume"], 2)
+    res["poids_inocc"] = np.round(100 * (res["Poids_max"] - res["cumul_poids"]) / res["Poids_max"], 2)
+
+    res = res.rename(columns = {
+        'Longueur': 'Longueur Bin (cm)',
+        'Largeur': 'Largeur Bin (cm)',
+        'Hauteur': 'Hauteur Bin (cm)',
+        'Poids_max': 'Poids_max Bin (kg)',
+        'Quantite': 'Quantite Bin',
+    })
+
+    #list_def = ["id_article", "id_carton", "box_volume", "article_volume", "cumul_volume", "esp_inocc", "cumul_poids", "Poids_max", "poids_inocc"]
+    
+    #res = res.drop('v', axis =0)#[list_def]
+    
+    # Décommenter les lignes ci-dessous si vous souhaitez renommer les colonnes
+    
+    res = res.rename(columns={
+        'id_article': 'ID article',
+        'id_carton': 'ID Bin',
+        'box_volume': "Bin's volume",
+        "article_volume": "Item's volume",
+        "cumul_volume": "Items's volume",
+        "esp_inocc": "Espace inoccupé",
+        "cumul_poids": "Items's weight",
+        "Poids_max": "Max Weight",
+        "poids_inocc": "Less weight"
+    })
+    return res
+
+# Exemple d'utilisation avec des DataFrames df_article et df_carton
+# df_article = pd.read_csv('/path/to/your/article/file.csv')
+# df_carton = pd.read_csv('/path/to/your/carton/file.csv')
+# pred = some_prediction_data
+# result_df = view(pred, df_article, df_carton)
+# print(result_df)
+"""
 
 def view(pred, df_article, df_carton): 
 
@@ -14,10 +78,25 @@ def view(pred, df_article, df_carton):
     res = res.join(df_article.set_index('id'), on='id_article')
     res["article_volume"] = res['Longueur'] * res['Largeur']  * res['Hauteur']* res["Quantite"]
     res["Poids_Qte"] = res["Poids"]*res["Quantite"]
-    res = res[["id_article", "id_carton", "article_volume", "Poids", "Poids_Qte"]]
+    print("columns ; ", res.columns)
+
+    #res = res[["id_article", "id_carton", "article_volume", "Poids", "Poids_Qte"]]
     res["cumul_volume"] = res.groupby("id_carton")["article_volume"].transform("sum")
     res["cumul_poids"] = res.groupby("id_carton")["Poids_Qte"].transform("sum")
     df_carton["id"] = df_carton.index
+    
+    #"
+    res = res.rename(columns = {
+        'Longueur': 'Longueur Item (cm)',
+        'Largeur': 'Largeur Item (cm)',
+        'Hauteur': 'Hauteur Item (cm)',
+        'Poids': 'Poids Item (kg)',
+    })
+    #"
+    print("columns ; ", res.columns)
+    print("columns ; ", df_article.columns)
+    print("columns ; ", df_carton.columns)
+    
     res = res.join(df_carton.set_index('id'), on='id_carton')
     res["box_volume"] = res['Longueur'] * res['Largeur']  * res['Hauteur']
     
@@ -31,9 +110,20 @@ def view(pred, df_article, df_carton):
     #res[list_def])
     
     res = res[list_def]
+    #"
+    res = res.rename(columns = {'id_article': 'ID article',
+                                'id_carton': 'ID Bin',
+                                'box_volume': "Bin's volume",
+                                "article_volume" : "Item's volume",
+                                "cumul_volume" : "Items's volume",
+                                "esp_inocc": "Espace inoccupé",
+                                "cumul_poids" : "Items's weight",
+                                "Poids_max": "Max Weight",
+                                "poids_inocc": "Less weight"})
+    #"
     #res.columns = [" ID Item "," ID Bin "," Volume Bin "," Volume Item ", " Volume all Items ", " Espace non occupé ", " Poids restant (perc) "]
     return res# [list_def] #res[["id_article","id_carton","box_volume", "article_volume", "esp_inocc"]].head())
-
+"""
 class Bin:
 
     def __init__(self, df_article, df_carton):

@@ -50,6 +50,16 @@ def main_function(model_used = False):
         new_names = {'longueur': 'Longueur', 'largeur': 'Largeur',
         "hauteur": "Hauteur", "poids": "Poids", "quantite": "Quantite"}
         df_article = df_article.rename(columns=new_names)
+        #==========================================================
+        df_article['key'] = df_article.index
+        df_key = df_article.copy()#[['key', 'sku']].copy()
+        df_key = df_key.rename(columns = {'Longueur':'Longueur_key',
+                        'Largeur':'Largeur_key',
+                        'Hauteur':'Hauteur_key',
+                        'Poids': 'Poids_key', 
+                        'Quantite':'Quantite_key'})
+        #===========================================================
+
         df_article = df_article[['sku', 'Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
         df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
         df_article['Quantite'] = 1
@@ -72,10 +82,27 @@ def main_function(model_used = False):
             pred = test(env, agent, state_size)
             #print("\n\nres : ", pred)
 
-            return view(pred, df_article, df_carton)
+            res = view(pred, df_article, df_carton)
         else :
             bin = Bin(df_article, df_carton)
-            return bin.pack()
+            res =  bin.pack()
+        
+        #=====================================================================
+        res = res.merge(df_key, how = 'left',left_on = ['Longueur Item (cm)',
+        'Largeur Item (cm)', 'Hauteur Item (cm)', 'Poids Item (kg)'],
+        right_on = ['Longueur_key','Largeur_key', 'Hauteur_key', 'Poids_key'])
+            
+        res = res.drop_duplicates(subset = ["key","ID Bin"])
+        res = res[["sku", 'ID Bin', 'Longueur Item (cm)',
+        'Largeur Item (cm)', 'Hauteur Item (cm)', 'Poids Item (kg)',
+        'Quantite Item', "Item's volume",
+        "Items's volume", "Items's weight", "Longueur", 'Largeur', 'Hauteur',
+        'Max Weight', 'Prix', 'Quantite', 'Type', "Bin's volume",
+        'Espace inoccupé', 'Less weight', 'fragile']].copy()
+        res[["Items's volume", "Items's weight","Bin's volume",'Espace inoccupé', "Items's weight"]] = res[["Items's volume", "Items's weight","Bin's volume",'Espace inoccupé', "Items's weight"]].round(2)
+        #======================================================================
+        print("je suis là",res)
+        return res
 
 
 

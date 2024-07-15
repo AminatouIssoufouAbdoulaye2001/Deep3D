@@ -8,15 +8,19 @@ import collections
 import warnings
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'app/models_rl'))
+#from environnement.env import Environment
 from app.models_rl.environnement.env import Environment
+#from dqnet.agent import DQNAgent
 from app.models_rl.dqnet.agent import DQNAgent
 import tensorflow as tf
 import numpy as np
 from time import time as t
 from time import sleep
+#from viz import *
 from app.models_rl.viz import *
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'gitviz'))
+#from gitviz.test import pack_viz
 from app.models_rl.gitviz.test import pack_viz
 # Ignorer les avertissements "SettingWithCopyWarning"
 warnings.filterwarnings('ignore')
@@ -380,11 +384,23 @@ if __name__ == '__main__':
     
     if args.test and not args.train:
         print("=============== Test modèle : ====================\n\n")
+        """
         df_article = pd.read_csv("data/articles_data.csv")
         new_names = {'longueur': 'Longueur', 'largeur': 'Largeur',
         "hauteur": "Hauteur", "poids": "Poids", "quantite": "Quantite"}
         df_article = df_article.rename(columns=new_names)
+        #==========================================================
+        df_article['key'] = df_article.index
+        df_key = df_article.copy()#[['key', 'sku']].copy()
+        df_key = df_key.rename(columns = {'Longueur':'Longueur_key',
+                        'Largeur':'Largeur_key',
+                        'Hauteur':'Hauteur_key',
+                        'Poids': 'Poids_key', 
+                        'Quantite':'Quantite_key'})
+        print(df_key)
+        #===========================================================
         df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
+        
         df_article = df_article[:args.nb_article]
         df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
         df_article['Quantite'] = 1
@@ -400,7 +416,7 @@ if __name__ == '__main__':
 
         # Initialiser l'env
         print("+++++++ ENVIRONNEMENT ++++++++++")
-        #"""
+        
         env = Environment( df_article , df_carton)
 
         state_size = len(env.items_data(0))  #env.get_state_size()
@@ -414,7 +430,7 @@ if __name__ == '__main__':
 
         ## Eval model
         pred = evaluate(env, agent, state_size)
-        #"""
+        
         viz_result = view(pred, df_article, df_carton)
         #print(viz_result)
         #print("===========")
@@ -422,10 +438,25 @@ if __name__ == '__main__':
         ### BIN PACK
         bin = Bin(df_article, df_carton)
         res = bin.pack()
+        
+        #=====================================================================
+        res = res.merge(df_key, how = 'left',left_on = ['Longueur Item (cm)',
+       'Largeur Item (cm)', 'Hauteur Item (cm)', 'Poids Item (kg)'],
+       right_on = ['Longueur_key','Largeur_key', 'Hauteur_key', 'Poids_key'])
+        
+        res = res.drop_duplicates(subset = ["key","ID Bin"])
+        res = res[
+            ["sku", 'ID Bin', 'Longueur Item (cm)',
+       'Largeur Item (cm)', 'Hauteur Item (cm)', 'Poids Item (kg)',
+       'Quantite Item', "Item's volume",
+       "Items's volume", "Items's weight", "Longueur", 'Largeur', 'Hauteur',
+       'Max Weight', 'Prix', 'Quantite', 'Type', "Bin's volume",
+       'Espace inoccupé', 'Less weight', 'fragile']
+        ]
+        #======================================================================
         print(res)
 
         ### 
-        df_carton['id_carton'] = df_carton.index
-        df_article['id_article'] = df_article.index
-        #pack_viz(viz_result, df_article, df_carton)
-
+        #df_carton['id_carton'] = df_carton.index
+        #df_article['id_article'] = df_article.index
+        #pack_viz(viz_result, df_article, df_carton)"""
