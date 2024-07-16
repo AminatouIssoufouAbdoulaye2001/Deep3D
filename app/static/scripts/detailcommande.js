@@ -46,21 +46,21 @@ $(document).ready(function() {
                 tableHtml += '<table class="form simple gray table-bordered">';
                 tableHtml += '<tbody>';
                 tableHtml += '<tr><td>' + headers[0] + '</td><td class="font-weight-bold ar">' + data[0][headers[0]] + '</td></tr>';
-                tableHtml += '<tr><td>'+ headers[1] + '</td><td class="font-weight-bold ar">' + data[0][headers[1]] + '</td></tr>';
-                tableHtml += '<tr><td>'+ headers[2] + '</td><td class="font-weight-bold ar">' + data[0][headers[2]] + '</td></tr>';
-                tableHtml += '<tr><td>'+ headers[3] + '</td><td class="font-weight-bold ar">' + data[0][headers[3]] + '</td></tr>';
-                tableHtml += '<tr><td>'+ headers[4] + '</td><td class="font-weight-bold ar">' + data[0][headers[4]] + '</td></tr>';
-                tableHtml += '<tr><td>'+ headers[5] + '</td><td class="font-weight-bold ar">' + data[0][headers[5]] + '</td></tr>';
-                tableHtml += '<tr><td>'+ headers[6] + '</td><td class="font-weight-bold ar">' + data[0][headers[6]] + '</td></tr>';
+                tableHtml += '<tr><td>'+ headers[7] + '</td><td class="font-weight-bold ar">' + data[0][headers[7]] + '</td></tr>';
+                tableHtml += '<tr><td>'+ headers[1] + '</td><td class="font-weight-bold ar">' + data[0][headers[1]] + '%</td></tr>';
+                tableHtml += '<tr><td>'+ headers[16] + ' </td><td class="font-weight-bold ar">' + data[0][headers[16]] + '</td></tr>';
+                tableHtml += '<tr><td>'+ headers[8] + '</td><td class="font-weight-bold ar">' + data[0][headers[8]] + '</td></tr>';
+                tableHtml += '<tr><td>'+ headers[17] + '</td><td class="font-weight-bold ar">' + data[0][headers[17]] + '</td></tr>';
+                tableHtml += '<tr><td>'+ headers[20] + '</td><td class="font-weight-bold ar">' + data[0][headers[20]] + '</td></tr>';
                 tableHtml += '</tbody>';
                 tableHtml += '</table>';
                 tableHtml += '</div>';
     
                 tableHtml += '<div class="table-wrapper">';
-                tableHtml += '<div class="text-18 mb-4">Espace utilisé d\'emballage:</div>';
+                tableHtml += '<div class="text-18 mb-4">Conteneur utilisé:</div>';
                 tableHtml += '<table class="form simple gray table-bordered">';
                 tableHtml += '<thead><tr><th>ID</th><th>Quantité</th></tr></thead>';
-                tableHtml += '<tbody><tr><td>1</td><td class="text-right pr-3"></td></tr></tbody>';
+                tableHtml += '<tbody><tr><td>' + data[0][headers[4]] + '</td><td class="text-right pr-3">' + data[0][headers[18]] + '</td></tr></tbody>';
                 tableHtml += '</table>';
                 tableHtml += '</div>';
     
@@ -68,8 +68,15 @@ $(document).ready(function() {
                 tableHtml += '<div class="text-18 mb-4">Article emballé:</div>';
                 tableHtml += '<table class="form simple gray table-bordered">';
                 tableHtml += '<thead><tr><th>ID</th><th>Quantité</th></tr></thead>';
-                tableHtml += '<tbody><tr><td>' + data[0][headers[6]] + '</td><td class="text-right pr-3">2</td></tr></tbody>';
-                tableHtml += '<tbody><tr><td>' + data[1][headers[6]] + '</td><td class="text-right pr-3">2</td></tr></tbody>';
+                headers.forEach(function(header) {
+                    //tableHtml += '<tr><td>' + header + '</td><td class="font-weight-bold ar">' + data[0][header] + '</td></tr>';
+                    //tableHtml += '<tbody><tr><td>' + data[0][header] + '</td><td class="text-right pr-3">'+ data[2][header] + '</td></tr></tbody>';
+                });
+                tableHtml += '<tbody><tr><td>' + data[0][headers[5]] + '</td><td class="text-right pr-3">' + data[0][headers[19]] + '</td></tr></tbody>';
+                tableHtml += '<tbody><tr><td>' + data[1][headers[5]] + '</td><td class="text-right pr-3">' + data[1][headers[19]] + '</td></tr></tbody>';
+                tableHtml += '<tbody><tr><td>' + data[2][headers[5]] + '</td><td class="text-right pr-3">' + data[2][headers[19]] + '</td></tr></tbody>';
+                tableHtml += '<tbody><tr><td>' + data[3][headers[5]] + '</td><td class="text-right pr-3">' + data[3][headers[19]] + '</td></tr></tbody>';
+                tableHtml += '<tbody><tr><td>' + data[4][headers[5]] + '</td><td class="text-right pr-3">' + data[4][headers[19]] + '</td></tr></tbody>';
                 tableHtml += '</table>';
                 tableHtml += '</div>';
     
