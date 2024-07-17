@@ -499,3 +499,5 @@ index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 497,carton,28,20,10,48,99.0,4
 498,carton,21,6,17,51,80.09,9
 499,carton,18,15,18,66,79.12,3
+500,pallet,200,100,150,500,1000,1
+501,carton,500,200,200,130,1500,1

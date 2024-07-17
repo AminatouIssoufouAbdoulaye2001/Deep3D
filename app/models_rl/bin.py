@@ -1,6 +1,9 @@
 from app.models_rl.main_vf import *
+#from main_vf import *
 import warnings
 from time import sleep, time
+import sqlite3
+
 
 parser = argparse.ArgumentParser(description = 'Train or test neural net')
 parser.add_argument('--train', dest = 'train', action = 'store_true', default = False)
@@ -41,6 +44,8 @@ def model_pack_articles(df_article, model_used=args.model_used):
     df_article['Quantite'] = 1
     df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
 
+
+
     df_carton = pd.read_csv("app/models_rl/data/bins.csv")
     df_carton = df_carton[['Longueur', 'Largeur', 'Hauteur', 'Poids_max','Prix', 'Quantite', 'Type']]
     ## BIN PACK
@@ -70,14 +75,30 @@ def model_pack_articles(df_article, model_used=args.model_used):
         right_on = ['Longueur_key','Largeur_key', 'Hauteur_key', 'Poids_key'])
             
     res = res.drop_duplicates(subset = ["key","ID Carton"])
-    
+    #article_emballer = res['article_emballer'] = len(res)
+    #res['article_emballer'] = len(res)
     res = res[["sku", 'ID Carton', 'Longueur Article (cm)',
        'Largeur Article (cm)', 'Hauteur Article (cm)', 'Poids Article (kg)',
        'Quantite Article', "Volume Article",
        "Volume Articles", "Poids Articles",'Quantite Carton','Longueur Carton (cm)', 'Largeur Carton (cm)', 'Hauteur Carton (cm)',
-       'Poids_max Carton (kg)', 'Prix','Type', "Volume Carton",
+       'Poids_max Carton (kg)', 'Prix','Type', "Volume Carton", 
        'Espace inoccupé', 'Poids inoccupé', 'Quantite_key', 'Type']].copy()
     print(res)
     res[["Volume Articles", "Poids Articles","Volume Carton",'Espace inoccupé', "Poids Article (kg)"]] = res[["Volume Articles", "Poids Articles","Volume Carton",'Espace inoccupé', "Poids Article (kg)"]].round(2)
     #======================================================================
     return res
+"""
+        # Connexion à la base de données SQLite
+    conn = sqlite3.connect('/home/aminatou/Documents/flaskblog/instance/database.db')
+
+    # Exécution d'une requête SQL pour récupérer les données de la table
+    query = "SELECT * FROM Conteneur;"
+    df_carton = pd.read_sql_query(query, conn)
+    df_carton = df_carton.rename(columns={'longueur':'Longueur', 'largeur':'Largeur','hauteur':'Hauteur', 'Poid_maximal':'Poids_max','prix':'Prix', 'quantite':'Quantite','type_conteneur':'Type'})
+
+    # Fermeture de la connexion à la base de données
+    conn.close()
+
+    # Affichage des premières lignes du DataFrame pour vérification
+    print(df_carton.head())
+"""

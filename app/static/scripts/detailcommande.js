@@ -60,18 +60,23 @@ $(document).ready(function() {
                     bin_L: 'Longueur Carton (cm)',
                     bin_l: 'Largeur Carton (cm)',
                     bin_h: 'Hauteur Carton (cm)',
+                   // packed :'article_emballer'
                 };
                 // Supposons que data et headers1 soient déjà définis quelque part dans votre code
 const value = parseFloat(data[0][headers1.esp_inoc]);
-
+const poids = parseFloat(data[0][headers1.w_inoc]);
 // Convertir la valeur du pourcentage en décimal
 const decimalValue = value / 100;
+const decimalValues = poids / 100;
 
 // Calculez 1 moins la valeur décimale
 const result = 1 - decimalValue;
+const results = 1 - decimalValues;
 
 // Formatez le résultat en pourcentage
 const percentageResult = (result * 100).toFixed(2) + ' %';
+const percentageResults = (results * 100).toFixed(2) + ' %';
+
 
                 var tableHtml = '';
     
@@ -86,7 +91,7 @@ const percentageResult = (result * 100).toFixed(2) + ' %';
                 tableHtml += '<tr><td>' + headers1.prix + '</td><td class="font-weight-bold ar">' + data[0][headers1.prix] + '</td></tr>';
                 tableHtml += '<tr><td>' + headers1.items_weight + '</td><td class="font-weight-bold ar">' + data[0][headers1.items_weight] + '</td></tr>';
                 tableHtml += '<tr><td>' + headers1.bin_poids_max + '</td><td class="font-weight-bold ar">' + data[0][headers1.bin_poids_max] + '</td></tr>';
-                tableHtml += '<tr><td>' + headers1.w_inoc + '</td><td class="font-weight-bold ar">' + data[0][headers1.w_inoc] + '</td></tr>';
+                tableHtml += '<tr><td>' + headers1.w_inoc + '</td><td class="font-weight-bold ar">' + data[0][headers1.w_inoc] + ' %</td></tr>';
                 tableHtml += '</tbody>';
                 tableHtml += '</table>';
                 tableHtml += '</div>';
@@ -146,12 +151,13 @@ const percentageResult = (result * 100).toFixed(2) + ' %';
                 tableHtml += '</div>';
                 tableHtml += '<table class="form">';
                 tableHtml += '<tr><td>Dimensions bin:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_L]+'x'+data[0][headers1.bin_l]+'x'+data[0][headers1.bin_h]+' [cm]</td></tr>';
-                tableHtml += '<tr><td>espace utilisé:</td><td class="text-right font-weight-bold">'+percentageResult+'</td></tr>';
-                tableHtml += '<tr><td>Stack height:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_L]+' [cm]</td></tr>';
-                tableHtml += '<tr><td>Weight:</td><td class="text-right font-weight-bold">16 [kg]</td></tr>';
-                tableHtml += '<tr><td>Net weight:</td><td class="text-right font-weight-bold">6 [kg]</td></tr>';
-                tableHtml += '<tr><td>DIM weight:</td><td class="text-right font-weight-bold">0 [kg]</td></tr>';
-                tableHtml += '<tr><td>Packed:</td><td class="text-right font-weight-bold">3</td></tr>';
+                tableHtml += '<tr><td>Espace occupé:</td><td class="text-right font-weight-bold">'+percentageResult+'</td></tr>';
+                tableHtml += '<tr><td>Poids occupé:</td><td class="text-right font-weight-bold">'+percentageResults+'</td></tr>';
+                tableHtml += '<tr><td>Pile hauteur:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_L]+' [cm]</td></tr>';
+                tableHtml += '<tr><td>Poids maximum:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_poids_max]+' [kg]</td></tr>';
+                tableHtml += '<tr><td>Poids net:</td><td class="text-right font-weight-bold">'+data[0][headers1.items_weight]+' [kg]</td></tr>';
+                tableHtml += '<tr><td>poids restant :</td><td class="text-right font-weight-bold">0 [kg]</td></tr>';
+                tableHtml += '<tr><td>Type bin :</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_type]+'</td></tr>';
                 tableHtml += '</table>';
                 tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
                 tableHtml += '<a href="#" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e;">';
