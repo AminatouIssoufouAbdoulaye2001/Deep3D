@@ -109,10 +109,6 @@ const percentageResults = (results * 100).toFixed(2) + ' %';
                 tableHtml += '<div class="text-18 mb-4">Article emballé:</div>';
                 tableHtml += '<table class="form simple gray table-bordered">';
                 tableHtml += '<thead><tr><th>ID</th><th>Quantité</th></tr></thead>';
-                headers.forEach(function(header) {
-                    //tableHtml += '<tr><td>' + header + '</td><td class="font-weight-bold ar">' + data[0][header] + '</td></tr>';
-                    //tableHtml += '<tbody><tr><td>' + data[0][header] + '</td><td class="text-right pr-3">'+ data[2][header] + '</td></tr></tbody>';
-                });
                 // Collecter des valeurs uniques
                 var uniqueData = [];
                 var seen = new Set();
@@ -141,7 +137,8 @@ const percentageResults = (results * 100).toFixed(2) + ' %';
                 tableHtml += '<tbody><tr><td>1</td><td class="text-right pr-3"></td></tr></tbody>';
                 tableHtml += '</table>';
                 tableHtml += '</div>';
-
+             
+        
                 tableHtml += '<div>';
                 tableHtml += '<div class="font-weight-bold card-box-header mx-3 pb-3">Packing space 1 of 1</div>';
                 tableHtml += '<div class="card-box mx-3">';
@@ -160,8 +157,13 @@ const percentageResults = (results * 100).toFixed(2) + ' %';
                 tableHtml += '<tr><td>Type bin :</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_type]+'</td></tr>';
                 tableHtml += '</table>';
                 tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
-                tableHtml += '<a href="#" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e;">';
-                tableHtml += '<i class="fas fa-eye text-secondary pr-1 pl-2"></i> Voir l\'emballage';
+               
+                //tableHtml += '        <a href="javascript:void(0);" onclick='+ afficherEmballage +'("static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png")>;
+                //tableHtml += '<i class="fas fa-eye text-secondary pr-1 pl-2"></i> Voir l\'emballage'; 
+                //tableHtml += '</a>'
+                tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e;">';
+                tableHtml += '<a>';
+                tableHtml += '<i class="fas fa-eye text-secondary pr-1 pl-2"></i> Voir l\'emballage'; 
                 tableHtml += '</a>';
                 tableHtml += '</div>';
                 tableHtml += '<div class="font-weight-bold">Articles emballés:</div>';
