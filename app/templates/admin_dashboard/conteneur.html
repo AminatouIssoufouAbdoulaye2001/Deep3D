@@ -1,7 +1,5 @@
 {% extends 'admin_dashboard/layout.html' %}
 {% block content %}
-{% if current_user.is_admin %}
-
 <div class="container mt-5">
     <h2>Gestion des Conteneurs</h2>
     <div class="card conteneur">
@@ -260,7 +258,5 @@
   </div>
 </div>
 {% endfor %}
-
-{% endif %}
 
 {% endblock content %}

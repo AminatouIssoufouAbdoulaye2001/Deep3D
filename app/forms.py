@@ -94,7 +94,7 @@ class ArticleForm(FlaskForm):
             return False
 
         # Validation de la longueur par rapport à la largeur
-        if self.longueur.data <= self.largeur.data:
+        if self.longueur.data < self.largeur.data:
             self.longueur.errors.append("La longueur doit être supérieure à la largeur.")
             return False
 

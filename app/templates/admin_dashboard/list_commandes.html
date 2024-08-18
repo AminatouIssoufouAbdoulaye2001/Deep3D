@@ -25,33 +25,30 @@
 
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
             {% for commande in commandes_pagination.items %}
                 <tr>
-                    <td>{{ commande.numero_commande }}</td>
-                    <td>{{ commande.date_creation }}</td>
-                    <td>{{ commande.user.nom }} {{ commande.user.prenom }}</td>
-                    <td>
+                    <td style="vertical-align: middle;">{{ commande.numero_commande }}</td>
+                    <td style="vertical-align: middle;">{{ commande.date_creation }}</td>
+                    <td style="vertical-align: middle;">{{ commande.user.nom }} {{ commande.user.prenom }}</td>
+                    <td style="vertical-align: middle;">
                         <button class="btn btn-primary btn-sm voir-details"  data-commande-id="{{ commande.id }}" data-bs-toggle="modal" data-bs-target="#commandeDetailsModal">Voir détails</button>
                     </td>
-                    <td>
+                    <td style="vertical-align: middle;">
                         <button class="btn btn-primary btn-sm emballer" data-commande-id="{{ commande.id }}" data-bs-toggle="modale">Emballer</button>
                     </td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                          <span>{{ commande.status }}</span>
-                          <form action="{{ url_for('cancel_order', order_id=commande.id) }}" method="post" class="ms-2" style="display: inline;">
-                            <button type="submit" class="btn btn-danger"><i class="fa-solid fa-xmark"></i></button>
-                          </form>
-                          <form action="{{ url_for('validate_order', order_id=commande.id) }}" method="post" class="ms-2" style="display: inline;">
-                            <button type="submit" class="btn btn-success"><i class="fa-solid fa-check-to-slot"></i></button>
-                          </form>
-                          <!--<form action="{{ url_for('emballer_order', order_id=commande.id) }}" method="post" class="ms-2" style="display: inline;">
-                            <button type="submit" class="btn btn-warning"><i class="fa-solid fa-truck-fast"></i></button>
-                          </form> -->
-                        </div>
-                      </td>
-                      
+                    <td class="text-center" style="vertical-align: middle;" >
+                      <!-- Badge for status -->
+                      <span class="badge mb-1
+                          {% if commande.status == 'Emballer' %}
+                              bg-success
+                          {% else %}
+                              bg-secondary
+                          {% endif %}">
+                          {{ commande.status }}
+                      </span>
+                  </td>
+
                    
                 </tr>
             {% endfor %}
@@ -122,25 +119,27 @@
 {%endfor%}
 
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="packingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg  custom-modal-lg" style="max-width: 80% ; width: 90%" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="commandeIdModal"></h5>
-            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-        <div class="modal-body">
-          <div class="table-container">
-            <!-- Contenu du tableau généré dynamiquement ici -->
-          </div>
+  <div class="modal-dialog modal-lg  custom-modal-lg" style="max-width: 80% ; width: 90%" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          <h5 class="modal-title" id="commandeIdModal"></h5>
+          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+      <div class="modal-body">
+        <div class="table-container">
+          <!-- Contenu du tableau généré dynamiquement ici -->
+        </div>
       </div>
-      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" id="saveButton" data-commande-id="">Enregistrer</button>
+    </div>
     </div>
   </div>
+</div>
+
 <script src="{{ url_for('static', filename='scripts/detailcommande.js') }}"></script>
 
 {% endblock %}

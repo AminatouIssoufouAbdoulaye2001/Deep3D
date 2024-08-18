@@ -27,24 +27,26 @@ def model_pack_articles(df_article, model_used=args.model_used):
     df_article["Longueur"] = df_article['longueur']
     df_article["Largeur"] = df_article['largeur']
     df_article["Hauteur"] = df_article['hauteur']
+    df_article["Fragile"] = df_article['fragile']
     df_article["Poids"] = df_article['poids']
     df_article["Quantite"] = df_article['quantite']
-    df_article = df_article[['sku','Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
+    df_article = df_article[['sku','Longueur', 'Largeur', 'Hauteur','Fragile', 'Poids', 'Quantite']]
     #==========================================================
     df_article['key'] = df_article.index
     df_key = df_article.copy()#[['key', 'sku']].copy()
     df_key = df_key.rename(columns = {'Longueur':'Longueur_key',
                         'Largeur':'Largeur_key',
-                        'Hauteur':'Hauteur_key',
+                        'Hauteur':'Hauteur_key',                        
+                        'Fragile': 'Fragile_key', 
                         'Poids': 'Poids_key', 
                         'Quantite':'Quantite_key'})
     #===========================================================
     df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
     df_article['Quantite'] = 1
-    df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
+    df_article = df_article[['Longueur', 'Largeur', 'Hauteur','Fragile','Poids', 'Quantite']]
 
-    #df_carton = pd.read_csv("app/models_rl/data/bins.csv")
-    conn = sqlite3.connect('instance/database.db')
+    df_carton = pd.read_csv("app/models_rl/data/bins.csv")
+    '''conn = sqlite3.connect('instance/database.db')
 
     # Exécution d'une requête SQL pour récupérer les données de la table
     query = "SELECT * FROM Conteneur;"
@@ -53,8 +55,9 @@ def model_pack_articles(df_article, model_used=args.model_used):
 
     # Fermeture de la connexion à la base de données
     conn.close()
+    
     df_carton = df_carton[['Longueur', 'Largeur', 'Hauteur', 'Poids_max','Prix', 'Quantite', 'Type']]
-    ## BIN PACK
+    ## BIN PACK'''
 
     #sleep(100000)
     if model_used :

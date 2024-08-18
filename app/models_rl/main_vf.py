@@ -8,23 +8,30 @@ import collections
 import warnings
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), 'app/models_rl'))
-#from environnement.env import Environment
-from app.models_rl.environnement.env import Environment
-#from dqnet.agent import DQNAgent
-from app.models_rl.dqnet.agent import DQNAgent
+
 import tensorflow as tf
 import numpy as np
 from time import time as t
 from time import sleep
-#from viz import *
-from app.models_rl.viz import *
+
 
 sys.path.append(os.path.join(os.path.dirname(__file__), 'gitviz'))
-#from gitviz.test import pack_viz
-from app.models_rl.gitviz.test import pack_viz
-# Ignorer les avertissements "SettingWithCopyWarning"
-warnings.filterwarnings('ignore')
 
+# Ignorer les avertissements "SettingWithCopyWarning"
+if os.getcwd().endswith('flaskblog'):
+    sys.path.append(os.path.abspath('.'))
+    from app.models_rl.viz import *
+    from app.models_rl.environnement.env import Environment
+    from app.models_rl.dqnet.agent import DQNAgent
+    from app.models_rl.gitviz.test import pack_viz
+# Check if the script is run from the 'models_rl' directory
+else:
+    sys.path.append(os.path.abspath('../..'))
+    from viz import *
+    from environnement.env import Environment
+    from dqnet.agent import DQNAgent
+    from gitviz.test import pack_viz
+warnings.filterwarnings('ignore')
 
 parser = argparse.ArgumentParser(description = 'Train or test neural net')
 parser.add_argument('--train', dest = 'train', action = 'store_true', default = False)
@@ -109,7 +116,7 @@ def train1(env, agent, action_size, episodes = 20, batch_size =2, plot=True):
         plt.plot(scores)
         plt.xlabel('Episodes')
         plt.ylabel('Reward')
-        plt.title('Espace occupé par episode')
+        plt.title('Espace occupé par emballage')
         plt.savefig('save/train.png')
         #plt.show()
         
@@ -117,7 +124,7 @@ def train1(env, agent, action_size, episodes = 20, batch_size =2, plot=True):
         plt.plot(times)
         plt.xlabel('Episodes')
         plt.ylabel('Time (s)')
-        plt.title('Temps par episode')
+        plt.title('Temps par emballage')
         plt.savefig('save/train_times.png')
         #plt.show()
 
@@ -357,9 +364,9 @@ if __name__ == '__main__':
     if args.train:
         df_article = pd.read_csv("data/articles_data.csv")
         new_names = {'longueur': 'Longueur', 'largeur': 'Largeur',
-        "hauteur": "Hauteur", "poids": "Poids", "quantite": "Quantite"}
+        "hauteur": "Hauteur", "fragile":"Fragile", "poids": "Poids", "quantite": "Quantite"}
         df_article = df_article.rename(columns=new_names)
-        df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Poids', 'Quantite']]
+        df_article = df_article[['Longueur', 'Largeur', 'Hauteur', 'Fragile' 'Poids', 'Quantite']]
         df_article = df_article.loc[df_article.index.repeat(df_article['Quantite'])].reset_index(drop=True)
         df_article['Quantite'] = 1
         print( "Nombre Articles : ", len(df_article)) 

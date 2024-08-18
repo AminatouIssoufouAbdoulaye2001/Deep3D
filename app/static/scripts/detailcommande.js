@@ -1,22 +1,60 @@
 $(document).ready(function() {
+    // Gestion du modal pour le bouton 'emballer'
+    document.querySelectorAll('.emballer').forEach(function(button) {
+        button.addEventListener('click', function() {
+            var commandeId = this.getAttribute('data-commande-id');
+            var modal = new bootstrap.Modal(document.getElementById('myModal'));
+            document.getElementById('saveButton').setAttribute('data-commande-id', commandeId);
+            modal.show();
+        });
+    });
+
+    // Gestion du clic sur le bouton 'Enregistrer'
+    document.getElementById('saveButton').addEventListener('click', function() {
+        var commandeId = this.getAttribute('data-commande-id');
+        
+        fetch('/update_commande_status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: commandeId, status: 'Emballer' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Recharger la page pour afficher le message flash
+            } else {
+                alert('Erreur lors de la mise à jour du statut: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Erreur lors de la requête:', error);
+            alert('Erreur lors de la requête. Veuillez réessayer plus tard.');
+        });
+    });
+
+    // Gestion du clic sur 'Voir détails'
     $('.voir-details').click(function() {
         var commandeId = $(this).data('commande-id');
         $('#commandeIdModal').text('Détails de la commande N° ' + commandeId);
+
         $.ajax({
             url: '/get_articles/' + commandeId,
             type: 'GET',
             success: function(response) {
                 var articlesHtml = '';
                 $.each(response, function(index, article) {
-                    articlesHtml += '<tr>';
-                    articlesHtml += '<td>' + article.sku + '</td>';
-                    articlesHtml += '<td>' + article.largeur + '</td>';
-                    articlesHtml += '<td>' + article.longueur + '</td>';
-                    articlesHtml += '<td>' + article.hauteur + '</td>';
-                    articlesHtml += '<td>' + article.poids + '</td>';
-                    articlesHtml += '<td>' + article.quantite + '</td>';
-                    articlesHtml += '<td>' + article.fragile + '</td>';
-                    articlesHtml += '</tr>';
+                    articlesHtml += `
+                        <tr>
+                            <td>${article.sku}</td>
+                            <td>${article.largeur}</td>
+                            <td>${article.longueur}</td>
+                            <td>${article.hauteur}</td>
+                            <td>${article.poids}</td>
+                            <td>${article.quantite}</td>
+                            <td>${article.fragile}</td>
+                        </tr>`;
                 });
                 $('#articlesList').html(articlesHtml);
             },
@@ -25,57 +63,49 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Gestion du clic sur 'Emballer'
     $('.emballer').click(function() {
         var commandeId = $(this).data('commande-id');
+
         $.ajax({
             url: '/pack_articles',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify({ commande_id: commandeId }),
             success: function(data) {
-                // Remplir la fenêtre modale avec les données reçues
                 var modalTable = $('#myModal').find('.table-container');
-                modalTable.empty(); // Vide le contenu précédent
-    
-                var headers = Object.keys(data[0]);
+                modalTable.empty();
+
+                // Utiliser les valeurs définies pour les colonnes
                 var headers1 = {
-                    sku:"sku", 
-                    id_bin:'ID Carton', 
-                    item_L:'Longueur Article (cm)',
-                    item_l:'Largeur Article (cm)', 
-                    item_h:'Hauteur Article (cm)', 
-                    item_h:'Poids Article (kg)',
-                    item_qte:'Quantite Article', 
-                    item_v:"Volume Article",
-                    items_v:"Volume Articles",
-                    items_weight:"Poids Articles",
-                    bin_poids_max:'Poids_max Carton (kg)', 
-                    prix:'Prix',
-                    bin_type:'Type',
-                    bin_v:"Volume Carton",
-                    esp_inoc:'Espace inoccupé', 
-                    w_inoc:'Poids inoccupé',
-                    item_q:'Quantite_key',
-                    bin_q:'Quantite Carton',
+                    sku: "sku",  
+                    id_bin: 'ID Carton', 
+                    item_L: 'Longueur Article (cm)',
+                    item_l: 'Largeur Article (cm)', 
+                    item_h: 'Hauteur Article (cm)', 
+                    item_qte: 'Quantite Article', 
+                    item_v: "Volume Article",
+                    items_v: "Volume Articles",
+                    items_weight: "Poids Articles",
+                    bin_poids_max: 'Poids_max Carton (kg)', 
+                    prix: 'Prix',
+                    bin_type: 'Type',
+                    bin_v: "Volume Carton",
+                    esp_inoc: 'Espace inoccupé', 
+                    w_inoc: 'Poids inoccupé',
+                    item_q: 'Quantite_key',
+                    bin_q: 'Quantite Carton',
                     bin_L: 'Longueur Carton (cm)',
                     bin_l: 'Largeur Carton (cm)',
                     bin_h: 'Hauteur Carton (cm)',
-                   // packed :'article_emballer'
                 };
-                // Supposons que data et headers1 soient déjà définis quelque part dans votre code
-const value = parseFloat(data[0][headers1.esp_inoc]);
-const poids = parseFloat(data[0][headers1.w_inoc]);
-// Convertir la valeur du pourcentage en décimal
-const decimalValue = value / 100;
-const decimalValues = poids / 100;
 
-// Calculez 1 moins la valeur décimale
-const result = 1 - decimalValue;
-const results = 1 - decimalValues;
+                // Calculs des pourcentages et poids restants
+                const poids_restant1 = (data[0][headers1.bin_poids_max] - data[0][headers1.items_weight]).toFixed(2);
+                const percentageResult = ((1 - parseFloat(data[0][headers1.esp_inoc]) / 100) * 100).toFixed(2) + ' %';
+                const percentageResults = ((1 - parseFloat(data[0][headers1.w_inoc]) / 100) * 100).toFixed(2) + ' %';
 
-// Formatez le résultat en pourcentage
-const percentageResult = (result * 100).toFixed(2) + ' %';
-const percentageResults = (results * 100).toFixed(2) + ' %';
 
 
                 var tableHtml = '';
@@ -153,18 +183,19 @@ const percentageResults = (results * 100).toFixed(2) + ' %';
                 tableHtml += '<tr><td>Pile hauteur:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_L]+' [cm]</td></tr>';
                 tableHtml += '<tr><td>Poids maximum:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_poids_max]+' [kg]</td></tr>';
                 tableHtml += '<tr><td>Poids net:</td><td class="text-right font-weight-bold">'+data[0][headers1.items_weight]+' [kg]</td></tr>';
-                tableHtml += '<tr><td>poids restant :</td><td class="text-right font-weight-bold">0 [kg]</td></tr>';
+                tableHtml += '<tr><td>poids restant :</td><td class="text-right font-weight-bold">'+poids_restant1+' [kg]</td></tr>';
                 tableHtml += '<tr><td>Type bin :</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_type]+'</td></tr>';
                 tableHtml += '</table>';
-                tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
-               
-                //tableHtml += '        <a href="javascript:void(0);" onclick='+ afficherEmballage +'("static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png")>;
-                //tableHtml += '<i class="fas fa-eye text-secondary pr-1 pl-2"></i> Voir l\'emballage'; 
-                //tableHtml += '</a>'
-                tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e;">';
                 tableHtml += '<a>';
                 tableHtml += '<i class="fas fa-eye text-secondary pr-1 pl-2"></i> Voir l\'emballage'; 
                 tableHtml += '</a>';
+                tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
+                tableHtml += '<iframe src="static/images/images_emballage/viz_carton' + data[0][headers1.id_bin] + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:850px; border:none;"></iframe>';
+
+                //tableHtml += '<img src="static/images/images_emballage/animation'+data[0][headers1.id_bin]+'.gif" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
+
+                //tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
+                
                 tableHtml += '</div>';
                 tableHtml += '<div class="font-weight-bold">Articles emballés:</div>';
                 tableHtml += '<table class="form">';
@@ -174,7 +205,7 @@ const percentageResults = (results * 100).toFixed(2) + ' %';
                 tableHtml += '</div>';
      
                 modalTable.html(tableHtml);
-    
+
                 // Afficher la fenêtre modale
                 $('#myModal').modal('show');
             },
@@ -183,6 +214,9 @@ const percentageResults = (results * 100).toFixed(2) + ' %';
             }
         });
     });
-    
+       // Lorsque le modal se ferme, recharge la page
+       $('#myModal').on('hidden.bs.modal', function () {
+        location.reload(); // Recharge la page pour afficher les modifications
+    });
     
 });

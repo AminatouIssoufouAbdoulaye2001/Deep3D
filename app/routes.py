@@ -475,25 +475,53 @@ def details_commande(commande_id):
 
 
 #Création du conteneur
+
 @app.route("/new_conteneur", methods=['GET', 'POST'])
 @login_required
 def new_conteneur():
     form = ConteneurForm()
     if form.validate_on_submit():
+        # Création du conteneur
         conteneur = Conteneur(type_conteneur=form.type_conteneur.data, largeur=form.largeur.data,
                           longueur=form.longueur.data, hauteur=form.hauteur.data,
                           Poid_maximal=form.Poid_maximal.data, quantite=form.quantite.data,
-                          prix=form.prix.data,date_creation=dt_date.today())
+                          prix=form.prix.data, date_creation=dt_date.today())
         
+        # Ajout à la base de données
         db.session.add(conteneur)
         db.session.commit()
+        
+        # Définir le chemin du fichier CSV
+        csv_file = os.path.join('app/models_rl/data', 'bins.csv')
+        
+        # Lire le dernier index du fichier CSV
+        last_index = 0
+        if os.path.exists(csv_file):
+            with open(csv_file, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    last_index = int(row['Index'])  # Met à jour avec le dernier index
+        
+        # Incrémenter l'index pour le nouveau conteneur
+        new_index = last_index + 1
+        
+        # Ajouter les données du conteneur dans le fichier CSV avec l'index incrémenté
+        with open(csv_file, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            # Écrire l'en-tête si le fichier est vide
+            if last_index == 0:
+                writer.writerow(['Index', 'Type', 'Longueur', 'Largeur', 'Hauteur', 'Poids_max', 'Prix', 'Quantite'])
+            writer.writerow([new_index, conteneur.type_conteneur, conteneur.longueur, conteneur.largeur, 
+                             conteneur.hauteur, conteneur.Poid_maximal, conteneur.prix, conteneur.quantite])
+        
         flash('Conteneur ajouté avec succès!', 'success')
         return redirect(url_for('new_conteneur'))
-    conteneurs = Conteneur.query.all() 
 
+    # Gestion de la pagination et recherche (non modifiée)
+    conteneurs = Conteneur.query.all() 
     search_conteneur = request.args.get('search_conteneur')
     conteneurs_page = request.args.get('conteneurs_page', 1, type=int)
-    per_page = 5 # Nombre d'items par page
+    per_page = 5 
 
     if search_conteneur:
         conteneurs_query = Conteneur.query.filter((Conteneur.type_conteneur.ilike(f'%{search_conteneur}%')))
@@ -503,8 +531,7 @@ def new_conteneur():
     conteneurs_pagination = conteneurs_query.paginate(page=conteneurs_page, per_page=per_page, error_out=False)
     pagination_args = Pagination(page=conteneurs_page, per_page=per_page, total=conteneurs_query.count(), css_framework='bootstrap4')
     
-    return render_template('admin_dashboard/conteneur.html',form=form, conteneurs=conteneurs, conteneurs_pagination=conteneurs_pagination, pagination_args=pagination_args)
-
+    return render_template('admin_dashboard/conteneur.html', form=form, conteneurs=conteneurs, conteneurs_pagination=conteneurs_pagination, pagination_args=pagination_args)
 #Fin création
 #Création du conteneur
 @app.route("/alert_stock_conteneur", methods=['GET', 'POST'])
@@ -585,45 +612,25 @@ def list_commandes():
     commandes_pagination = commandes_query.paginate(page=commandes_page, per_page=per_page, error_out=False)
     pagination_args = Pagination(page=commandes_page, per_page=per_page, total=commandes_query.count(), css_framework='bootstrap4')
     return render_template('admin_dashboard/list_commandes.html', articles=articles,commandes_pagination=commandes_pagination,pagination_args=pagination_args,commandes=commandes_query)
-@app.route('/cancel_order/<int:order_id>', methods=['POST'])
+@app.route('/update_commande_status', methods=['POST'])
 @login_required
-def cancel_order(order_id):
-    order = Commande.query.get(order_id)
-    if order:
-        order.status = 'Annuler'
-        db.session.commit()
-        flash('La commande a été annulée avec succès.', 'success')
-    else:
-        flash('La commande spécifiée n\'existe pas.', 'danger')
-    return redirect(url_for('list_commandes'))
+def update_commande_status():
+    data = request.get_json()
+    commande_id = data.get('id')
+    new_status = data.get('status')
 
-@app.route('/validate_order/<int:order_id>', methods=['POST'])
-@login_required
-def validate_order(order_id):
-    order = Commande.query.get(order_id)
-    if order:
-        order.status = 'Valider'
+    if not current_user.is_authenticated:
+        return jsonify({'success': False, 'error': 'Non authentifié'}), 401
+
+    commande = Commande.query.get(commande_id)
+    if commande:
+        commande.status = new_status
         db.session.commit()
-        flash('La commande a été validée avec succès.', 'success')
+        flash('Votre commande a bien été  emballée.', 'success')
+        return jsonify({'success': True})
     else:
-        flash('La commande spécifiée n\'existe pas.', 'danger')
-    return redirect(url_for('list_commandes'))
-@app.route('/emballer_order/<int:order_id>', methods=['POST'])
-@login_required
-def emballer_order(order_id):
-    order = Commande.query.get(order_id)
-    if order:
-        order.status = 'Emballer'
-        db.session.commit()
-        flash('La commande a été emabllé avec succès.', 'success')
-    else:
-        flash('La commande spécifiée n\'existe pas.', 'danger')
-    return redirect(url_for('list_commandes'))
-@app.route('/suivi_commande/<int:order_id>')
-def suivi_commande(order_id):
-    # Récupérer la commande depuis la base de données
-    commande = Commande.query.get_or_404(order_id)
-    return render_template('user_dashboard/list_article.html', commande=commande)
+        flash('Commande non trouvée', 'error')
+        return jsonify({'success': False, 'error': 'Commande non trouvée'}), 404
 
 @app.route('/get_articles/<int:commande_id>')
 def get_articles(commande_id):

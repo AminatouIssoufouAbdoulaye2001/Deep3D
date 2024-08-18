@@ -12,6 +12,7 @@ class Articles:
             'Longueur': np.round(np.random.uniform(1, 100, self.N),0),
             'Largeur': np.round(np.random.uniform(1, 100, self.N),0),
             'Hauteur': np.round(np.random.uniform(1, 100, self.N),0),
+            'Fragile': np.random.choice([True, False], self.N),
             'Poids': np.round(np.random.uniform(1, 10, self.N),0),
             'Quantite': np.random.randint(1, 20, self.N)
         }
