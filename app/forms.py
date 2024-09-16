@@ -15,7 +15,7 @@ class RegistrationForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
     mot_de_passe = PasswordField('Mot de passe', validators=[DataRequired()])
     confirm_password = PasswordField('Confirmé mot de passe', validators=[DataRequired(), EqualTo('mot_de_passe', message='Les mots de passe ne correspondent pas')])
-    submit = SubmitField('Se connecter')
+    submit = SubmitField('Enregistrer')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
@@ -38,7 +38,7 @@ class LoginForm(FlaskForm):
     email = StringField('email', validators=[DataRequired(), Email()])
     mot_de_passe = PasswordField('Mot de passe', validators=[DataRequired()])
     remember = BooleanField('Rappel Moi')
-    submit = SubmitField('Login')
+    submit = SubmitField('Connexion')
 
 class UpdateAccountForm(FlaskForm):
     nom = StringField('Nom', validators=[])

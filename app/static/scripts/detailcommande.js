@@ -99,6 +99,7 @@ $(document).ready(function() {
                     bin_L: 'Longueur Carton (cm)',
                     bin_l: 'Largeur Carton (cm)',
                     bin_h: 'Hauteur Carton (cm)',
+                    nb_bin : "nb_bin",
                 };
 
                 // Calculs des pourcentages et poids restants
@@ -150,8 +151,10 @@ $(document).ready(function() {
                     uniqueData.push(item);
                     }
                 });
-                uniqueData.forEach(function(item) {
+                uniqueData.forEach(function(item, index) {
+                    if (index != uniqueData.length - 1) {
                     tableHtml += '<tr><td>' + item[headers1.sku] + '</td><td class="text-right pr-3">' + item[headers1.item_q] + '</td></tr>';
+                    }
                 });
                 //tableHtml += '<tbody><tr><td>' + data[0][headers1.sku] + '</td><td class="text-right pr-3">' + data[0][headers1.item_q] + '</td></tr></tbody>';
                 //tableHtml += '<tbody><tr><td>' + data[5][headers1.sku] + '</td><td class="text-right pr-3">' + data[5][headers1.item_q] + '</td></tr></tbody>';
@@ -164,17 +167,31 @@ $(document).ready(function() {
                 tableHtml += '<div class="text-18 mb-4">Articles non emballés:</div>';
                 tableHtml += '<table class="form simple gray table-bordered">';
                 tableHtml += '<thead><tr><th>ID</th><th>Quantité</th></tr></thead>';
-                tableHtml += '<tbody><tr><td>1</td><td class="text-right pr-3"></td></tr></tbody>';
+                //tableHtml += '<tbody><tr><td>1</td><td class="text-right pr-3"></td></tr></tbody>';
+
+                const lastItem = data[data.length - 1]; // Dernier élément du tableau
+
+                // Vérifier si le dernier élément contient des articles non emballés
+                if (lastItem.non_pack_articles && lastItem.non_pack_articles > 0) {
+                    // Parcourir les articles non emballés et afficher leur ID et quantité
+                    lastItem.sku.forEach((sku, index) => {
+                        const quantity = lastItem.qte[index];
+                        tableHtml += `<tr><td>${sku}</td><td class="text-right pr-3">${quantity}</td></tr>`;
+                    });
+                } else
+                {
+                    tableHtml += `<tr><td>pas d'articles non emballés</td><td class="text-right pr-3"></td></tr>`;
+
+                }
+
                 tableHtml += '</table>';
                 tableHtml += '</div>';
              
         
                 tableHtml += '<div>';
-                tableHtml += '<div class="font-weight-bold card-box-header mx-3 pb-3">Packing space 1 of 1</div>';
                 tableHtml += '<div class="card-box mx-3">';
-                tableHtml += '<div class="sku-name text-truncate">SKU: <span class="font-weight-bold">1</span></div>';
+                tableHtml += '<div class="sku-name text-truncate">ID Carton: <span class="font-weight-bold">' + data[0][headers1.id_bin] + '</span></div>';
                 tableHtml += '<div class="img-preview mb-4">';
-                tableHtml += '<img src="http://images-eu.api.3dbinpacking.com/f1b9a7e0b50ca846c3cfcde2351e7a57/20240604/fa38f063af40d95d5826b26b1970e53b/1717512946-5099-2988445.svg">';
                 tableHtml += '</div>';
                 tableHtml += '<table class="form">';
                 tableHtml += '<tr><td>Dimensions bin:</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_L]+'x'+data[0][headers1.bin_l]+'x'+data[0][headers1.bin_h]+' [cm]</td></tr>';
@@ -186,21 +203,16 @@ $(document).ready(function() {
                 tableHtml += '<tr><td>poids restant :</td><td class="text-right font-weight-bold">'+poids_restant1+' [kg]</td></tr>';
                 tableHtml += '<tr><td>Type bin :</td><td class="text-right font-weight-bold">'+data[0][headers1.bin_type]+'</td></tr>';
                 tableHtml += '</table>';
-                tableHtml += '<a>';
-                tableHtml += '<i class="fas fa-eye text-secondary pr-1 pl-2"></i> Voir l\'emballage'; 
-                tableHtml += '</a>';
                 tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
-                tableHtml += '<iframe src="static/images/images_emballage/viz_carton' + data[0][headers1.id_bin] + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:850px; border:none;"></iframe>';
+                tableHtml += '<iframe src="static/images/images_emballage/viz_carton' + data[0][headers1.id_bin] + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; border:none;"></iframe>';
 
-                //tableHtml += '<img src="static/images/images_emballage/animation'+data[0][headers1.id_bin]+'.gif" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
+                //tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.GIF" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
+               //tableHtml += '<video controls style="width:850px; height:600px;"><source src="static/images/images_emballage/viz_carton' + str(data[0][headers1.id_bin]) + '.mp4" type="video/mp4">Your browser does not support the video tag.</video>'
 
-                //tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
+   
+               // tableHtml += '<img src="static/images/vtk_images/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
                 
                 tableHtml += '</div>';
-                tableHtml += '<div class="font-weight-bold">Articles emballés:</div>';
-                tableHtml += '<table class="form">';
-                tableHtml += '<tr><td>SKU001:</td><td class="text-right font-weight-bold">3</td></tr>';
-                tableHtml += '</table>';
                 tableHtml += '</div>';
                 tableHtml += '</div>';
      

@@ -2,7 +2,7 @@
 {% block content %}
 {% if current_user.is_admin %}
 <div class="container mt-4">
-    <h1 class="mb-4">Liste des Clients</h1>
+    <h2 class="mb-4">Liste des Clients</h2>
     <!-- Barre de recherche -->
     <form class="mb-3" method="get" action="{{ url_for('list_clients') }}">
         <div class="input-group">
@@ -14,12 +14,13 @@
         </div>
 
     </form>
+{% if total_clients %}
     <!-- Fin barre de recherche -->
     <div class="row mt-6">
         <div class="col-sm-12">
                     <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="thead-light">
+                        <table class="table table-striped">
+                            <thead class="thead-commandes">
                                 <tr>
                                     <th>Id</th>
                                     <th>Photo</th>
@@ -44,14 +45,14 @@
                                     <td style="vertical-align: middle;">{{ user.email }}</td>
                                     <td style="vertical-align: middle;">{{ user.telephone }}</td>
                                     <td style="vertical-align: middle;">
-                                        <button type="button" class=" bto btn-danger btn-sm m-1 delete"
+                                        <button type="button" class=" bto  btn-sm m-1 delete" style="background-color: #49495E; color: white;" 
                                             data-toggle="modal" data-target="#deleteModal{{ user.id }}"><i
-                                                class="fa-solid fa-user-minus"></i></button>
+                                               class="fa-solid fa-user-minus"></i></button>
                                         <button type="button" class="bto btn-warning btn-sm m-1 view-address"
                                             data-toggle="modal" data-target="#addressModal{{ user.id }}"><i
                                                 class="fas fa-map-marked-alt"></i></button>
                                     </td>
-                                    <td style="vertical-align: middle;">{{ "Active" if user.active else "Inactive" }}</td>
+                                    <td  style="vertical-align: middle;">{{ "Active" if user.active else "Inactive" }}</td>
                                     <td style="vertical-align: middle;">
                                             <form action="/user/{{ user.id }}/toggle_active" method="post">
                                                 <button type="submit" class="{{ 'btn-danger' if user.active else 'btn-success' }}">
@@ -86,20 +87,21 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Modal pour visualiser l'adresse -->
+                                    <!-- Modal pour visualiser l'adresse -->
                                 <div class="modal fade" id="addressModal{{ user.id }}" tabindex="-1" role="dialog"
-                                    aria-labelledby="addressModalLabel{{ user.id }}" aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="addressModalLabel{{ user.id }}">Adresses de
-                                                    {{ user.prenom }} {{ user.nom }}</h5>
-                                                <button type="button" the="close" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
+                                aria-labelledby="addressModalLabel{{ user.id }}" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="addressModalLabel{{ user.id }}">Adresses de
+                                                {{ user.prenom }} {{ user.nom }}</h5>
+                                            <button type="button" the="close" data-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            {% if user.adresses %}
                                                 <ul>
                                                     {% for adresse in user.adresses %}
                                                     <li>
@@ -110,14 +112,18 @@
                                                     </li>
                                                     {% endfor %}
                                                 </ul>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-dismiss="modal">Fermer</button>
-                                            </div>
+                                            {% else %}
+                                                <p>Aucune adresse saisie pour l'instant.</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-dismiss="modal">Fermer</button>
                                         </div>
                                     </div>
                                 </div>
+                                </div>
+
                                 {% endfor %}
                             </tbody>
                         </table>
@@ -152,6 +158,11 @@
 
         </div>
     </div>
+    {% else %}
+    <div class="alert-warning text-center">
+        Aucun client trouvé.
+      </div>
+      {% endif %}
 </div>
 {% endif %}
 {% endblock content %}

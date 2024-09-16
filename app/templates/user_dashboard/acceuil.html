@@ -32,16 +32,20 @@
     <!-- 2 cards bottom -->
     {% if nombre_articles > 0 %}
         <div class="row">
-        <div  class="col-md-6" id="graphique">{{ graph_htmlarticle|safe }}</div>
-        {% if nombre_commandes > 0 %}
-        <div  class="col-md-6" id="graphique">{{ graph_htmlcommandes|safe }}</div>
-        {%endif%}
-        </div>
-        <div class="row">
+        <div  class="col-md-6 mt-3" id="graphique">{{ graph_htmlarticle|safe }}</div>
         <div class="col-md-6 mt-3">{{ graph_htmlbar|safe }}</div>
-        <div class="col-md-6 mt-3" id="pie-chart">{{ graph_htmlpie|safe }}</div>
+    </div>
+        {% endif %}
 
+        {% if nombre_commandes > 0 %}
+        <div class="row">
+
+        <div  class="col-md-6 mt-3" id="graphique">{{ graph_htmlcommandes|safe }}</div>
+        <div class="col-md-6 mt-3" id="pie-chart">{{ graph_htmlcommandesstatus|safe }}</div>
         </div>
+        {%endif%}
+        {% if nombre_articles > 0 %}
+
         <div class="row mt-3">
             <div class="col-md-10">
                 <div class="card detail">
@@ -99,8 +103,8 @@
                 </div>
             </div>
         </div>
-    {% endif %}
     
+        {%endif%}
 
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

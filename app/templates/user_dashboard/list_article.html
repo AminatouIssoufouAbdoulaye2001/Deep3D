@@ -2,64 +2,79 @@
 {% block content %}
 {% if articles %}
 <div class="card detail container">
-    <div class="detail-header">
-      <form method="POST" action="{{ url_for('create_commande') }}">
-    <button type="submit" class="mb-3 download" style="background-color: #49495e; color: #fff; border: 1px solid #49495e; height: 40px;">Commander</button>
-        <table>
-          <tr>
-            <th>Id/Sku</th>
-            <th>Largeur</th>
-            <th>Longueur</th>
-            <th>Hauteur</th>
-            <th>Poids</th>
-            <th>Quantité</th>
-            <th>Fragile</th>
-          </tr>
-          {% for article in articles_pagination.items %}
-          <tr>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.sku }}</td>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.largeur }}</td>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.longueur }}</td>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.hauteur }}</td>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.poids }}</td>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.quantite }}</td>
-            <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.fragile }}</td>
-            <td><input style="width: 20px; height: 20px; margin-left: 20px;" type="checkbox" name="selected_articles" value="{{ article.id }}"></td>
-          </tr>
-          {% endfor %}
-        </table>
-      </form>
-    </div>
-              <!-- Pagination -->
-              <nav aria-label="Page navigation example">
-                <ul class="pagination justify-content-end mt-3">
-                  <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
-                    <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
-                  </li>
-                  {% for page_num in articles_pagination.iter_pages() %}
-                    {% if page_num %}
-                      <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
-                        <a class="page-link"  href="{{ url_for('article', page=page_num) }}">{{ page_num }}</a>
-                      </li>
-                    {% else %}
-                      <li class="page-item disabled">
-                        <a class="page-link"  href="#">...</a>
-                      </li>
-                    {% endif %}
-                  {% endfor %}
-                  <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
-                    <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
-                  </li>
-                </ul>
-              </nav>
-    {% endif %}
+  <div class="detail-header">
+    <form method="POST" action="{{ url_for('create_commande') }}">
+      <button type="submit" class="mb-3 download" style="background-color: #49495e; color: #fff; border: 1px solid #49495e; height: 40px;width: 200px;">Créer Commande</button>
+      <table>
+        <tr>
+          <th>Id/Sku</th>
+          <th>Largeur</th>
+          <th>Longueur</th>
+          <th>Hauteur</th>
+          <th>Poids</th>
+          <th>Quantité</th>
+          <th>Fragile</th>
+        </tr>
+        {% for article in articles_pagination.items %}
+        <tr>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.sku }}</td>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.largeur }}</td>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.longueur }}</td>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.hauteur }}</td>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.poids }}</td>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.quantite }}</td>
+          <td style="border: 1px solid black; padding: 5px; text-align: center;">{{ article.fragile }}</td>
+          <td>
+            <input 
+              style="width: 20px; height: 20px; margin-left: 20px;" 
+              type="checkbox" 
+              name="selected_articles" 
+              value="{{ article.id }}" 
+              {% if article.id in selected_articles %}checked{% endif %}>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      <div class="mt-3">
+        Affichage des articles {{ start_index }} à {{ end_index }}
+      </div>
+    </form>
+  </div>
+  <!-- Pagination -->
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-end mt-3">
+      <li class="page-item {% if not articles_pagination.has_prev %}disabled{% endif %}">
+        <a class="page-link" {% if articles_pagination.has_prev %}href="{{ url_for('article', page=articles_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+      </li>
+      {% for page_num in articles_pagination.iter_pages() %}
+        {% if page_num %}
+          <li class="page-item {% if page_num == articles_pagination.page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('article', page=page_num) }}">{{ page_num }}</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link" href="#">...</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+      <li class="page-item {% if not articles_pagination.has_next %}disabled{% endif %}">
+        <a class="page-link" {% if articles_pagination.has_next %}href="{{ url_for('article', page=articles_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+      </li>
+    </ul>
+  </nav>
+  {% endif %}
 </div>
 
 
-
+<div class="card detail container" style="margin-top: 50px;">
+  <form class="form-inline justify-content-end mb-3" method="get" action="{{ url_for('article') }}">
+    <div class="input-group">
+      <input class="form-control mr-sm-1" type="search" placeholder="Rechercher par numéro de commande ou date..." aria-label="search_commandes" name="search_commandes">
+      <button type="submit" class="bto btn-primary"><i class="fa fa-search"></i></button>
+    </div>
+  </form>
 
 {% if commandes %}
-<div class="card detail container" style="margin-top: 50px;">
   <div class="text-center"><h2>Détails de la Commande</h2></div>
   <div class="detail-header">
   <table class="">
@@ -69,6 +84,8 @@
               <th scope="col">Date Commande</th>
               <th scope="col">Quantité d'articles</th>
               <th scope="col" class="text-center">Actions</th>
+              <th scope="col" class="text-center">status</th>
+
           </tr>
       </thead>
       <tbody> 
@@ -77,7 +94,7 @@
               <td>{{ commande.numero_commande }}</td>
               <td class="text-center">
                 {% if commande.date_creation %}
-                    {{ commande.date_creation.strftime('%d/%m/%Y') }}
+                    {{ commande.date_creation.strftime('%y-%m-%d') }}
                 {% else %}
                     <!-- Gérer le cas où commande.date_creation est None -->
                     Date de création non disponible
@@ -109,17 +126,20 @@
           {% endfor %}
       </tbody>
   </table>
+
 </div>
+Affichage des commandes {{ start_indexc }} à {{ end_indexc }}
+
 <!-- Pagination des commandes -->
 <nav aria-label="Page navigation example mt-3">
   <ul class="pagination justify-content-end">
     <li class="page-item {% if not commandes_pagination.has_prev %}disabled{% endif %}">
-      <a class="page-link" {% if commandes_pagination.has_prev %}href="{{ url_for('article', commandes_page=commandes_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
+      <a class="page-link" {% if commandes_pagination.has_prev %}href="{{ url_for('article', commande_page=commandes_pagination.prev_num) }}"{% endif %}><i class="fa-solid fa-angles-left"></i></a>
     </li>
     {% for page_num in commandes_pagination.iter_pages() %}
       {% if page_num %}
         <li class="page-item {% if page_num == commandes_pagination.page %}active{% endif %}">
-          <a class="page-link"  href="{{ url_for('article', commandes_page=page_num) }}">{{ page_num }}</a>
+          <a class="page-link"  href="{{ url_for('article', commande_page=page_num) }}">{{ page_num }}</a>
         </li>
       {% else %}
         <li class="page-item disabled">
@@ -128,15 +148,18 @@
       {% endif %}
     {% endfor %}
     <li class="page-item {% if not commandes_pagination.has_next %}disabled{% endif %}">
-      <a class="page-link" {% if commandes_pagination.has_next %}href="{{ url_for('article', commandes_page=commandes_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+      <a class="page-link" {% if commandes_pagination.has_next %}href="{{ url_for('article', commande_page=commandes_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
     </li>
   </ul>
 </nav>
-</div>
 {% else %}
-<div class="card card-message">
-  <p>Vous n'avez aucune commande pour l'instant.</p>
-</div>{% endif %}
+<div class="alert-warning text-center">
+  Aucune commandes trouvées
+</div>
+</div>
+{% endif %}
+
+
 
 {% for commande in commandes %}
 <div class="modal fade" id="commandeDetailsModal-{{ commande.id }}" tabindex="-1" aria-labelledby="commandeDetailsModalLabel" aria-hidden="true">

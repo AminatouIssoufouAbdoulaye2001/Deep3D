@@ -95,9 +95,17 @@
     {{ form.submit(class="btn btn-outline-warning") }}
     <hr>
   </form>
+  <span class="col-md-6 mb-2" style="font-size: 20px;"> Liste des Articles</span>
 
+  <div class="card detail">
+    <form class="form-inline justify-content-end mb-3" method="get" action="{{ url_for('new_article') }}">
+      <div class="input-group">
+        <input class="form-control mr-sm-1" type="search" placeholder="Rechercher par SKU " aria-label="search_article" name="search_article">
+        <button type="submit" class="bto btn-primary"><i class="fa fa-search"></i></button>
+      </div>
+    </form>
   {% if articles %}
-      <div class="card detail">
+    
         <table id="user-table" class=" nowrap" cellspacing="2" width="100%">
           <thead>
             <tr>
@@ -138,7 +146,9 @@
           </tbody>
           
         </table>
-
+        <div class="mt-3">
+          Affichage des articles {{ start_index }} à {{ end_index }}
+        </div>
           <!-- Pagination -->
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
@@ -161,12 +171,14 @@
               </li>
             </ul>
           </nav>
-      </div>
-      {% endif %}
      
+    {% else %}
+      <!-- Message affiché si aucun article n'est trouvé -->
+  <div class="alert-warning text-center">
+    Aucun article trouvé.
+  </div>
 </div>
-
-
+{% endif %}
 {% for article in articles %}
 <div class="modal fade" id="editModal{{article.id}}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
   aria-hidden="true">

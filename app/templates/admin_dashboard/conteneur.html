@@ -100,18 +100,18 @@
             </form>
         </div>
     </div>
+
+<h2>Liste des conteneurs</h2> 
+    <div class="card card-affichage-conteneur mt-3">
+
+      <form class="form-inline justify-content-end" method="get" action="{{ url_for('new_conteneur') }}">
+        <div class="input-group mt-3" style="margin: 10px;">
+          <input class="form-control mr-sm-1" type="search" placeholder="Rechercher par type de conteneur" aria-label="search_conteneur" name="search_conteneur">
+          <button type="submit" class="bto btn-primary"><i class="fa fa-search"></i></button>
+        </div>
+    </form>
+
     {% if conteneurs %}
-    <div class="card card-affichage-conteneur mt-4">
-      <div class="card-header">
-        Liste des Conteneurs
-        <form class="form-inline justify-content-end" method="get" action="{{ url_for('new_conteneur') }}">
-          <div class="input-group">
-            <input class="form-control mr-sm-1" type="search" placeholder="Rechercher par type de conteneur" aria-label="search_conteneur" name="search_conteneur">
-            <button type="submit" class="bto btn-primary"><i class="fa fa-search"></i></button>
-          </div>
-      </form>
-    </div>
-    
         <div class="card-body">
             <table class="table">
                 <thead>
@@ -142,7 +142,7 @@
                               data-largeur="{{ conteneur.largeur }}" data-longueur="{{ conteneur.longueur }}"
                               data-hauteur="{{ conteneur.hauteur }}" data-quantite="{{ conteneur.quantite }}"
                               data-Poid_maximal="{{ conteneur.Poid_maximal }}" data-prix="{{ conteneur.prix }}"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button type="button" class="btn-danger bto btn-sm m-1 delete"  data-toggle="modal"
+                            <button type="button" class="bto btn-sm m-1 delete" style="background-color: #49495E; color: white;"  data-toggle="modal"
                               data-target="#deleteModal{{conteneur.id}}"><i class="fa-solid fa-trash"></i></button>
                              
                           </td>
@@ -150,7 +150,11 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div class="card-footer">
+      
+              <div>
+                Affichage des conteneurs {{ start_index }} à {{ end_index }}
+              </div>
+           
               <!-- Pagination des conteneurs -->
               <nav aria-label="Page navigation example mt-3">
                 <ul class="pagination justify-content-end">
@@ -169,16 +173,21 @@
                     {% endif %}
                   {% endfor %}
                   <li class="page-item {% if not conteneurs_pagination.has_next %}disabled{% endif %}">
-                    <a class="page-link" {% if conteneurs_pagination.has_next %}href="{{ url_for('new_conteneur', conteneurs_page=conteneurs_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i></a>
+                    <a class="page-link" {% if conteneurs_pagination.has_next %}href="{{ url_for('new_conteneur', conteneurs_page=conteneurs_pagination.next_num) }}"{% endif %}><i class="fa-solid fa-angles-right"></i> 
+                  
+                    </a>
                   </li>
                 </ul>
-              </nav>
-          </div>
-          
+              </nav>          
         </div>
     </div>
-    {% endif %}
+    {%else%}
+    <div class="alert-warning text-center">
+      Aucun conteneur trouvé
+    </div>
 </div>
+    {% endif %}
+
 
 {% for conteneur in conteneurs %}
 <div class="modal fade" id="editModal{{conteneur.id}}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"

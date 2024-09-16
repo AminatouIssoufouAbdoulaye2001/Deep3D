@@ -1,5 +1,5 @@
 Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
-1,carton,50,30,20,10,5.99,20
+1,carton,40,30,20,10,5.99,1
 2,palette,60,40,30,20,7.99,15
 3,caisse,70,50,40,25,9.99,10
 4,carton,40,25,15,8,4.99,25
@@ -8,7 +8,7 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 7,carton,55,35,25,12,6.49,18
 8,palette,65,45,35,22,8.49,12
 9,conteneur,75,55,45,27,10.49,8
-10,carton,45,28,18,9,5.49,22
+10,carton,45,28,20,9,5.49,22
 11,palette,85,65,55,32,13.49,4
 12,caisse,35,22,12,6,4.49,28
 13,carton,50,30,20,10,5.99,20
@@ -20,7 +20,6 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 19,carton,55,35,25,12,6.49,18
 20,palette,65,45,35,22,8.49,12
 21,caisse,75,55,45,27,10.49,8
-22,carton,45,28,18,9,5.49,22
 23,conteneur,85,65,55,32,13.49,4
 24,carton,35,22,12,6,4.49,28
 25,palette,50,30,20,10,5.99,20
@@ -32,7 +31,6 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 31,caisse,55,35,25,12,6.49,18
 32,conteneur,65,45,35,22,8.49,12
 33,palette,75,55,45,27,10.49,8
-34,carton,45,28,18,9,5.49,22
 35,conteneur,85,65,55,32,13.49,4
 36,caisse,35,22,12,6,4.49,28
 37,palette,50,30,20,10,5.99,20
@@ -44,7 +42,6 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 43,carton,55,35,25,12,6.49,18
 44,conteneur,65,45,35,22,8.49,12
 45,palette,75,55,45,27,10.49,8
-46,carton,45,28,18,9,5.49,22
 47,conteneur,85,65,55,32,13.49,4
 48,caisse,35,22,12,6,4.49,28
 49,palette,50,30,20,10,5.99,20
@@ -56,7 +53,6 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 55,carton,55,35,25,12,6.49,18
 56,conteneur,65,45,35,22,8.49,12
 57,palette,75,55,45,27,10.49,8
-58,carton,45,28,18,9,5.49,22
 59,conteneur,85,65,55,32,13.49,4
 60,caisse,35,22,12,6,4.49,28
 61,carton,50,30,20,10,5.99,20
@@ -68,7 +64,6 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 67,caisse,55,35,25,12,6.49,18
 68,conteneur,65,45,35,22,8.49,12
 69,palette,75,55,45,27,10.49,8
-70,carton,45,28,18,9,5.49,22
 71,conteneur,85,65,55,32,13.49,4
 72,caisse,35,22,12,6,4.49,28
 73,palette,50,30,20,10,5.99,20
@@ -80,7 +75,6 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 79,caisse,55,35,25,12,6.49,18
 80,conteneur,65,45,35,22,8.49,12
 81,palette,75,55,45,27,10.49,8
-82,carton,45,28,18,9,5.49,22
 83,conteneur,85,65,55,32,13.49,4
 84,caisse,35,22,12,6,4.49,28
 85,carton,50,30,20,10,5.99,20
@@ -92,10 +86,10 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 91,carton,55,35,25,12,6.49,18
 92,conteneur,65,45,35,22,8.49,12
 93,palette,75,55,45,27,10.49,8
-94,carton,45,28,18,9,5.49,22
+94,carton,45,28,20,9,5.49,22
 95,conteneur,85,65,55,32,13.49,4
 96,caisse,35,22,12,6,4.49,28
-97,palette,50,30,20,10,5.99,20
+97,palette,50,30,18,10,5.99,20
 98,carton,60,40,30,20,7.99,15
 99,conteneur,70,50,40,25,9.99,10
 100,carton,40,25,15,8,4.99,25
@@ -103,8 +97,8 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 102,carton,50,30,25,7,100,1
 103,carton,60,40,50,15,100,1
 104,carton,50,40,50,15,100,1
-105,conteneur,25,19,37,69,54.79,6
-106,pallet,200,100,150,500,1000,1
+105,conteneur,50,19,40,69,54.79,6
+106,pallet,200,100,150,25,1000,1
 107,carton,120,75,150,120,15.99,10
 108,palette,300,120,200,180,25.99,5
 109,caisse,450,190,250,170,35.99,3
@@ -114,7 +108,7 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 113,carton,250,130,180,110,22.99,7
 114,palette,300,140,210,160,28.99,6
 115,conteneur,380,270,330,190,33.99,3
-116,carton,100,80,130,105,18.99,9
+116,carton,80,70,130,105,18.99,9
 117,carton,500,300,400,500,18.99,9
 118,palette,300,120,200,500,25.99,5
 119,caisse,450,190,250,600,35.99,3
@@ -203,3 +197,8 @@ Index,Type,Longueur,Largeur,Hauteur,Poids_max,Prix,Quantite
 202,carton,61.0,50.0,50.0,50.0,30.0,1
 204,carton,55.0,55.0,55.0,30.0,30.0,1
 205,carton,60.0,60.0,60.0,30.0,50.0,1
+206,carton,170.0,100.0,90.0,100.0,100.0,1
+207,carton,230.0,200.0,180.0,100.0,200.0,1
+208,conteneur,340.0,200.0,200.5,200.0,270.0,2
+209,conteneur,150.0,100.0,100.0,50.0,50.0,1
+210,carton,40.0,30.0,130.0,25.0,36.0,1
