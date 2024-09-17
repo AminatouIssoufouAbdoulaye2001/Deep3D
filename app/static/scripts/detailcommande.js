@@ -207,10 +207,8 @@ $(document).ready(function() {
                 tableHtml += '<iframe src="static/images/images_emballage/viz_carton' + data[0][headers1.id_bin] + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; border:none;"></iframe>';
 
                 //tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.GIF" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
-               //tableHtml += '<video controls style="width:850px; height:600px;"><source src="static/images/images_emballage/viz_carton' + str(data[0][headers1.id_bin]) + '.mp4" type="video/mp4">Your browser does not support the video tag.</video>'
 
-   
-               // tableHtml += '<img src="static/images/vtk_images/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
+                //tableHtml += '<img src="static/images/images_emballage/viz_carton'+data[0][headers1.id_bin]+'.png" class="text-nowrap" data-images-box-id="#box1" style="text-decoration: none; color: #49495e; width:100%; height:800px;">';
                 
                 tableHtml += '</div>';
                 tableHtml += '</div>';

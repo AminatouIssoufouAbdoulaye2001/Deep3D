@@ -67,7 +67,6 @@ def view(pred, df_article, df_carton):
     })
     return res
 
-
 def visualize_packing1(df):
     list_carton = list(pd.unique(df['ID Carton']))
     results = []
@@ -160,28 +159,31 @@ def visualize_packing(df, id_carton):
     articles = list(df[['Longueur Article (cm)', 'Largeur Article (cm)', 'Hauteur Article (cm)']].itertuples(index=False, name=None))
     
     carton_orientations = list(permutations(carton_dims))
-
-    # Utiliser le multiprocessing pour accélérer le traitement des orientations
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        results = list(executor.map(process_orientation, [(articles, orientation) for orientation in carton_orientations]))
-
-    best_result = max(results, key=lambda x: (len(x[0]), x[1]))
-    best_placed_articles, best_volume_utilisé, best_orientation = best_result
+    best_orientation = None
+    best_volume_utilisé = 0
+    best_placed_articles = []
+    
+    for orientation in carton_orientations:
+        placed_articles, volume_utilisé = pack_articles(articles, *orientation)
+        if len(placed_articles) > len(best_placed_articles) or (len(placed_articles) == len(best_placed_articles) and volume_utilisé > best_volume_utilisé):
+            best_orientation = orientation
+            best_volume_utilisé = volume_utilisé
+            best_placed_articles = placed_articles
     
     carton_length, carton_width, carton_height = best_orientation
     
-    # Créer la figure Plotly
     fig = go.Figure()
-
-    # Ajouter le carton (boîte transparente)
     fig.add_trace(draw_parallelepiped(0, 0, 0, carton_length, carton_width, carton_height, 'rgba(200, 200, 200, 0.1)'))
 
-    # Ajouter les articles placés
-    for article in best_placed_articles:
-        x, y, z, dx, dy, dz = article['position']
-        fig.add_trace(draw_parallelepiped(x, y, z, dx, dy, dz, random_color()))
+    placed_articles_count = 0
+    for i, article in enumerate(articles):
+        if placed_articles_count < len(best_placed_articles) and article == best_placed_articles[placed_articles_count]['dimensions']:
+            x, y, z, dx, dy, dz = best_placed_articles[placed_articles_count]['position']
+            fig.add_trace(draw_parallelepiped(x, y, z, dx, dy, dz, random_color()))
+            placed_articles_count += 1
+        else:
+            print(f"Article {i+1} ne peut pas être emballé.")
 
-    # Configurer la mise en page
     fig.update_layout(
         scene=dict(
             xaxis=dict(range=[0, carton_length], showticklabels=False, title='X (cm)'),
@@ -189,7 +191,7 @@ def visualize_packing(df, id_carton):
             zaxis=dict(range=[0, carton_height], showticklabels=False, title='Z (cm)'),
             aspectmode='data'
         ),
-        title=f'Visualisation de l\'emballage dans le carton {id_carton} (Articles placés: {len(best_placed_articles)}/{nb_articles})',
+        title=f'Visualisation de l\'emballage dans le carton {id_carton} (Articles placés: {placed_articles_count}/{nb_articles})',
         margin=dict(r=20, l=10, b=10, t=40),
         annotations=[
             dict(
@@ -203,25 +205,13 @@ def visualize_packing(df, id_carton):
         ]
     )
 
-    # Optimiser les paramètres de la caméra
     fig.update_layout(scene_camera=dict(eye=dict(x=1.5, y=1.5, z=1.5)))
-
-    # Réduire la qualité du rendu pour des performances accrues
-    fig.update_layout(scene=dict(
-        xaxis=dict(nticks=5),
-        yaxis=dict(nticks=5),
-        zaxis=dict(nticks=5)
-    ))
-
-    # Sauvegarder la visualisation
-    fig.write_html(f"app/static/images/images_emballage/viz_carton{id_carton}.html", 
-                   include_plotlyjs='cdn',  # Utiliser CDN pour plotly.js
-                   full_html=False)  # Ne pas inclure le HTML complet
+    fig.write_html(f"app/static/images/images_emballage/viz_carton{id_carton}.html")
 
     return {
         'carton_id': id_carton,
         'carton_dimensions': best_orientation,
-        'articles_placés': len(best_placed_articles),
+        'articles_placés': placed_articles_count,
         'total_articles': nb_articles,
         'volume_utilisé': best_volume_utilisé
     }
