@@ -20,7 +20,7 @@ class RegistrationForm(FlaskForm):
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if user:
-            raise ValidationError('That email is taken. Please choose a different one.')
+            raise ValidationError('Cette adresse e-mail est déjà prise. Veuillez en choisir une autre.')
         
     def validate_mot_de_passe(form, field):
         mot_de_passe = field.data
@@ -35,7 +35,7 @@ class RegistrationForm(FlaskForm):
         
 
 class LoginForm(FlaskForm):
-    email = StringField('email', validators=[DataRequired(), Email()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     mot_de_passe = PasswordField('Mot de passe', validators=[DataRequired()])
     remember = BooleanField('Rappel Moi')
     submit = SubmitField('Connexion')
@@ -97,6 +97,22 @@ class ArticleForm(FlaskForm):
         if self.longueur.data < self.largeur.data:
             self.longueur.errors.append("La longueur doit être supérieure à la largeur.")
             return False
+        # Validation des valeurs négatives
+        if self.longueur.data < 0:
+            self.longueur.errors.append("La longueur ne peut pas être négative.")
+            return False
+        if self.largeur.data < 0:
+            self.largeur.errors.append("La largeur ne peut pas être négative.")
+            return False
+        if self.hauteur.data < 0:
+            self.hauteur.errors.append("La hauteur ne peut pas être négative.")
+            return False
+        if self.poids.data < 0:
+            self.poids.errors.append("Le poids ne peut pas être négatif.")
+            return False
+        if self.quantite.data < 0:
+            self.quantite.errors.append("La quantité ne peut pas être négatif.")
+            return False
 
         # Validation du SKU
         existing_article = Article.query.filter_by(sku=self.sku.data, user_id=current_user.id).first()
@@ -104,8 +120,8 @@ class ArticleForm(FlaskForm):
             self.sku.errors.append('Cet SKU existe déjà pour un autre article. Veuillez en choisir un autre.')
             return False
 
-        # Validation des dimensions
-        existing_article = Article.query.filter_by(
+            # Validation des dimensions
+        '''existing_article = Article.query.filter_by(
             largeur=self.largeur.data,
             longueur=self.longueur.data,
             hauteur=self.hauteur.data,
@@ -113,7 +129,8 @@ class ArticleForm(FlaskForm):
         ).first()
         if existing_article:
             flash('Un article avec les mêmes dimensions existe déjà.', 'error')
-            return False
+            return False'''
+
 
         return True
 
@@ -147,6 +164,29 @@ class ConteneurForm(FlaskForm):
         ).first()
         if existing_conteneur:
             flash('Un conteneur avec les mêmes dimensions existe déjà.', 'error')
+            return False
+                # Validation de la longueur par rapport à la largeur
+        if self.longueur.data < self.largeur.data:
+            self.longueur.errors.append("La longueur doit être supérieure à la largeur.")
+            return False
+        # Validation des valeurs négatives
+        if self.longueur.data < 0:
+            self.longueur.errors.append("La longueur ne peut pas être négative.")
+            return False
+        if self.largeur.data < 0:
+            self.largeur.errors.append("La largeur ne peut pas être négative.")
+            return False
+        if self.hauteur.data < 0:
+            self.hauteur.errors.append("La hauteur ne peut pas être négative.")
+            return False
+        if self.Poid_maximal.data < 0:
+            self.Poid_maximal.errors.append("Le poids ne peut pas être négatif.")
+            return False
+        if self.quantite.data < 0:
+            self.quantite.errors.append("La quantité ne peut pas être négatif.")
+            return False
+        if self.prix.data < 0:
+            self.prix.errors.append("Le prix ne peut pas être négatif.")
             return False
         return True
 
@@ -195,9 +235,9 @@ class UpdateArticleForm(FlaskForm):
         return True
 
 class RequestResetForm(FlaskForm):
-    email = StringField('Adress email',
+    email = StringField('Email',
                         validators=[DataRequired(), Email()])
-    submit = SubmitField('Changé mot de passe')
+    submit = SubmitField('Envoyer')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()

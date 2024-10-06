@@ -9,6 +9,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SECRET_KEY'] = 'Amina2023'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

@@ -4,6 +4,7 @@ import datetime
 from datetime import timedelta
 import sys
 import os
+from functools import wraps
 import secrets
 from PIL import Image
 from flask import abort, g, jsonify, render_template, session, url_for, flash, redirect, request,Response
@@ -42,9 +43,19 @@ def home():
 def about():
 
     return render_template('user_dashboard/about.html')
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Vérification si l'utilisateur est connecté et est admin
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash("Vous n'avez pas la permission d'accéder à cette page.", "danger")
+            return redirect(url_for('login'))  # Redirection vers la page de login si non admin
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route("/acceuil_admin")
 @login_required
+@admin_required
 def acceuil_admin():
     some_threshold = 4
     nombres_commandes = Commande.query.count()
@@ -58,7 +69,7 @@ def acceuil_admin():
     total_emballe, total_attente = fetch_commandes_status_totals()
     # Récupérer les données
     nombre_commandes = fetch_commandes_par_client()
-
+    
     colors = ['#49895E' if val <= some_threshold else '#ebab54' for val in nombre_commandes]
 
     fig = go.Figure(data=[go.Histogram(x=nombre_commandes, nbinsx=20, marker=dict(color=colors),
@@ -413,6 +424,7 @@ def download_articles():
 
 @app.route("/download_conteneur", methods=['POST'])
 @login_required
+@admin_required
 def download_conteneur():
     selected_conteneur_ids = request.form.getlist('selected_conteneurs')
 
@@ -558,7 +570,8 @@ def details_commande(commande_id):
 
 #Création du conteneur
 
-@app.route("/new_conteneur", methods=['GET', 'POST'])
+@app.route("/admin/new_conteneur", methods=['GET', 'POST'])
+@admin_required
 @login_required
 def new_conteneur():
     form = ConteneurForm()
@@ -710,8 +723,9 @@ def article():
     )
 
 
-@app.route("/list_cients")
+@app.route("/admin/list_cients")
 @login_required
+@admin_required
 def list_clients():
     search = request.args.get('search')
     users_page = request.args.get('users_page', 1, type=int)
@@ -730,8 +744,9 @@ def list_clients():
     total_clients = users_pagination.items
 
     return render_template('admin_dashboard/list_clients.html', users_pagination=users_pagination,pagination_args=pagination_args, total_clients=total_clients)
-@app.route("/list_commandes")
+@app.route("/admin/list_commandes")
 @login_required
+@admin_required
 def list_commandes():
     search_commande = request.args.get('search_commande')
     commandes_page = request.args.get('commandes_page', 1, type=int)
@@ -814,6 +829,7 @@ def pack_articles():
 
     # Process and pack the articles using your Python logic
     pack_articles, non_pack_articles = model_pack_articles(articles)
+
     pack_articles["nb_bin"] = len(list(pack_articles["ID Carton"].unique()))
     
     result = pack_articles.to_dict(orient='records')
@@ -827,6 +843,7 @@ def pack_articles():
         dict_non_pack['sku'] = list(non_pack_articles.sku)
         dict_non_pack['Quantite_key'] = list(non_pack_articles.Quantite_key)
         result.append(dict_non_pack)
+
 
 
     # Return a response indicating success or failure
@@ -956,6 +973,7 @@ def account():
 #Mises à jour du compte Admin
 @app.route("/admin/account", methods=['GET', 'POST'])
 @login_required
+@admin_required
 def account_admin():
     existing_address = Adresse.query.filter_by(user_id=current_user.id).first()
     form_account = UpdateAccountForm()

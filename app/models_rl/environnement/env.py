@@ -1,6 +1,7 @@
 
 import numpy as np
 
+#ranger les dimension en ordre:enlever les dimension de l'articles precedent.
 def median_index(lst):
     # Create a list of tuples (element, index)
     indexed_lst = [(value, index) for index, value in enumerate(lst)]

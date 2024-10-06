@@ -1,6 +1,7 @@
 {% extends 'admin_dashboard/layout.html' %}
 {% block content %}
 {% if current_user.is_admin %}
+
 <h2 style="    margin-top: 20px; margin-bottom: -10px;">Liste des commandes</h2>
 <div class="container mt-4">
     <form method="GET" action="{{ url_for('list_commandes') }}" class="mb-3">
@@ -80,7 +81,7 @@
     </nav>
     </div>
     {% else %}
-      <!-- Message affiché si aucun article n'est trouvé -->
+      <!-- Message affiché si aucune commande n'est trouvée -->
   <div class="alert-warning text-center">
     Aucune commandes trouvées.
   </div>
@@ -142,7 +143,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-        <button type="button" class="btn btn-primary" id="saveButton" data-commande-id="">Enregistrer</button>
+        <button type="button" class="btn btn-primary" id="saveButton" data-commande-id="">Valider</button>
     </div>
     </div>
   </div>
@@ -150,6 +151,9 @@
 
 <script src="{{ url_for('static', filename='scripts/detailcommande.js') }}"></script>
 {%endif%}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.min.js"></script>
+
 {% endblock %}

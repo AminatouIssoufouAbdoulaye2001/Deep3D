@@ -3,12 +3,14 @@
 <div class="mx-3">
     <div class="section-sign_in">
         <div class="custom-container">
-            <h1 class="header">Reset Password</h1>
+            <h1 class="header">Mot de passe oublié</h1>
         </div>
         <div class="custom-container">
             <div class="card card-reset-request">
                 <div class="row card-contain">
                         <div class="col registration-left">
+                            <h6 style="    margin: 30px; margin-bottom: 10px;">Veuillez saisir votre adresse e-mail et nous vous enverrons un lien de réinitialisation de mot de passe</h6>
+
                             <form class="form-content" method="POST">
                                 {{ form.hidden_tag() }}
                                 <div class="form-group">
@@ -30,6 +32,10 @@
                                             {{ form.submit(class="btn btn-outline-info") }}
                                         </div>
                                     </div>
+                                </div>
+                                <div class="pt-1">
+                                    Vous vous souvenez de votre mot de passe?
+                                    <a class="ml-2 link" href="{{ url_for('login') }}">Se connecter</a>
                                 </div>
                         </form>
                     </div>
