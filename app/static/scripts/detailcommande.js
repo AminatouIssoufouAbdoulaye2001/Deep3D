@@ -237,89 +237,26 @@ $(document).ready(function() {
                     tableHtml += '<tr><td>Type bin :</td><td class="text-right font-weight-bold">'+containerData[headers1.bin_type]+'</td></tr>';
                     tableHtml += '</table>';
                     tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
-                    tableHtml += '<iframe src="/static/images/images_emballage/viz_carton' + containerId + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; border:none;"></iframe>';
+                    //tableHtml += '<iframe src="/static/images/images_emballage/viz_carton' + containerId + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; border:none;"></iframe>';
+                    tableHtml += '<img src="/static/images/images_emballage/viz_carton' + containerId + '_animated.gif" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; object-fit:contain;">';
                     tableHtml += '</div>';
-                    
-                    // Ajout du bouton de téléchargement du rapport
-                    tableHtml += '<div class="mt-3">';
-                    tableHtml += '<button class="btn btn-primary download-report" data-container-id="' + containerId + '">Télécharger le rapport</button>';
-                    tableHtml += '</div>';
-                    
                     tableHtml += '</div>';
                     tableHtml += '</div>';
                 });
-
+     
                 modalTable.html(tableHtml);
 
                 // Afficher la fenêtre modale
                 $('#myModal').modal('show');
-
-                // Gestion du clic sur le bouton de téléchargement du rapport
-                $('.download-report').click(function() {
-                    var containerId = $(this).data('container-id');
-                    var containerData = data.find(item => item[headers1.id_bin] === containerId);
-                    generatePDFReport(containerData, headers1);
-                });
-
-
             },
             error: function(error) {
                 console.log(error);
             }
-            });
         });
-
-
-    // Fonction pour générer et télécharger le rapport PDF
-    function generatePDFReport(containerData, headers1) {
-        // Créer une nouvelle instance de jsPDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Ajouter le contenu textuel au PDF
-        doc.setFontSize(16);
-        doc.text('Rapport d\'emballage', 105, 15, null, null, 'center');
-        doc.setFontSize(12);
-        doc.text('Conteneur ' + containerData[headers1.id_bin], 105, 25, null, null, 'center');
-
-        doc.setFontSize(10);
-        let yPosition = 40;
-        doc.text('Dimensions: ' + containerData[headers1.bin_L] + 'x' + containerData[headers1.bin_l] + 'x' + containerData[headers1.bin_h] + ' cm', 20, yPosition);
-        yPosition += 10;
-        doc.text('Espace occupé: ' + ((1 - parseFloat(containerData[headers1.esp_inoc]) / 100) * 100).toFixed(2) + '%', 20, yPosition);
-        yPosition += 10;
-        doc.text('Poids occupé: ' + ((1 - parseFloat(containerData[headers1.w_inoc]) / 100) * 100).toFixed(2) + '%', 20, yPosition);
-        yPosition += 10;
-        doc.text('Pile hauteur: ' + containerData[headers1.bin_L] + ' cm', 20, yPosition);
-        yPosition += 10;
-        doc.text('Poids maximum: ' + containerData[headers1.bin_poids_max] + ' kg', 20, yPosition);
-        yPosition += 10;
-        doc.text('Poids net: ' + containerData[headers1.items_weight] + ' kg', 20, yPosition);
-        yPosition += 10;
-        doc.text('Poids restant: ' + (containerData[headers1.bin_poids_max] - containerData[headers1.items_weight]).toFixed(2) + ' kg', 20, yPosition);
-        yPosition += 10;
-        doc.text('Type de conteneur: ' + containerData[headers1.bin_type], 20, yPosition);
-
-        // Capturer l'image de visualisation
-        var iframe = document.querySelector('iframe[src*="viz_carton' + containerData[headers1.id_bin] + '"]');
-        if (iframe) {
-            html2canvas(iframe.contentDocument.body).then(canvas => {
-                // Ajouter l'image au PDF
-                var imgData = canvas.toDataURL('image/png');
-                doc.addImage(imgData, 'PNG', 15, 120, 180, 120);
-
-                // Sauvegarder le PDF
-                doc.save('rapport_emballage_' + containerData[headers1.id_bin] + '.pdf');
-            });
-        } else {
-            // Si l'iframe n'est pas trouvée, sauvegarder le PDF sans l'image
-            doc.save('rapport_emballage_' + containerData[headers1.id_bin] + '.pdf');
-        }
-    }
-
-            // Lorsque le modal se ferme, recharge la page
-            $('#myModal').on('hidden.bs.modal', function () {
-                location.reload(); // Recharge la page pour afficher les modifications
-            });
-
-        });
+    });
+       // Lorsque le modal se ferme, recharge la page
+       $('#myModal').on('hidden.bs.modal', function () {
+        location.reload(); // Recharge la page pour afficher les modifications
+    });
+    
+});

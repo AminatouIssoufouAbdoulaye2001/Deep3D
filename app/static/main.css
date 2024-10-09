@@ -216,6 +216,7 @@ div .header {
 .card.assistant {
   width: 1100px;
   min-height: 550px;
+  height: 700px;
 }
 .card {
   position: relative;

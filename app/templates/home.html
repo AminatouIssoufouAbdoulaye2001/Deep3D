@@ -25,7 +25,7 @@
                           <div class="row">
                            
                             <div class="col-5 pl-lg-3 desktop">
-                              <img style="margin: 30px;" src="https://www.3dbinpacking.com/public/img/3dbp/assistant/start_1.svg" alt="">
+                              <img src="{{ url_for('static', filename='images/manbox2.png') }}" alt="Image de la boîte" class="img-fluid" style="width: 300px;margin: 30px;height: 450px;">>
                             </div>
                             <div class="col col-lg-7 d-flex align-items-start flex-column mb-3">
                               <h2 class="p-lg-4 pb-0">Hé! je suis Deep3DBP</h2>
@@ -34,10 +34,10 @@
                                 Confiez-nous vos produits, et nous les emballerons avec soin et <b>précision</b>, prêts à être expédiés en un rien de temps." 
                               </div>
                               <div class="mt-auto desktop">
-                                <img src="https://www.3dbinpacking.com/public/img/3dbp/assistant/start_2.svg" alt="">
+                              <img src="{{ url_for('static', filename='images/boximage.png') }}" alt="Image de la boîte"  class="img-fluid" style="width: 500px;">>
                               </div>
                             </div>
-                           
+                      
                           </div>
                         </div>
                       </div>
@@ -81,37 +81,5 @@
 </div>
 </div>
  </div> -->
- <div class="top-spacer"></div>
- <div class="container">
-   <div class="row align-items-center g-5">
-     <div class="col-lg-5">
-       <img src="https://www.3dbinpacking.com/public/img/3dbp/dashboard/pl/ilu-accuracy-and-reliability.svg" alt="..." class="img-fluid">
-   </div>
-     <div class="col-lg-7">
-       <h2>Introduction</h2>
-     This is some content from a media component. You can replace this with any content and adjust it as needed.
-     </div>
-   </div>
-   <div class="row align-items-center g-5 banner">
-     <div class="col-lg-10 offset-lg-1 p-5">
-       <h2>Banner Title</h2>
-       <p>Another featurette? Of course. More placeholder content here to give you an idea of how this layout would work with some actual real-world content in place.</p>
-     </div>
-   </div>
-     <div class="row align-items-center section">
-       <div class="col-lg-7 p-5">
-          <h2 class="float-end">Banner Title</h2>
-         <p class="float-end">Another featurette? Of course. More placeholder content here to give you an idea of how this layout would work with some actual real-world content in place.</p>
-       </div>
-       <div class="col-lg-5">
-         <img src="https://www.3dbinpacking.com/public/img/3dbp/dashboard/pl/ilu-save-the-environment-with-us.svg" class="img-fluid float-start" />
-       </div>
-     </div>
-   <div class="row align-items-center gx-5 banner-img">
-     <div class="col-lg-8 offset-lg-1 p-5">
-       <h2>Banner Title</h2>
-       <p>Another featurette? Of course. More placeholder content here to give you an idea of how this layout would work with some actual real-world content in place.</p>
-     </div>
-   </div>
- </div>
+
 {% endblock content %}

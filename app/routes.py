@@ -21,10 +21,7 @@ from flask_mail import Message
 import csv
 #bibliothéques pour les graphiques
 from io import StringIO
-from matplotlib import pyplot as plt
 from plotly.offline import plot
-import plotly.express as px
-import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
 from playsound import playsound
@@ -32,8 +29,8 @@ from app.models import *
 sys.path.append(os.path.join(os.path.dirname(__file__), 'app/models_rl'))
 from app.models_rl.bin import *
 
-number_articles_per_page = 5
-number_commandes_per_page = 5
+number_articles_per_page = 10
+number_commandes_per_page = 10
 
 @app.route("/")
 def home():
@@ -659,7 +656,7 @@ def article():
 
     # Pagination des articles
     page = request.args.get('page', 1, type=int)
-    number_articles_per_page = 5  # Nombre d'articles par page
+    number_articles_per_page = 40  # Nombre d'articles par page
     articles_query = Article.query.filter_by(user_id=current_user.id).order_by(Article.id.desc())
     articles_pagination = articles_query.paginate(page=page, per_page=number_articles_per_page, error_out=False)
     
@@ -674,7 +671,7 @@ def article():
     #total_comandes = Commande.query.filter_by(user_id=current_user.id).count()
     search_commandes = request.args.get('search_commandes')
     commande_page = request.args.get('commande_page', 1, type=int)
-    per_page = 5 
+    per_page = 5
             # Nombre d'éléments affichés
   
 
@@ -750,7 +747,7 @@ def list_clients():
 def list_commandes():
     search_commande = request.args.get('search_commande')
     commandes_page = request.args.get('commandes_page', 1, type=int)
-    per_page = 5 # Nombre d'items par page
+    per_page = 10 # Nombre d'items par page
     articles = current_user.articles
     #nombre_commandes=Commande.query.count
 
