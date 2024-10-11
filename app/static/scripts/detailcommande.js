@@ -236,8 +236,8 @@ $(document).ready(function() {
                     tableHtml += '<tr><td>poids restant :</td><td class="text-right font-weight-bold">'+poids_restant1+' [kg]</td></tr>';
                     tableHtml += '<tr><td>Type bin :</td><td class="text-right font-weight-bold">'+containerData[headers1.bin_type]+'</td></tr>';
                     tableHtml += '</table>';
-                    tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
-                    //tableHtml += '<iframe src="/static/images/images_emballage/viz_carton' + containerId + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; border:none;"></iframe>';
+                    //tableHtml += '<div class="d-flex my-3 py-2 bg-light border border-secondary-light rounded align-items-center">';
+                    tableHtml += '<iframe src="/static/images/images_emballage/viz_carton' + containerId + '.html" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; border:none;"></iframe>';
                     tableHtml += '<img src="/static/images/images_emballage/viz_carton' + containerId + '_animated.gif" class="text-nowrap" data-images-box-id="#box1" style="width:850px; height:600px; object-fit:contain;">';
                     tableHtml += '</div>';
                     tableHtml += '</div>';

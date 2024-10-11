@@ -284,7 +284,7 @@ def admin_dashboard():
     else:
         abort(403)  # Accès interdit pour les utilisateurs non-administrateurs
 #Fin connexion
-
+@app.route('/user/<int:user_id>/toggle_active', methods=['POST'])
 @login_required
 def toggle_user_active(user_id):
     user = User.query.get_or_404(user_id)
@@ -720,7 +720,7 @@ def article():
     )
 
 
-@app.route("/admin/list_cients")
+@app.route("/admin/list_clients")
 @login_required
 @admin_required
 def list_clients():
