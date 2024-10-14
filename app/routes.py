@@ -9,7 +9,6 @@ import secrets
 from PIL import Image
 from flask import abort, g, jsonify, render_template, session, url_for, flash, redirect, request,Response
 from flask_paginate import Pagination
-
 from sqlalchemy import  func
 from app import app, db, bcrypt, mail
 from app.forms import (ConteneurForm, RegistrationForm, LoginForm, UpdateAccountForm,
